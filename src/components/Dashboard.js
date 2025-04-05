@@ -137,7 +137,6 @@ function Dashboard({ onLogout }) {
            {activeModule !== 'Brgy Official' && (
              <div>
                <h2>{activeModule}</h2>
-               <p>Content for {activeModule} module goes here.</p>
              </div>
            )}
            {activeModule === 'Dashboard' && (
