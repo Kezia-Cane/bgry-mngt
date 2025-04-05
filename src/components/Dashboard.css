@@ -1,0 +1,85 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa; /* Lighter grey background */
+}
+
+.dashboard-header {
+  background-color: #343a40; /* Dark grey */
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.logout-button {
+  background-color: #dc3545; /* Red */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.logout-button:hover {
+  background-color: #c82333; /* Darker red */
+}
+
+.dashboard-nav {
+  background-color: #e9ecef; /* Light grey */
+  padding: 10px 30px;
+  border-bottom: 1px solid #dee2e6; /* Slightly darker grey border */
+}
+
+.dashboard-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 20px; /* Spacing between nav items */
+}
+
+.dashboard-nav li a {
+  text-decoration: none;
+  color: #007bff; /* Blue */
+  font-weight: 500;
+  padding: 5px 0;
+}
+
+.dashboard-nav li a:hover,
+.dashboard-nav li a:focus {
+  color: #0056b3; /* Darker blue */
+  text-decoration: underline;
+}
+
+.dashboard-content {
+  flex-grow: 1; /* Takes up remaining vertical space */
+  padding: 30px;
+}
+
+.dashboard-content h2 {
+  margin-top: 0;
+  color: #495057; /* Dark grey text */
+}
+
+.dashboard-footer {
+  background-color: #f1f1f1; /* Very light grey */
+  color: #6c757d; /* Medium grey text */
+  text-align: center;
+  padding: 15px 30px;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.9em;
+}
+
+.dashboard-footer p {
+  margin: 0;
+}
