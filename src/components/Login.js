@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './Login.css';
 
-function Login() {
+// Accept onLoginSuccess as a prop
+function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -9,7 +10,15 @@ function Login() {
     event.preventDefault();
     // Handle login logic here (e.g., API call)
     console.log('Login attempt with:', { username, password });
-    alert(`Login attempt with Username: ${username}`); // Placeholder action
+    // alert(`Login attempt with Username: ${username}`); // Placeholder action - removed alert
+
+    // Simulate successful login for now
+    // In a real app, this would be called after verifying credentials
+    if (username && password) { // Basic check: ensure fields are not empty
+        onLoginSuccess(); // Call the function passed from App.js
+    } else {
+        alert('Please enter username and password.'); // Simple validation feedback
+    }
   };
 
   return (
