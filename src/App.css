@@ -1,6 +1,6 @@
-.App {
+/* .App {
   text-align: center;
-}
+} */
 
 .App-logo {
   height: 40vmin;
@@ -13,6 +13,8 @@
   }
 }
 
+/* Commenting out default App-header styles as they conflict with dashboard layout */
+/*
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -23,9 +25,10 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+*/
 
 .App-link {
-  color: #61dafb;
+  color: #61dafb; /* This might still be used elsewhere, keeping it */
 }
 
 @keyframes App-logo-spin {
