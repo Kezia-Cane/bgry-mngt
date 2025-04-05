@@ -21,7 +21,7 @@ function Dashboard({ onLogout }) {
   // In a real app, user info and permissions would determine which modules are shown
   // const { user } = useAuth(); // Example of getting user context
   // Placeholder for active module state
-  const [activeModule, setActiveModule] = React.useState('Brgy Official'); // Default to Brgy Official as per image
+  const [activeModule, setActiveModule] = React.useState('Dashboard'); // Default to Dashboard
 
   // Placeholder data for the table
   const officials = [
@@ -152,21 +152,13 @@ function Dashboard({ onLogout }) {
                   <p>12</p> {/* Placeholder */}
                 </div>
                 <div className="overview-card">
-                  <h3>New Blotter Cases (Last 30 Days)</h3>
+                  <h3>New Blotter Cases </h3>
                   <p>5</p> {/* Placeholder */}
                 </div>
                 <div className="overview-card">
-                  <h3>Certificates Issued (Last 30 Days)</h3>
+                  <h3>Certificates Issued</h3>
                   <p>25</p> {/* Placeholder */}
                 </div>
-              </div>
-              {/* Quick Links to Modules */}
-              <h3>Quick Links</h3>
-              <div className="quick-links">
-                <a href="/officials">Brgy Officials</a>
-                <a href="/residents">Residents</a>
-                <a href="/blotter">Blotter Records</a>
-                <a href="/certificates">Certificates</a>
               </div>
             </div>
           )}
