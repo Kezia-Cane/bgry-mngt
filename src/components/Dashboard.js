@@ -16,8 +16,8 @@ import {
 // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
-function Dashboard() {
-  // In a real app, user info and permissions would determine which modules are shown
+// Accept onLogout prop
+function Dashboard({ onLogout }) {
   // In a real app, user info and permissions would determine which modules are shown
   // const { user } = useAuth(); // Example of getting user context
   // Placeholder for active module state
@@ -64,8 +64,9 @@ function Dashboard() {
             <li className={activeModule === 'Admin' ? 'active' : ''} onClick={() => setActiveModule('Admin')}>
               <FaUserCog /> <span>Admin</span>
             </li>
-            <li>
-              <FaSignOutAlt /> <span>Logout</span> {/* Add onClick handler later */}
+            {/* Attach onLogout to onClick */}
+            <li onClick={onLogout}>
+              <FaSignOutAlt /> <span>Logout</span>
             </li>
           </ul>
         </nav>
@@ -139,6 +140,37 @@ function Dashboard() {
                <p>Content for {activeModule} module goes here.</p>
              </div>
            )}
+           {activeModule === 'Dashboard' && (
+            <div className="dashboard-overview">
+              <h2>Dashboard Overview</h2>
+              <div className="overview-cards">
+                <div className="overview-card">
+                  <h3>Total Residents</h3>
+                  <p>150</p> {/* Placeholder */}
+                </div>
+                <div className="overview-card">
+                  <h3>Active Officials</h3>
+                  <p>12</p> {/* Placeholder */}
+                </div>
+                <div className="overview-card">
+                  <h3>New Blotter Cases (Last 30 Days)</h3>
+                  <p>5</p> {/* Placeholder */}
+                </div>
+                <div className="overview-card">
+                  <h3>Certificates Issued (Last 30 Days)</h3>
+                  <p>25</p> {/* Placeholder */}
+                </div>
+              </div>
+              {/* Quick Links to Modules */}
+              <h3>Quick Links</h3>
+              <div className="quick-links">
+                <a href="/officials">Brgy Officials</a>
+                <a href="/residents">Residents</a>
+                <a href="/blotter">Blotter Records</a>
+                <a href="/certificates">Certificates</a>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
