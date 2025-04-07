@@ -136,7 +136,7 @@ function Dashboard({ onLogout }) {
            {/* Add conditional rendering for other modules here */}
            {activeModule !== 'Brgy Official' && (
              <div>
-               <h2>{activeModule}</h2>
+
              </div>
            )}
            {activeModule === 'Dashboard' && (
