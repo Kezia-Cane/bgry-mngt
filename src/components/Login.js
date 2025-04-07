@@ -26,7 +26,7 @@ function Login({ onLoginSuccess }) {
       <form onSubmit={handleSubmit} className="login-form">
         <h2>Login</h2>
         <div className="form-group">
-          <label htmlFor="username">Username or Email:</label>
+          <label htmlFor="username">Username</label>
           <input
             type="text"
             id="username"
@@ -36,7 +36,7 @@ function Login({ onLoginSuccess }) {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"

@@ -141,7 +141,6 @@ function Dashboard({ onLogout }) {
            )}
            {activeModule === 'Dashboard' && (
             <div className="dashboard-overview">
-              <h2>Dashboard Overview</h2>
               <div className="overview-cards">
                 <div className="overview-card">
                   <h3>Total Residents</h3>
@@ -159,6 +158,68 @@ function Dashboard({ onLogout }) {
                   <h3>Certificates Issued</h3>
                   <p>25</p> {/* Placeholder */}
                 </div>
+              </div>
+            </div>
+          )}
+          {activeModule === 'Resident' && (
+            <div>
+              <div className="content-title-bar">
+                 <h2>Resident</h2>
+                 <div className="search-section">
+                    <label htmlFor="search-type">Search Type:</label>
+                    <select id="search-type" defaultValue="last name">
+                        <option value="last name">Last name</option>
+                        <option value="first name">First name</option>
+                        <option value="address">Address</option>
+                    </select>
+                    <input type="text" placeholder="Search..." />
+                    <button className="search-button"><FaSearch /></button>
+                 </div>
+              </div>
+
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Full name</th>
+                      <th>Gender</th>
+                      <th>Age</th>
+                      <th>Address</th>
+                      <th>Contact Number</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Placeholder Resident Data */}
+                    <tr>
+                      <td>John Doe</td>
+                      <td>Male</td>
+                      <td>30</td>
+                      <td>123 Main St</td>
+                      <td>555-1234</td>
+                      <td className="action-buttons">
+                        <button title="View"><FaEye /></button>
+                        <button title="Edit"><FaEdit /></button>
+                        <button title="Delete"><FaTrash /></button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Jane Smith</td>
+                      <td>Female</td>
+                      <td>25</td>
+                      <td>456 Oak Ave</td>
+                      <td>555-5678</td>
+                      <td className="action-buttons">
+                        <button title="View"><FaEye /></button>
+                        <button title="Edit"><FaEdit /></button>
+                        <button title="Delete"><FaTrash /></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="content-footer">
+                 <button className="print-button"><FaPrint /> Print</button>
               </div>
             </div>
           )}
