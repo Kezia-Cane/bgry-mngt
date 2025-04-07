@@ -91,7 +91,7 @@
 }
 
 .content-area {
-  padding: 30px;
+  padding: 10px;
   flex-grow: 1;
   background-color: #ffffff; /* White content background */
   margin: 20px; /* Add margin around content area */
@@ -250,7 +250,7 @@ table tbody tr:hover {
 
 /* Dashboard Overview Styles */
 .dashboard-overview {
-  padding: 30px;
+  padding: px;
 }
 
 .overview-cards {
@@ -264,9 +264,9 @@ table tbody tr:hover {
 .overview-card {
   background-color: #fff;
   border-radius: 10px;
-  padding: 55px;
+  padding: 30px;
   width: 200px; /* Fixed width for horizontal cards */
-  min-width: 200px; /* Ensure cards don't shrink */
+  min-width: 100px; /* Ensure cards don't shrink */
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
