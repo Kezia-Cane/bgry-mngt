@@ -193,7 +193,8 @@ function Dashboard({ onLogout }) {
             activeModule !== "Resident" &&
             activeModule !== "Blotter" &&
             activeModule !== "Certificate" &&
-            activeModule !== "About" && (
+            activeModule !== "About" &&
+            activeModule !== "Admin" && ( // Exclude Admin as well
               <div>
                 <h2>{activeModule}</h2>{" "}
                 {/* Keep title for Admin or other future modules */}
@@ -516,6 +517,96 @@ function Dashboard({ onLogout }) {
               </p>
               {/* Add more details if needed, e.g., version, contact */}
               <p>Version: 1.0.0 (Placeholder)</p>
+            </div>
+          )}
+          {/* Add specific rendering for Admin module */}
+          {activeModule === "Admin" && (
+            <div className="admin-section">
+              <h2>Admin Panel</h2>
+
+              {/* User Management Section */}
+              <div className="dashboard-section">
+                <h3>User Management</h3>
+                <div
+                  className="content-footer"
+                  style={{
+                    justifyContent: "flex-start",
+                    borderTop: "none",
+                    paddingTop: "0",
+                    marginBottom: "15px",
+                  }}
+                >
+                  <button className="add-user-button">Add New User</button>
+                </div>
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Placeholder User Data */}
+                      <tr>
+                        <td>admin_user</td>
+                        <td>Admin</td>
+                        <td>Active</td>
+                        <td className="action-buttons">
+                          <button title="Edit">
+                            <FaEdit />
+                          </button>
+                          <button title="Delete">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>staff_user1</td>
+                        <td>Staff</td>
+                        <td>Active</td>
+                        <td className="action-buttons">
+                          <button title="Edit">
+                            <FaEdit />
+                          </button>
+                          <button title="Delete">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>staff_user2</td>
+                        <td>Staff</td>
+                        <td>Inactive</td>
+                        <td className="action-buttons">
+                          <button title="Edit">
+                            <FaEdit />
+                          </button>
+                          <button title="Delete">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* System Settings Section (Placeholder) */}
+              <div className="dashboard-section">
+                <h3>System Settings</h3>
+                <p>Placeholder for system configuration options...</p>
+                {/* Example Setting */}
+                <div className="setting-item">
+                  <label htmlFor="setting1">System Maintenance Mode:</label>
+                  <select id="setting1">
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+              </div>
             </div>
           )}
         </main>
