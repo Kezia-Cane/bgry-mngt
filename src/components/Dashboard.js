@@ -429,6 +429,72 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+          {/* Add specific rendering for Certificate module */}
+          {activeModule === "Certificate" && (
+            <div>
+              <div className="content-title-bar">
+                <h2>Certificates</h2>
+                <div className="search-section">
+                  <label htmlFor="search-type">Search Type:</label>
+                  <select id="search-type" defaultValue="resident">
+                    <option value="resident">Resident Name</option>
+                    <option value="type">Certificate Type</option>
+                    <option value="date">Date Issued</option>
+                  </select>
+                  <input type="text" placeholder="Search..." />
+                  <button className="search-button">
+                    <FaSearch />
+                  </button>
+                </div>
+              </div>
+
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Certificate Type</th>
+                      <th>Resident Name</th>
+                      <th>Date Issued</th>
+                      <th>Issued By</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Placeholder Certificate Data */}
+                    <tr>
+                      <td>Barangay Indigency</td>
+                      <td>John Doe</td>
+                      <td>2025-04-01</td>
+                      <td>Secretary Lee</td>
+                      <td className="action-buttons">
+                        <button title="View/Download">
+                          <FaEye />
+                        </button>
+                        {/* Maybe Revoke? */}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Barangay Residency</td>
+                      <td>Jane Smith</td>
+                      <td>2025-03-25</td>
+                      <td>Secretary Lee</td>
+                      <td className="action-buttons">
+                        <button title="View/Download">
+                          <FaEye />
+                        </button>
+                      </td>
+                    </tr>
+                    {/* Add more placeholder certificate records as needed */}
+                  </tbody>
+                </table>
+              </div>
+              <div className="content-footer">
+                <button className="issue-certificate-button">
+                  Issue New Certificate
+                </button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

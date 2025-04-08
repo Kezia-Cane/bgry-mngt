@@ -386,3 +386,19 @@ table tbody tr:hover {
 .add-record-button:hover {
   background-color: #157347; /* Darker green */
 }
+
+/* Style for Issue Certificate Button (Certificate Footer) */
+.issue-certificate-button {
+  background-color: #0d6efd; /* Blue */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.issue-certificate-button:hover {
+  background-color: #0b5ed7; /* Darker blue */
+}
