@@ -234,43 +234,6 @@ function Dashboard({ onLogout }) {
                 </div>
                 {/* Add more chart placeholders if needed */}
               </div>
-              {/* Placeholder for Recent Activity / Announcements */}
-              <div className="dashboard-section">
-                <h3>Recent Activity / Announcements</h3>
-                <ul className="activity-list">
-                  <li>New blotter case filed: Case #123</li>
-                  <li>Certificate of Indigency issued to John Doe.</li>
-                  <li>Upcoming Barangay Assembly on [Date].</li>
-                  <li>Resident Jane Smith updated contact information.</li>
-                </ul>
-              </div>
-              {/* Enhanced Quick Links */}
-              <div className="dashboard-section">
-                <h3>Quick Links</h3>
-                <div className="quick-links">
-                  <a
-                    href="#officials"
-                    onClick={() => setActiveModule("Brgy Official")}
-                  >
-                    Manage Officials
-                  </a>
-                  <a
-                    href="#residents"
-                    onClick={() => setActiveModule("Resident")}
-                  >
-                    Manage Residents
-                  </a>
-                  <a href="#blotter" onClick={() => setActiveModule("Blotter")}>
-                    View Blotter
-                  </a>
-                  <a
-                    href="#certificates"
-                    onClick={() => setActiveModule("Certificate")}
-                  >
-                    Issue Certificate
-                  </a>
-                </div>
-              </div>
             </div>
           )}
           {/* Add specific rendering for Resident module */}
