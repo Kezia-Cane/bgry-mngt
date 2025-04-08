@@ -187,12 +187,16 @@ function Dashboard({ onLogout }) {
             </div>
           )}
           {/* Add conditional rendering for other modules here */}
-          {/* Exclude Dashboard and Resident from this generic fallback */}
+          {/* Exclude Dashboard, Resident, Blotter, Certificate, and About from this generic fallback */}
           {activeModule !== "Brgy Official" &&
             activeModule !== "Dashboard" &&
-            activeModule !== "Resident" && (
+            activeModule !== "Resident" &&
+            activeModule !== "Blotter" &&
+            activeModule !== "Certificate" &&
+            activeModule !== "About" && (
               <div>
-                <h2>{activeModule}</h2>
+                <h2>{activeModule}</h2>{" "}
+                {/* Keep title for Admin or other future modules */}
                 <p>Content for {activeModule} module goes here.</p>{" "}
                 {/* Added placeholder text */}
               </div>
@@ -493,6 +497,25 @@ function Dashboard({ onLogout }) {
                   Issue New Certificate
                 </button>
               </div>
+            </div>
+          )}
+          {/* Add specific rendering for About module */}
+          {activeModule === "About" && (
+            <div className="about-section">
+              <h2>About the Barangay Management System</h2>
+              <p>
+                The Barangay Management System aims to modernize the
+                record-keeping and administrative processes within a barangay.
+                It provides a centralized platform for managing resident
+                information, barangay officials, blotter incidents, certificate
+                issuance, and user accounts.
+              </p>
+              <p>
+                This system intends to improve efficiency, transparency, and
+                communication within the community.
+              </p>
+              {/* Add more details if needed, e.g., version, contact */}
+              <p>Version: 1.0.0 (Placeholder)</p>
             </div>
           )}
         </main>
