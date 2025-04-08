@@ -349,6 +349,86 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+          {/* Add specific rendering for Blotter module */}
+          {activeModule === "Blotter" && (
+            <div>
+              <div className="content-title-bar">
+                <h2>Blotter Records</h2>
+                <div className="search-section">
+                  <label htmlFor="search-type">Search Type:</label>
+                  <select id="search-type" defaultValue="complainant">
+                    <option value="complainant">Complainant</option>
+                    <option value="respondent">Respondent</option>
+                    <option value="status">Status</option>
+                  </select>
+                  <input type="text" placeholder="Search..." />
+                  <button className="search-button">
+                    <FaSearch />
+                  </button>
+                </div>
+              </div>
+
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date Recorded</th>
+                      <th>Complainant</th>
+                      <th>Respondent</th>
+                      <th>Narrative (Summary)</th>
+                      <th>Status</th>
+                      <th>Actions Taken</th>
+                      <th>Recorded By</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Placeholder Blotter Data */}
+                    <tr>
+                      <td>2025-04-08</td>
+                      <td>Pedro Penduko</td>
+                      <td>Juan Tamad</td>
+                      <td>Verbal altercation regarding property line...</td>
+                      <td>Amicably Settled</td>
+                      <td>Mediation</td>
+                      <td>Officer Reyes</td>
+                      <td className="action-buttons">
+                        <button title="View">
+                          <FaEye />
+                        </button>
+                        <button title="Edit">
+                          <FaEdit />
+                        </button>
+                        {/* No delete for blotter usually, maybe archive? */}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2025-04-07</td>
+                      <td>Maria Makiling</td>
+                      <td>Unknown</td>
+                      <td>Reported theft of livestock...</td>
+                      <td>Under Investigation</td>
+                      <td>Initial report taken</td>
+                      <td>Officer Santos</td>
+                      <td className="action-buttons">
+                        <button title="View">
+                          <FaEye />
+                        </button>
+                        <button title="Edit">
+                          <FaEdit />
+                        </button>
+                      </td>
+                    </tr>
+                    {/* Add more placeholder blotter records as needed */}
+                  </tbody>
+                </table>
+              </div>
+              <div className="content-footer">
+                {/* Maybe an "Add Record" button here instead of Print */}
+                <button className="add-record-button">Add New Record</button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
