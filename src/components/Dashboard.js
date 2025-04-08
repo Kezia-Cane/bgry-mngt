@@ -527,17 +527,6 @@ function Dashboard({ onLogout }) {
               {/* User Management Section */}
               <div className="dashboard-section">
                 <h3>User Management</h3>
-                <div
-                  className="content-footer"
-                  style={{
-                    justifyContent: "flex-start",
-                    borderTop: "none",
-                    paddingTop: "0",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <button className="add-user-button">Add New User</button>
-                </div>
                 <div className="table-container">
                   <table>
                     <thead>
@@ -591,6 +580,9 @@ function Dashboard({ onLogout }) {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+                <div className="content-footer">
+                  <button className="add-user-button">Add New User</button>
                 </div>
               </div>
 
