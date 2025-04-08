@@ -13,6 +13,7 @@
   flex-direction: column;
   border-right: 1px solid #dee2e6;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .sidebar-header {
@@ -81,6 +82,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: scroll; /* Always show vertical scrollbar to prevent layout shifts */
+  overflow-x: hidden; /* Prevent horizontal scrollbars/overflow from affecting layout */
 }
 
 .main-header {
@@ -93,7 +95,7 @@
 }
 
 .content-area {
-  padding: 30px; /* Standardized padding */
+  padding: 40px; /* Standardized padding */
   flex-grow: 1;
   background-color: #ffffff; /* White content background */
   margin: 20px; /* Add margin around content area */
