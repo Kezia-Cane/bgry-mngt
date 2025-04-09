@@ -382,7 +382,10 @@ function Dashboard({ onLogout }) {
                         <button title="Edit">
                           <FaEdit />
                         </button>
-                        {/* No delete for blotter usually, maybe archive? */}
+                        {/* Add delete button same as resident module */}
+                        <button title="Delete">
+                          <FaTrash />
+                        </button>
                       </td>
                     </tr>
                     <tr>
@@ -399,6 +402,10 @@ function Dashboard({ onLogout }) {
                         </button>
                         <button title="Edit">
                           <FaEdit />
+                        </button>
+                        {/* Add delete button same as resident module */}
+                        <button title="Delete">
+                          <FaTrash />
                         </button>
                       </td>
                     </tr>
