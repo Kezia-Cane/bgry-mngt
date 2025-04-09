@@ -319,6 +319,13 @@ function Dashboard({ onLogout }) {
                 </table>
               </div>
               <div className="content-footer">
+                {/* Add Resident Button */}
+                <button
+                  className="add-record-button"
+                  style={{ marginRight: "10px" }}
+                >
+                  Add Resident
+                </button>
                 <button className="print-button">
                   <FaPrint /> Print
                 </button>
