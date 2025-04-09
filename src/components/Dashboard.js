@@ -126,6 +126,10 @@ function Dashboard({ onLogout }) {
             <div>
               <div className="content-title-bar">
                 <h2>Brgy Official</h2>
+                {/* Add Button */}
+                <button className="add-button" style={{ marginLeft: "auto" }}>
+                  Add Official
+                </button>
                 <div className="search-section">
                   <label htmlFor="search-type">Search Type:</label>
                   <select id="search-type" defaultValue="last name">
