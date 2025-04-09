@@ -407,8 +407,17 @@ function Dashboard({ onLogout }) {
                 </table>
               </div>
               <div className="content-footer">
-                {/* Maybe an "Add Record" button here instead of Print */}
-                <button className="add-record-button">Add New Record</button>
+                {/* Add Record Button */}
+                <button
+                  className="add-record-button"
+                  style={{ marginRight: "10px" }}
+                >
+                  Add New Record
+                </button>
+                {/* Print Button Added */}
+                <button className="print-button">
+                  <FaPrint /> Print
+                </button>
               </div>
             </div>
           )}
