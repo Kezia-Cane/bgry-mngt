@@ -126,10 +126,7 @@ function Dashboard({ onLogout }) {
             <div>
               <div className="content-title-bar">
                 <h2>Brgy Official</h2>
-                {/* Add Button */}
-                <button className="add-button" style={{ marginLeft: "auto" }}>
-                  Add Official
-                </button>
+                {/* Button removed from here */}
                 <div className="search-section">
                   <label htmlFor="search-type">Search Type:</label>
                   <select id="search-type" defaultValue="last name">
@@ -184,6 +181,13 @@ function Dashboard({ onLogout }) {
                 </table>
               </div>
               <div className="content-footer">
+                {/* Add Button moved here, class changed */}
+                <button
+                  className="add-record-button"
+                  style={{ marginRight: "10px" }}
+                >
+                  Add Official
+                </button>
                 <button className="print-button">
                   <FaPrint /> Print
                 </button>
