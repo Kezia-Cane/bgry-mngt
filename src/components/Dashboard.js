@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react";
 import "./Dashboard.css";
 // Import necessary icons from react-icons
 import {
@@ -29,6 +29,7 @@ function Dashboard({ onLogout }) {
   const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
   const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false); // State for certificate modal
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for user modal
 
   // Placeholder data for the table
   const officials = [
@@ -843,7 +844,12 @@ function Dashboard({ onLogout }) {
                   </table>
                 </div>
                 <div className="content-footer">
-                  <button className="add-user-button">Add New User</button>
+                  <button
+                    className="add-user-button"
+                    onClick={() => setIsUserModalOpen(true)}
+                  >
+                    Add New User
+                  </button>
                 </div>
               </div>
 
@@ -859,6 +865,50 @@ function Dashboard({ onLogout }) {
                     <option value="on">On</option>
                   </select>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal for Adding User */}
+          {isUserModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Add New User</h2>
+                <form>
+                  {/* Add input fields for adding a new user */}
+                  <div className="form-group">
+                    <label htmlFor="userUsername">Username:</label>
+                    <input type="text" id="userUsername" name="userUsername" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="userRole">Role:</label>
+                    <select id="userRole" name="userRole">
+                      <option value="">Select Role</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Staff">Staff</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="userStatus">Status:</label>
+                    <select id="userStatus" name="userStatus">
+                      <option value="">Select Status</option>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button">
+                      Add User
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setIsUserModalOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
