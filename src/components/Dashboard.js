@@ -28,6 +28,7 @@ function Dashboard({ onLogout }) {
   const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
   const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
   const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false); // State for certificate modal
 
   // Placeholder data for the table
   const officials = [
@@ -689,12 +690,77 @@ function Dashboard({ onLogout }) {
                 </table>
               </div>
               <div className="content-footer">
-                <button className="issue-certificate-button">
+                <button
+                  className="issue-certificate-button"
+                  onClick={() => setIsCertificateModalOpen(true)} // Open certificate modal
+                >
                   Issue New Certificate
                 </button>
               </div>
             </div>
           )}
+
+          {/* Modal for Issuing Certificate */}
+          {isCertificateModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Issue New Certificate</h2>
+                <form>
+                  {/* Add input fields based on certificate table columns */}
+                  <div className="form-group">
+                    <label htmlFor="certType">Certificate Type:</label>
+                    <select id="certType" name="certType">
+                      <option value="">Select Type</option>
+                      <option value="Barangay Indigency">
+                        Barangay Indigency
+                      </option>
+                      <option value="Barangay Residency">
+                        Barangay Residency
+                      </option>
+                      <option value="Barangay Clearance">
+                        Barangay Clearance
+                      </option>
+                      {/* Add other certificate types as needed */}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="certResidentName">Resident Name:</label>
+                    <input
+                      type="text"
+                      id="certResidentName"
+                      name="certResidentName"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="certDateIssued">Date Issued:</label>
+                    <input
+                      type="date"
+                      id="certDateIssued"
+                      name="certDateIssued"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="certIssuedBy">Issued By:</label>
+                    <input type="text" id="certIssuedBy" name="certIssuedBy" />
+                  </div>
+                  {/* Add other relevant fields like Purpose, OR Number, Amount Paid if needed */}
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button">
+                      Issue Certificate
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setIsCertificateModalOpen(false)} // Close certificate modal
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* Add specific rendering for About module */}
           {activeModule === "About" && (
             <div className="about-section">
