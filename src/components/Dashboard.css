@@ -185,14 +185,23 @@
 
 .form-group input[type="text"],
 .form-group input[type="number"],
-.form-group select {
+.form-group select,
+.form-group textarea {
+  /* Add textarea to this rule */
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 1em;
   box-sizing: border-box; /* Include padding and border in element's total width and height */
+  font-family: inherit; /* Ensure textarea uses the same font */
+  line-height: 1.5; /* Adjust line height for readability */
 }
+
+/* Optional: Set a specific min-height for textarea if needed, otherwise rows attribute controls it */
+/* .form-group textarea {
+  min-height: 80px; /* Example minimum height */
+/* } */
 
 .modal-actions {
   display: flex;
