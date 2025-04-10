@@ -25,7 +25,8 @@ function Dashboard({ onLogout }) {
   // const { user } = useAuth(); // Example of getting user context
   // Placeholder for active module state
   const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
+  const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
 
   // Placeholder data for the table
   const officials = [
@@ -186,7 +187,7 @@ function Dashboard({ onLogout }) {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => setIsModalOpen(true)} // Open modal on click
+                  onClick={() => setIsOfficialModalOpen(true)} // Open official modal
                 >
                   Add Official
                 </button>
@@ -198,7 +199,7 @@ function Dashboard({ onLogout }) {
           )}
 
           {/* Modal for Adding Official */}
-          {isModalOpen && (
+          {isOfficialModalOpen && (
             <div className="modal-overlay">
               <div className="modal-content">
                 <h2>Add New Barangay Official</h2>
@@ -247,7 +248,7 @@ function Dashboard({ onLogout }) {
                     <button
                       type="button"
                       className="cancel-button"
-                      onClick={() => setIsModalOpen(false)}
+                      onClick={() => setIsOfficialModalOpen(false)} // Close official modal
                     >
                       Cancel
                     </button>
@@ -383,9 +384,11 @@ function Dashboard({ onLogout }) {
               </div>
               <div className="content-footer">
                 {/* Add Resident Button */}
+                {/* Add Resident Button */}
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
+                  onClick={() => setIsResidentModalOpen(true)} // Open resident modal
                 >
                   Add Resident
                 </button>
@@ -395,6 +398,55 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+
+          {/* Modal for Adding Resident */}
+          {isResidentModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Add New Resident</h2>
+                <form>
+                  {/* Add input fields based on resident table columns */}
+                  <div className="form-group">
+                    <label htmlFor="resFullName">Full Name:</label>
+                    <input type="text" id="resFullName" name="resFullName" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="resGender">Gender:</label>
+                    <select id="resGender" name="resGender">
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="resAge">Age:</label>
+                    <input type="number" id="resAge" name="resAge" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="resAddress">Address:</label>
+                    <input type="text" id="resAddress" name="resAddress" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="resContact">Contact Number:</label>
+                    <input type="text" id="resContact" name="resContact" />
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setIsResidentModalOpen(false)} // Close resident modal
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* Add specific rendering for Blotter module */}
           {activeModule === "Blotter" && (
             <div>
