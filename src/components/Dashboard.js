@@ -489,7 +489,15 @@ function Dashboard({ onLogout }) {
                       <td>2025-04-08</td>
                       <td>Pedro Penduko</td>
                       <td>Juan Tamad</td>
-                      <td>Verbal altercation regarding property line...</td>
+                      <td>
+                        {
+                          /* Limit to first two words */
+                          "Verbal altercation regarding property line..."
+                            .split(" ")
+                            .slice(0, 2)
+                            .join(" ")
+                        }
+                      </td>
                       <td>Amicably Settled</td>
                       <td>Mediation</td>
                       <td>Officer Reyes</td>
@@ -510,7 +518,15 @@ function Dashboard({ onLogout }) {
                       <td>2025-04-07</td>
                       <td>Maria Makiling</td>
                       <td>Unknown</td>
-                      <td>Reported theft of livestock...</td>
+                      <td>
+                        {
+                          /* Limit to first two words */
+                          "Reported theft of livestock..."
+                            .split(" ")
+                            .slice(0, 2)
+                            .join(" ")
+                        }
+                      </td>
                       <td>Under Investigation</td>
                       <td>Initial report taken</td>
                       <td>Officer Santos</td>
