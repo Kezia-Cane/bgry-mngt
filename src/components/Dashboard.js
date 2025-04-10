@@ -27,6 +27,7 @@ function Dashboard({ onLogout }) {
   const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
   const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
   const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
+  const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
 
   // Placeholder data for the table
   const officials = [
@@ -530,9 +531,11 @@ function Dashboard({ onLogout }) {
               </div>
               <div className="content-footer">
                 {/* Add Record Button */}
+                {/* Add Record Button */}
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
+                  onClick={() => setIsBlotterModalOpen(true)} // Open blotter modal
                 >
                   Add New Record
                 </button>
@@ -543,6 +546,89 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+
+          {/* Modal for Adding Blotter Record */}
+          {isBlotterModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Add New Blotter Record</h2>
+                <form>
+                  {/* Add input fields based on blotter table columns */}
+                  <div className="form-group">
+                    <label htmlFor="blotterDate">Date Recorded:</label>
+                    <input type="date" id="blotterDate" name="blotterDate" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterComplainant">Complainant:</label>
+                    <input
+                      type="text"
+                      id="blotterComplainant"
+                      name="blotterComplainant"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterRespondent">Respondent:</label>
+                    <input
+                      type="text"
+                      id="blotterRespondent"
+                      name="blotterRespondent"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterNarrative">Narrative:</label>
+                    <textarea
+                      id="blotterNarrative"
+                      name="blotterNarrative"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterStatus">Status:</label>
+                    <select id="blotterStatus" name="blotterStatus">
+                      <option value="">Select Status</option>
+                      <option value="Amicably Settled">Amicably Settled</option>
+                      <option value="Under Investigation">
+                        Under Investigation
+                      </option>
+                      <option value="Referred to Higher Authority">
+                        Referred to Higher Authority
+                      </option>
+                      <option value="Closed/Dismissed">Closed/Dismissed</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterActionsTaken">Actions Taken:</label>
+                    <input
+                      type="text"
+                      id="blotterActionsTaken"
+                      name="blotterActionsTaken"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="blotterRecordedBy">Recorded By:</label>
+                    <input
+                      type="text"
+                      id="blotterRecordedBy"
+                      name="blotterRecordedBy"
+                    />
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setIsBlotterModalOpen(false)} // Close blotter modal
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* Add specific rendering for Certificate module */}
           {activeModule === "Certificate" && (
             <div>
