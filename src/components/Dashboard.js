@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react"; // Import useState
 import "./Dashboard.css";
 // Import necessary icons from react-icons
 import {
@@ -24,7 +24,8 @@ function Dashboard({ onLogout }) {
   // In a real app, user info and permissions would determine which modules are shown
   // const { user } = useAuth(); // Example of getting user context
   // Placeholder for active module state
-  const [activeModule, setActiveModule] = React.useState("Dashboard"); // Default to Dashboard
+  const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
 
   // Placeholder data for the table
   const officials = [
@@ -185,6 +186,7 @@ function Dashboard({ onLogout }) {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
+                  onClick={() => setIsModalOpen(true)} // Open modal on click
                 >
                   Add Official
                 </button>
@@ -194,6 +196,67 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+
+          {/* Modal for Adding Official */}
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Add New Barangay Official</h2>
+                <form>
+                  {/* Add input fields based on table columns */}
+                  <div className="form-group">
+                    <label htmlFor="fullName">Full Name:</label>
+                    <input type="text" id="fullName" name="fullName" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="age">Age:</label>
+                    <input type="number" id="age" name="age" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="position">Position:</label>
+                    <input type="text" id="position" name="position" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="term">Term:</label>
+                    <input
+                      type="text"
+                      id="term"
+                      name="term"
+                      placeholder="e.g., 2023-2025"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="status">Status:</label>
+                    <select id="status" name="status">
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button">
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           {/* Add conditional rendering for other modules here */}
           {/* Exclude Dashboard, Resident, Blotter, Certificate, and About from this generic fallback */}
           {activeModule !== "Brgy Official" &&
