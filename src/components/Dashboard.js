@@ -852,20 +852,6 @@ function Dashboard({ onLogout }) {
                   </button>
                 </div>
               </div>
-
-              {/* System Settings Section (Placeholder) */}
-              <div className="dashboard-section">
-                <h3>System Settings</h3>
-                <p>Placeholder for system configuration options...</p>
-                {/* Example Setting */}
-                <div className="setting-item">
-                  <label htmlFor="setting1">System Maintenance Mode:</label>
-                  <select id="setting1">
-                    <option value="off">Off</option>
-                    <option value="on">On</option>
-                  </select>
-                </div>
-              </div>
             </div>
           )}
 
