@@ -16,7 +16,8 @@ import {
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
-import OfficialViewModal from "./OfficialViewModal.js"; // Import the VIEW modal
+import OfficialViewModal from "./OfficialViewModal.js";
+import ResidentViewModal from "./ResidentViewModal.js"; // Re-adding import
 // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
@@ -29,10 +30,14 @@ function Dashboard({ onLogout }) {
   const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
   const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
   const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false); // State for certificate modal
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for user modal
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-  // State for VIEW modal
+  // Resident View Modal state - This seems to already exist from a previous attempt, ensuring it's correct.
+  const [selectedResidentForView, setSelectedResidentForView] = useState(null);
+  const [isResidentViewModalOpen, setIsResidentViewModalOpen] = useState(false);
+
+  // State for Official VIEW modal
   const [selectedOfficialForView, setSelectedOfficialForView] = useState(null);
   const [isOfficialViewModalOpen, setIsOfficialViewModalOpen] = useState(false);
 
@@ -69,7 +74,19 @@ function Dashboard({ onLogout }) {
     setIsOfficialViewModalOpen(false);
     setSelectedOfficialForView(null);
   };
-  // --- End Handlers for VIEW Modal ---
+  // --- End Handlers for Official VIEW Modal ---
+
+  // --- Handlers for Resident VIEW Modal ---
+  const handleViewResident = (resident) => {
+    setSelectedResidentForView(resident);
+    setIsResidentViewModalOpen(true);
+  };
+
+  const handleCloseResidentViewModal = () => {
+    setIsResidentViewModalOpen(false);
+    setSelectedResidentForView(null);
+  };
+  // --- End Handlers for Resident VIEW Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -373,7 +390,8 @@ function Dashboard({ onLogout }) {
                       <td>123 Main St, Barangay XYZ</td>
                       <td>0917-123-4567</td>
                       <td className="action-buttons">
-                        <button title="View">
+                        {/* Placeholder resident object for onClick */}
+                        <button title="View" onClick={() => handleViewResident({ fullName: 'John Doe', gender: 'Male', age: 30, address: '123 Main St, Barangay XYZ', contactNumber: '0917-123-4567' })}>
                           <FaEye />
                         </button>
                         <button title="Edit">
@@ -391,7 +409,8 @@ function Dashboard({ onLogout }) {
                       <td>456 Oak Ave, Barangay XYZ</td>
                       <td>0928-987-6543</td>
                       <td className="action-buttons">
-                        <button title="View">
+                         {/* Placeholder resident object for onClick */}
+                        <button title="View" onClick={() => handleViewResident({ fullName: 'Jane Smith', gender: 'Female', age: 25, address: '456 Oak Ave, Barangay XYZ', contactNumber: '0928-987-6543' })}>
                           <FaEye />
                         </button>
                         <button title="Edit">
@@ -946,7 +965,14 @@ function Dashboard({ onLogout }) {
             onClose={handleCloseViewModal}
           />
         )}
-        {/* --- End Render VIEW Modal --- */}
+        {/* --- Render Resident VIEW Modal --- */}
+        {isResidentViewModalOpen && (
+          <ResidentViewModal
+            resident={selectedResidentForView}
+            onClose={handleCloseResidentViewModal}
+          />
+        )}
+        {/* --- End Render VIEW Modals --- */}
       </div>
     </div>
   );
