@@ -49,6 +49,9 @@ function Dashboard({ onLogout }) {
   // State for Official EDIT modal
   const [officialToEdit, setOfficialToEdit] = useState(null); // Data of the official being edited
 
+  // State for Resident EDIT modal
+  const [residentToEdit, setResidentToEdit] = useState(null); // Data of the resident being edited
+
   // Placeholder data for the table
   const officials = [
     {
@@ -119,6 +122,18 @@ function Dashboard({ onLogout }) {
     setOfficialToEdit(null); // Clear editing state on close
   };
   // --- End Handlers for Official ADD/EDIT Modal ---
+
+  // --- Handlers for Resident ADD/EDIT Modal ---
+  const handleOpenResidentModal = (resident = null) => {
+    setResidentToEdit(resident); // Set to null for Add, or the resident object for Edit
+    setIsResidentModalOpen(true);
+  };
+
+  const handleCloseResidentModal = () => {
+    setIsResidentModalOpen(false);
+    setResidentToEdit(null); // Clear editing state on close
+  };
+  // --- End Handlers for Resident ADD/EDIT Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -432,7 +447,7 @@ function Dashboard({ onLogout }) {
                         <button title="View" onClick={() => handleViewResident({ fullName: 'John Doe', gender: 'Male', age: 30, address: '123 Main St, Barangay XYZ', contactNumber: '0917-123-4567' })}>
                           <FaEye />
                         </button>
-                        <button title="Edit">
+                        <button title="Edit" onClick={() => handleOpenResidentModal({ fullName: 'John Doe', gender: 'Male', age: 30, address: '123 Main St, Barangay XYZ', contactNumber: '0917-123-4567' })}>
                           <FaEdit />
                         </button>
                         <button title="Delete">
@@ -451,7 +466,7 @@ function Dashboard({ onLogout }) {
                         <button title="View" onClick={() => handleViewResident({ fullName: 'Jane Smith', gender: 'Female', age: 25, address: '456 Oak Ave, Barangay XYZ', contactNumber: '0928-987-6543' })}>
                           <FaEye />
                         </button>
-                        <button title="Edit">
+                        <button title="Edit" onClick={() => handleOpenResidentModal({ fullName: 'Jane Smith', gender: 'Female', age: 25, address: '456 Oak Ave, Barangay XYZ', contactNumber: '0928-987-6543' })}>
                           <FaEdit />
                         </button>
                         <button title="Delete">
@@ -469,7 +484,7 @@ function Dashboard({ onLogout }) {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => setIsResidentModalOpen(true)} // Open resident modal
+                  onClick={() => handleOpenResidentModal()} // Use the new handler for Add
                 >
                   Add Resident
                 </button>
@@ -484,16 +499,16 @@ function Dashboard({ onLogout }) {
           {isResidentModalOpen && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h2>Add New Resident</h2>
+                <h2>{residentToEdit ? "Edit Resident" : "Add New Resident"}</h2>
                 <form>
                   {/* Add input fields based on resident table columns */}
                   <div className="form-group">
                     <label htmlFor="resFullName">Full Name:</label>
-                    <input type="text" id="resFullName" name="resFullName" />
+                    <input type="text" id="resFullName" name="resFullName" defaultValue={residentToEdit?.fullName || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="resGender">Gender:</label>
-                    <select id="resGender" name="resGender">
+                    <select id="resGender" name="resGender" defaultValue={residentToEdit?.gender || ''}>
                       <option value="">Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -501,24 +516,24 @@ function Dashboard({ onLogout }) {
                   </div>
                   <div className="form-group">
                     <label htmlFor="resAge">Age:</label>
-                    <input type="number" id="resAge" name="resAge" />
+                    <input type="number" id="resAge" name="resAge" defaultValue={residentToEdit?.age || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="resAddress">Address:</label>
-                    <input type="text" id="resAddress" name="resAddress" />
+                    <input type="text" id="resAddress" name="resAddress" defaultValue={residentToEdit?.address || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="resContact">Contact Number:</label>
-                    <input type="text" id="resContact" name="resContact" />
+                    <input type="text" id="resContact" name="resContact" defaultValue={residentToEdit?.contactNumber || ''} />
                   </div>
                   <div className="modal-actions">
                     <button type="submit" className="save-button">
-                      Save
+                      {residentToEdit ? "Update" : "Save"}
                     </button>
                     <button
                       type="button"
                       className="cancel-button"
-                      onClick={() => setIsResidentModalOpen(false)} // Close resident modal
+                      onClick={handleCloseResidentModal} // Use the new close handler
                     >
                       Cancel
                     </button>
