@@ -16,8 +16,9 @@ import {
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
+import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import OfficialViewModal from "./OfficialViewModal.js";
-import ResidentViewModal from "./ResidentViewModal.js"; // Re-adding import
+import ResidentViewModal from "./ResidentViewModal.js";
 // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
@@ -40,6 +41,10 @@ function Dashboard({ onLogout }) {
   // State for Official VIEW modal
   const [selectedOfficialForView, setSelectedOfficialForView] = useState(null);
   const [isOfficialViewModalOpen, setIsOfficialViewModalOpen] = useState(false);
+
+  // State for Blotter VIEW modal
+  const [selectedBlotterForView, setSelectedBlotterForView] = useState(null);
+  const [isBlotterViewModalOpen, setIsBlotterViewModalOpen] = useState(false);
 
   // Placeholder data for the table
   const officials = [
@@ -87,6 +92,18 @@ function Dashboard({ onLogout }) {
     setSelectedResidentForView(null);
   };
   // --- End Handlers for Resident VIEW Modal ---
+
+  // --- Handlers for Blotter VIEW Modal ---
+  const handleViewBlotter = (blotter) => {
+    setSelectedBlotterForView(blotter);
+    setIsBlotterViewModalOpen(true);
+  };
+
+  const handleCloseBlotterViewModal = () => {
+    setIsBlotterViewModalOpen(false);
+    setSelectedBlotterForView(null);
+  };
+  // --- End Handlers for Blotter VIEW Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -542,7 +559,8 @@ function Dashboard({ onLogout }) {
                       <td>Mediation</td>
                       <td>Officer Reyes</td>
                       <td className="action-buttons">
-                        <button title="View">
+                        {/* Placeholder blotter object for onClick */}
+                        <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
                           <FaEye />
                         </button>
                         <button title="Edit">
@@ -571,7 +589,8 @@ function Dashboard({ onLogout }) {
                       <td>Initial report taken</td>
                       <td>Officer Santos</td>
                       <td className="action-buttons">
-                        <button title="View">
+                        {/* Placeholder blotter object for onClick */}
+                         <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
                           <FaEye />
                         </button>
                         <button title="Edit">
@@ -970,6 +989,13 @@ function Dashboard({ onLogout }) {
           <ResidentViewModal
             resident={selectedResidentForView}
             onClose={handleCloseResidentViewModal}
+          />
+        )}
+         {/* --- Render Blotter VIEW Modal --- */}
+         {isBlotterViewModalOpen && (
+          <BlotterViewModal
+            blotter={selectedBlotterForView}
+            onClose={handleCloseBlotterViewModal}
           />
         )}
         {/* --- End Render VIEW Modals --- */}
