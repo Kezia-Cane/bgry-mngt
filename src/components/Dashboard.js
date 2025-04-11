@@ -16,6 +16,7 @@ import {
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
+import OfficialViewModal from "./OfficialViewModal.js"; // Import the VIEW modal
 // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
@@ -30,6 +31,10 @@ function Dashboard({ onLogout }) {
   const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false); // State for certificate modal
   const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for user modal
+
+  // State for VIEW modal
+  const [selectedOfficialForView, setSelectedOfficialForView] = useState(null);
+  const [isOfficialViewModalOpen, setIsOfficialViewModalOpen] = useState(false);
 
   // Placeholder data for the table
   const officials = [
@@ -53,6 +58,18 @@ function Dashboard({ onLogout }) {
     },
     // Add more placeholder officials as needed
   ];
+
+  // --- Handlers for VIEW Modal ---
+  const handleViewOfficial = (official) => {
+    setSelectedOfficialForView(official);
+    setIsOfficialViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsOfficialViewModalOpen(false);
+    setSelectedOfficialForView(null);
+  };
+  // --- End Handlers for VIEW Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -169,7 +186,11 @@ function Dashboard({ onLogout }) {
                         <td>{official.term}</td>
                         <td>{official.status}</td>
                         <td className="action-buttons">
-                          <button title="View">
+                          {/* Updated onClick for VIEW modal */}
+                          <button
+                            title="View"
+                            onClick={() => handleViewOfficial(official)}
+                          >
                             <FaEye />
                           </button>
                           <button title="Edit">
@@ -914,7 +935,18 @@ function Dashboard({ onLogout }) {
               </div>
             </div>
           )}
+          {/* --- Other ADD Modals defined by user --- */}
+          {/* ... (existing modals for Add Official, Add Resident, etc.) ... */}
         </main>
+
+        {/* --- Render the VIEW Modal --- */}
+        {isOfficialViewModalOpen && (
+          <OfficialViewModal
+            official={selectedOfficialForView}
+            onClose={handleCloseViewModal}
+          />
+        )}
+        {/* --- End Render VIEW Modal --- */}
       </div>
     </div>
   );
