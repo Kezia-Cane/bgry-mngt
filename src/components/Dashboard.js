@@ -46,6 +46,9 @@ function Dashboard({ onLogout }) {
   const [selectedBlotterForView, setSelectedBlotterForView] = useState(null);
   const [isBlotterViewModalOpen, setIsBlotterViewModalOpen] = useState(false);
 
+  // State for Official EDIT modal
+  const [officialToEdit, setOfficialToEdit] = useState(null); // Data of the official being edited
+
   // Placeholder data for the table
   const officials = [
     {
@@ -104,6 +107,18 @@ function Dashboard({ onLogout }) {
     setSelectedBlotterForView(null);
   };
   // --- End Handlers for Blotter VIEW Modal ---
+
+  // --- Handlers for Official ADD/EDIT Modal ---
+  const handleOpenOfficialModal = (official = null) => {
+    setOfficialToEdit(official); // Set to null for Add, or the official object for Edit
+    setIsOfficialModalOpen(true);
+  };
+
+  const handleCloseOfficialModal = () => {
+    setIsOfficialModalOpen(false);
+    setOfficialToEdit(null); // Clear editing state on close
+  };
+  // --- End Handlers for Official ADD/EDIT Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -227,7 +242,8 @@ function Dashboard({ onLogout }) {
                           >
                             <FaEye />
                           </button>
-                          <button title="Edit">
+                          {/* Attach handler to Edit button */}
+                          <button title="Edit" onClick={() => handleOpenOfficialModal(official)}>
                             <FaEdit />
                           </button>
                           {/* Using FaTrash for delete as per image */}
@@ -245,7 +261,7 @@ function Dashboard({ onLogout }) {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => setIsOfficialModalOpen(true)} // Open official modal
+                  onClick={() => handleOpenOfficialModal()} // Use the new handler for Add
                 >
                   Add Official
                 </button>
@@ -256,20 +272,23 @@ function Dashboard({ onLogout }) {
             </div>
           )}
 
-          {/* Modal for Adding Official */}
+          {/* Modal for Adding/Editing Official */}
           {isOfficialModalOpen && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h2>Add New Barangay Official</h2>
+                {/* Dynamic Title */}
+                <h2>{officialToEdit ? "Edit Barangay Official" : "Add New Barangay Official"}</h2>
+                {/* TODO: Add form submission handler */}
                 <form>
-                  {/* Add input fields based on table columns */}
+                  {/* Add input fields, prefill with officialToEdit data if available */}
                   <div className="form-group">
                     <label htmlFor="fullName">Full Name:</label>
-                    <input type="text" id="fullName" name="fullName" />
+                    {/* Use defaultValue for prefilling */}
+                    <input type="text" id="fullName" name="fullName" defaultValue={officialToEdit?.fullName || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="gender">Gender:</label>
-                    <select id="gender" name="gender">
+                    <select id="gender" name="gender" defaultValue={officialToEdit?.gender || ''}>
                       <option value="">Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -277,11 +296,11 @@ function Dashboard({ onLogout }) {
                   </div>
                   <div className="form-group">
                     <label htmlFor="age">Age:</label>
-                    <input type="number" id="age" name="age" />
+                    <input type="number" id="age" name="age" defaultValue={officialToEdit?.age || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="position">Position:</label>
-                    <input type="text" id="position" name="position" />
+                    <input type="text" id="position" name="position" defaultValue={officialToEdit?.position || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="term">Term:</label>
@@ -290,23 +309,25 @@ function Dashboard({ onLogout }) {
                       id="term"
                       name="term"
                       placeholder="e.g., 2023-2025"
+                      defaultValue={officialToEdit?.term || ''}
                     />
                   </div>
                   <div className="form-group">
                     <label htmlFor="status">Status:</label>
-                    <select id="status" name="status">
+                    <select id="status" name="status" defaultValue={officialToEdit?.status || 'Active'}>
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
                     </select>
                   </div>
                   <div className="modal-actions">
+                     {/* Dynamic Button Text */}
                     <button type="submit" className="save-button">
-                      Save
+                      {officialToEdit ? "Update" : "Save"}
                     </button>
                     <button
                       type="button"
                       className="cancel-button"
-                      onClick={() => setIsOfficialModalOpen(false)} // Close official modal
+                      onClick={handleCloseOfficialModal} // Use the new close handler
                     >
                       Cancel
                     </button>
