@@ -17,9 +17,10 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
+import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
-// Assuming you have a logo image in your public folder or src/assets
+    // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
 // Accept onLogout prop
@@ -54,6 +55,10 @@ function Dashboard({ onLogout }) {
 
       // State for Blotter EDIT modal
       const [blotterToEdit, setBlotterToEdit] = useState(null); // Data of the blotter record being edited
+
+      // State for Certificate VIEW modal
+      const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
+      const [isCertificateViewModalOpen, setIsCertificateViewModalOpen] = useState(false);
 
       // Placeholder data for the table
   const officials = [
@@ -149,6 +154,18 @@ function Dashboard({ onLogout }) {
     setBlotterToEdit(null); // Clear editing state on close
   };
   // --- End Handlers for Blotter ADD/EDIT Modal ---
+
+  // --- Handlers for Certificate VIEW Modal ---
+  const handleViewCertificate = (certificate) => {
+    setSelectedCertificateForView(certificate);
+    setIsCertificateViewModalOpen(true);
+  };
+
+  const handleCloseCertificateViewModal = () => {
+    setIsCertificateViewModalOpen(false);
+    setSelectedCertificateForView(null);
+  };
+  // --- End Handlers for Certificate VIEW Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -805,7 +822,8 @@ function Dashboard({ onLogout }) {
                       <td>2025-04-01</td>
                       <td>Secretary Lee</td>
                       <td className="action-buttons">
-                        <button title="View/Download">
+                        {/* Attach handler to View button - using placeholder data */}
+                        <button title="View/Download" onClick={() => handleViewCertificate({ certificateType: 'Barangay Indigency', residentName: 'John Doe', dateIssued: '2025-04-01', issuedBy: 'Secretary Lee' })}>
                           <FaEye />
                         </button>
                         {/* Maybe Revoke? */}
@@ -817,7 +835,8 @@ function Dashboard({ onLogout }) {
                       <td>2025-03-25</td>
                       <td>Secretary Lee</td>
                       <td className="action-buttons">
-                        <button title="View/Download">
+                        {/* Attach handler to View button - using placeholder data */}
+                        <button title="View/Download" onClick={() => handleViewCertificate({ certificateType: 'Barangay Residency', residentName: 'Jane Smith', dateIssued: '2025-03-25', issuedBy: 'Secretary Lee' })}>
                           <FaEye />
                         </button>
                       </td>
@@ -1059,6 +1078,13 @@ function Dashboard({ onLogout }) {
           <BlotterViewModal
             blotter={selectedBlotterForView}
             onClose={handleCloseBlotterViewModal}
+          />
+        )}
+        {/* --- Render Certificate VIEW Modal --- */}
+        {isCertificateViewModalOpen && (
+          <CertificateViewModal
+            certificate={selectedCertificateForView}
+            onClose={handleCloseCertificateViewModal}
           />
         )}
         {/* --- End Render VIEW Modals --- */}

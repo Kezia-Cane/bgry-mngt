@@ -1,0 +1,169 @@
+/* Styles for the Certificate View Modal */
+
+    .certificate-view-modal {
+      max-width: 800px; /* Adjust width as needed */
+      padding: 30px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative; /* Needed for absolute positioning of close button */
+    }
+
+    .certificate-view-modal .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .certificate-view-modal .close-button:hover {
+      color: #333;
+    }
+
+    /* Certificate Layout Styles */
+    .certificate-layout {
+      font-family: 'Times New Roman', Times, serif; /* Common font for certificates */
+      color: #000;
+      line-height: 1.6;
+      padding: 20px; /* Add padding inside the layout */
+      border: 1px solid #eee; /* Optional border for the paper */
+      background-color: #fdfdfd; /* Slightly off-white */
+    }
+
+    .certificate-header {
+      display: flex;
+      justify-content: space-between; /* Adjust as needed */
+      align-items: center;
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 15px;
+    }
+
+    .certificate-header img.certificate-logo {
+      height: 80px; /* Adjust size */
+      width: auto;
+    }
+
+    .certificate-header div {
+      flex-grow: 1;
+      margin: 0 20px; /* Add space around the text */
+    }
+
+    .certificate-header p {
+      margin: 2px 0;
+      font-size: 0.9rem;
+    }
+
+    .certificate-header strong {
+      font-size: 1.1rem;
+    }
+
+    .certificate-title {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 40px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .certificate-body {
+      margin-bottom: 40px;
+      text-align: justify; /* Justify text for a formal look */
+    }
+
+    .certificate-body p {
+      margin-bottom: 15px;
+      text-indent: 40px; /* Indent paragraphs */
+    }
+
+    .certificate-body strong {
+      font-weight: bold;
+    }
+
+    .certificate-signature {
+      margin-top: 50px;
+      display: flex;
+      justify-content: space-around; /* Position signatures */
+      text-align: center;
+    }
+
+    .certificate-signature p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .certificate-signature strong {
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .certificate-signature em {
+      font-style: italic;
+      font-size: 0.8rem;
+    }
+
+    .certificate-footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #555;
+        border-top: 1px dashed #ccc;
+        padding-top: 10px;
+    }
+
+    /* Print Button Styles */
+    .modal-actions-print {
+      text-align: right;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .modal-actions-print .print-button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px; /* Space between icon and text */
+    }
+
+    .modal-actions-print .print-button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Basic print styles (already included in JS, but good for reference) */
+    @media print {
+      .modal-overlay {
+        background-color: transparent !important; /* Remove overlay in print */
+      }
+      .certificate-view-modal {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .modal-actions-print, .close-button {
+        display: none !important; /* Hide buttons */
+      }
+      /* Ensure layout takes full page */
+       body, html {
+         margin: 0;
+         padding: 0;
+       }
+       #certificate-layout {
+         margin: 20mm; /* Add margins for printing */
+         border: none;
+       }
+    }
