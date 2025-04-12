@@ -49,10 +49,13 @@ function Dashboard({ onLogout }) {
   // State for Official EDIT modal
   const [officialToEdit, setOfficialToEdit] = useState(null); // Data of the official being edited
 
-  // State for Resident EDIT modal
-  const [residentToEdit, setResidentToEdit] = useState(null); // Data of the resident being edited
+      // State for Resident EDIT modal
+      const [residentToEdit, setResidentToEdit] = useState(null); // Data of the resident being edited
 
-  // Placeholder data for the table
+      // State for Blotter EDIT modal
+      const [blotterToEdit, setBlotterToEdit] = useState(null); // Data of the blotter record being edited
+
+      // Placeholder data for the table
   const officials = [
     {
       id: 1,
@@ -134,6 +137,18 @@ function Dashboard({ onLogout }) {
     setResidentToEdit(null); // Clear editing state on close
   };
   // --- End Handlers for Resident ADD/EDIT Modal ---
+
+  // --- Handlers for Blotter ADD/EDIT Modal ---
+  const handleOpenBlotterModal = (blotter = null) => {
+    setBlotterToEdit(blotter); // Set to null for Add, or the blotter object for Edit
+    setIsBlotterModalOpen(true); // Reuse the existing modal open state
+  };
+
+  const handleCloseBlotterModal = () => {
+    setIsBlotterModalOpen(false);
+    setBlotterToEdit(null); // Clear editing state on close
+  };
+  // --- End Handlers for Blotter ADD/EDIT Modal ---
 
   return (
     <div className="dashboard-layout">
@@ -599,7 +614,8 @@ function Dashboard({ onLogout }) {
                         <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
                           <FaEye />
                         </button>
-                        <button title="Edit">
+                        {/* Attach handler to Edit button - using placeholder data */}
+                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
                           <FaEdit />
                         </button>
                         {/* Add delete button same as resident module */}
@@ -629,7 +645,8 @@ function Dashboard({ onLogout }) {
                          <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
                           <FaEye />
                         </button>
-                        <button title="Edit">
+                        {/* Attach handler to Edit button - using placeholder data */}
+                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
                           <FaEdit />
                         </button>
                         {/* Add delete button same as resident module */}
@@ -648,7 +665,7 @@ function Dashboard({ onLogout }) {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => setIsBlotterModalOpen(true)} // Open blotter modal
+                  onClick={() => handleOpenBlotterModal()} // Use the new handler for Add/Edit
                 >
                   Add New Record
                 </button>
@@ -660,16 +677,18 @@ function Dashboard({ onLogout }) {
             </div>
           )}
 
-          {/* Modal for Adding Blotter Record */}
+          {/* Modal for Adding/Editing Blotter Record */}
           {isBlotterModalOpen && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h2>Add New Blotter Record</h2>
+                {/* Dynamic Title */}
+                <h2>{blotterToEdit ? "Edit Blotter Record" : "Add New Blotter Record"}</h2>
+                {/* TODO: Add form submission handler */}
                 <form>
-                  {/* Add input fields based on blotter table columns */}
+                  {/* Add input fields, prefill with blotterToEdit data if available */}
                   <div className="form-group">
                     <label htmlFor="blotterDate">Date Recorded:</label>
-                    <input type="date" id="blotterDate" name="blotterDate" />
+                    <input type="date" id="blotterDate" name="blotterDate" defaultValue={blotterToEdit?.dateRecorded || ''} />
                   </div>
                   <div className="form-group">
                     <label htmlFor="blotterComplainant">Complainant:</label>
@@ -677,6 +696,7 @@ function Dashboard({ onLogout }) {
                       type="text"
                       id="blotterComplainant"
                       name="blotterComplainant"
+                      defaultValue={blotterToEdit?.complainant || ''}
                     />
                   </div>
                   <div className="form-group">
@@ -685,6 +705,7 @@ function Dashboard({ onLogout }) {
                       type="text"
                       id="blotterRespondent"
                       name="blotterRespondent"
+                      defaultValue={blotterToEdit?.respondent || ''}
                     />
                   </div>
                   <div className="form-group">
@@ -693,11 +714,12 @@ function Dashboard({ onLogout }) {
                       id="blotterNarrative"
                       name="blotterNarrative"
                       rows="3"
+                      defaultValue={blotterToEdit?.narrative || ''}
                     ></textarea>
                   </div>
                   <div className="form-group">
                     <label htmlFor="blotterStatus">Status:</label>
-                    <select id="blotterStatus" name="blotterStatus">
+                    <select id="blotterStatus" name="blotterStatus" defaultValue={blotterToEdit?.status || ''}>
                       <option value="">Select Status</option>
                       <option value="Amicably Settled">Amicably Settled</option>
                       <option value="Under Investigation">
@@ -715,6 +737,7 @@ function Dashboard({ onLogout }) {
                       type="text"
                       id="blotterActionsTaken"
                       name="blotterActionsTaken"
+                      defaultValue={blotterToEdit?.actionsTaken || ''}
                     />
                   </div>
                   <div className="form-group">
@@ -723,16 +746,18 @@ function Dashboard({ onLogout }) {
                       type="text"
                       id="blotterRecordedBy"
                       name="blotterRecordedBy"
+                      defaultValue={blotterToEdit?.recordedBy || ''}
                     />
                   </div>
                   <div className="modal-actions">
+                    {/* Dynamic Button Text */}
                     <button type="submit" className="save-button">
-                      Save
+                      {blotterToEdit ? "Update" : "Save"}
                     </button>
                     <button
                       type="button"
                       className="cancel-button"
-                      onClick={() => setIsBlotterModalOpen(false)} // Close blotter modal
+                      onClick={handleCloseBlotterModal} // Use the new close handler
                     >
                       Cancel
                     </button>
@@ -917,9 +942,10 @@ function Dashboard({ onLogout }) {
                         <td>Admin</td>
                         <td>Active</td>
                         <td className="action-buttons">
-                          <button title="Edit">
-                            <FaEdit />
-                          </button>
+                        {/* Attach handler to Edit button - using placeholder data */}
+                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
+                          <FaEdit />
+                        </button>
                           <button title="Delete">
                             <FaTrash />
                           </button>
@@ -930,9 +956,10 @@ function Dashboard({ onLogout }) {
                         <td>Staff</td>
                         <td>Active</td>
                         <td className="action-buttons">
-                          <button title="Edit">
-                            <FaEdit />
-                          </button>
+                        {/* Attach handler to Edit button - using placeholder data */}
+                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
+                          <FaEdit />
+                        </button>
                           <button title="Delete">
                             <FaTrash />
                           </button>
