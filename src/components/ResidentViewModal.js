@@ -1,11 +1,18 @@
 import React from "react";
 import "./ResidentViewModal.css";
 
-const ResidentViewModal = ({ resident, onClose }) => {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="modal-close-button" onClick={onClose}>
+    const ResidentViewModal = ({ resident, onClose }) => {
+      // Function to handle overlay click
+      const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      };
+
+      return (
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-content">
+            <button className="modal-close-button" onClick={onClose}>
           &times;
         </button>
         <h2>Resident Details</h2>

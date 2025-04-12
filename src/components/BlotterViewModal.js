@@ -2,8 +2,15 @@ import React from "react";
 import "./BlotterViewModal.css"; // We'll create this CSS file next
 
     const BlotterViewModal = ({ blotter, onClose }) => {
+      // Function to handle overlay click
+      const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      };
+
       return (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
           <div className="modal-content">
             <button className="modal-close-button" onClick={onClose}>
               &times;

@@ -1,11 +1,18 @@
 import React from "react";
 import "./OfficialViewModal.css";
 
-const OfficialViewModal = ({ official, onClose }) => {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="modal-close-button" onClick={onClose}>
+    const OfficialViewModal = ({ official, onClose }) => {
+      // Function to handle overlay click
+      const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      };
+
+      return (
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+          <div className="modal-content">
+            <button className="modal-close-button" onClick={onClose}>
           &times;
         </button>
         <h2>Brgy Official Details</h2>

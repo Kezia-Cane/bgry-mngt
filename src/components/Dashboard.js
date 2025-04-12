@@ -321,7 +321,7 @@ function Dashboard({ onLogout }) {
 
           {/* Modal for Adding/Editing Official */}
           {isOfficialModalOpen && (
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseOfficialModal(); }}>
               <div className="modal-content">
                 {/* Dynamic Title */}
                 <h2>{officialToEdit ? "Edit Barangay Official" : "Add New Barangay Official"}</h2>
@@ -527,9 +527,9 @@ function Dashboard({ onLogout }) {
             </div>
           )}
 
-          {/* Modal for Adding Resident */}
+          {/* Modal for Adding/Editing Resident */}
           {isResidentModalOpen && (
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseResidentModal(); }}>
               <div className="modal-content">
                 <h2>{residentToEdit ? "Edit Resident" : "Add New Resident"}</h2>
                 <form>
@@ -696,7 +696,7 @@ function Dashboard({ onLogout }) {
 
           {/* Modal for Adding/Editing Blotter Record */}
           {isBlotterModalOpen && (
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseBlotterModal(); }}>
               <div className="modal-content">
                 {/* Dynamic Title */}
                 <h2>{blotterToEdit ? "Edit Blotter Record" : "Add New Blotter Record"}</h2>
@@ -858,7 +858,7 @@ function Dashboard({ onLogout }) {
 
           {/* Modal for Issuing Certificate */}
           {isCertificateModalOpen && (
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsCertificateModalOpen(false); }}>
               <div className="modal-content">
                 <h2>Issue New Certificate</h2>
                 <form>
@@ -1014,7 +1014,7 @@ function Dashboard({ onLogout }) {
 
           {/* Modal for Adding User */}
           {isUserModalOpen && (
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsUserModalOpen(false); }}>
               <div className="modal-content">
                 <h2>Add New User</h2>
                 <form>

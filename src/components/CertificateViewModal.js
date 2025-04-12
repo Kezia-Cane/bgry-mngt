@@ -5,6 +5,13 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
     function CertificateViewModal({ certificate, onClose }) {
       if (!certificate) return null;
 
+      // Function to handle overlay click
+      const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      };
+
       // Function to handle printing
       const handlePrint = () => {
         // In a real app, you might use a library like react-to-print
@@ -117,7 +124,7 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
       };
 
       return (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
           <div className="modal-content certificate-view-modal">
             <button className="close-button" onClick={onClose}><FaTimes /></button>
             {renderCertificateLayout()}
