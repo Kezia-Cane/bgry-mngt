@@ -1,7 +1,12 @@
 /* Styles for the Certificate View Modal */
 
     .certificate-view-modal {
-      max-width: 900px; /* Increased width */
+      width: 850px !important; /* Fixed width */
+      height: 750px !important; /* Fixed height */
+      overflow-y: auto; /* Enable vertical scrolling if content overflows */
+      max-width: none !important; /* Remove max-width to allow full width */
+      min-width: unset !important; /* Remove min-width */
+      max-height: unset !important; /* Remove max-height */
       padding: 30px;
       background-color: #fff;
       border: 1px solid #ccc;
