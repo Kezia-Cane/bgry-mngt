@@ -289,6 +289,8 @@ table td.action-buttons {
   overflow: visible;   /* Ensure buttons aren't hidden */
   text-overflow: clip; /* Default behavior */
   max-width: none;     /* Remove max-width constraint */
+  vertical-align: middle; /* Revert to middle alignment */
+  /* Removed padding-bottom adjustment */
 }
 
 
@@ -318,7 +320,7 @@ table tbody tr:hover {
 .action-buttons button {
   background: none;
   border: none;
-  padding: 6px; /* Reverted button padding to original */
+  padding: 6px 6px 7px 6px; /* Slightly increase bottom padding (T R B L) */
   cursor: pointer;
   font-size: 1.1em;
   color: #0d6efd; /* Blue icons */
