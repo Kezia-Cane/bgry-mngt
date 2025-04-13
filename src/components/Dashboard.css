@@ -323,10 +323,7 @@ table tbody tr:hover {
 }
 
 /* Use line-height for vertical alignment control */
-td.action-buttons {
-  min-height: 75px; /* Adjust value as needed. Should roughly match desired visual height */
-  /* vertical-align: middle; is inherited from the general td rule */
-}
+
 
 
 /* Content Footer */
