@@ -310,7 +310,7 @@ table tbody tr:hover {
 /* Action Buttons in Table */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 5px;
   align-items: center; /* Added for vertical alignment */
   /* Removed min-height */
 }
