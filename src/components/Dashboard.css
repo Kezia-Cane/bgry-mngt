@@ -321,6 +321,13 @@ table tbody tr:hover {
   color: #c82333; /* Darker red on hover */
 }
 
+/* Increase vertical padding specifically for the action buttons cell */
+td.action-buttons {
+  padding-top: 15px;    /* Increase top padding */
+  padding-bottom: 20px; /* Increase bottom padding */
+}
+
+
 /* Content Footer */
 .content-footer {
   display: flex;
