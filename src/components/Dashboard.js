@@ -617,7 +617,7 @@ function Dashboard({ onLogout }) {
                       <th>Date Recorded</th>
                       <th>Complainant</th>
                       <th>Respondent</th>
-                      <th>Narrative (Summary)</th>
+                      <th>Narrative</th>
                       <th>Status</th>
                       <th>Actions Taken</th>
                       <th>Recorded By</th>
