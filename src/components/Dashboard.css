@@ -298,12 +298,13 @@ table tbody tr:hover {
   display: flex;
   gap: 8px;
   align-items: center; /* Added for vertical alignment */
+  /* Removed min-height */
 }
 
 .action-buttons button {
   background: none;
   border: none;
-  padding: 5px;
+  padding: 5px; /* Reverted button padding to original */
   cursor: pointer;
   font-size: 1.1em;
   color: #0d6efd; /* Blue icons */
@@ -321,10 +322,10 @@ table tbody tr:hover {
   color: #c82333; /* Darker red on hover */
 }
 
-/* Increase vertical padding specifically for the action buttons cell */
+/* Use line-height for vertical alignment control */
 td.action-buttons {
-  padding-top: 15px;    /* Increase top padding */
-  padding-bottom: 20px; /* Increase bottom padding */
+  min-height: 75px; /* Adjust value as needed. Should roughly match desired visual height */
+  /* vertical-align: middle; is inherited from the general td rule */
 }
 
 
