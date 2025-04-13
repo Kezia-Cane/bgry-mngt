@@ -20,6 +20,7 @@ import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
+import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
     // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
@@ -33,7 +34,9 @@ function Dashboard({ onLogout }) {
   const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
   const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for ADD User modal
+  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); // State for EDIT User modal
+  const [userToEdit, setUserToEdit] = useState(null); // State to hold the user being edited
 
   // Resident View Modal state - This seems to already exist from a previous attempt, ensuring it's correct.
   const [selectedResidentForView, setSelectedResidentForView] = useState(null);
@@ -166,6 +169,19 @@ function Dashboard({ onLogout }) {
     setSelectedCertificateForView(null);
   };
   // --- End Handlers for Certificate VIEW Modal ---
+
+  // --- Handlers for User EDIT Modal ---
+  const handleOpenUserEditModal = (user) => {
+    setUserToEdit(user); // Set the user data to be edited
+    setIsUserEditModalOpen(true); // Open the modal
+  };
+
+  const handleCloseUserEditModal = () => {
+    setIsUserEditModalOpen(false); // Close the modal
+    setUserToEdit(null); // Clear the user data
+  };
+  // --- End Handlers for User EDIT Modal ---
+
 
   return (
     <div className="dashboard-layout">
@@ -961,8 +977,8 @@ function Dashboard({ onLogout }) {
                         <td>Admin</td>
                         <td>Active</td>
                         <td className="action-buttons">
-                        {/* Attach handler to Edit button - using placeholder data */}
-                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
+                        {/* Corrected onClick handler for Edit User */}
+                        <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'admin_user', role: 'Admin', status: 'Active' })}>
                           <FaEdit />
                         </button>
                           <button title="Delete">
@@ -975,8 +991,8 @@ function Dashboard({ onLogout }) {
                         <td>Staff</td>
                         <td>Active</td>
                         <td className="action-buttons">
-                        {/* Attach handler to Edit button - using placeholder data */}
-                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
+                        {/* Corrected onClick handler for Edit User */}
+                        <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'staff_user1', role: 'Staff', status: 'Active' })}>
                           <FaEdit />
                         </button>
                           <button title="Delete">
@@ -989,7 +1005,8 @@ function Dashboard({ onLogout }) {
                         <td>Staff</td>
                         <td>Inactive</td>
                         <td className="action-buttons">
-                          <button title="Edit">
+                          {/* Corrected onClick handler for Edit User */}
+                           <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'staff_user2', role: 'Staff', status: 'Inactive' })}>
                             <FaEdit />
                           </button>
                           <button title="Delete">
@@ -1085,6 +1102,15 @@ function Dashboard({ onLogout }) {
           <CertificateViewModal
             certificate={selectedCertificateForView}
             onClose={handleCloseCertificateViewModal}
+          />
+        )}
+        {/* --- Render User EDIT Modal --- */}
+        {isUserEditModalOpen && (
+          <UserEditModal
+            show={isUserEditModalOpen}
+            onClose={handleCloseUserEditModal}
+            user={userToEdit}
+            // onSave={handleSaveUser} // Add a save handler later
           />
         )}
         {/* --- End Render VIEW Modals --- */}
