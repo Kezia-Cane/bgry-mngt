@@ -1000,6 +1000,20 @@ function Dashboard({ onLogout }) {
                           </button>
                         </td>
                       </tr>
+                      <tr>
+                        <td>staff_user2</td>
+                        <td>Staff</td>
+                        <td>Inactive</td>
+                        <td className="action-buttons">
+                          {/* Corrected onClick handler for Edit User */}
+                           <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'staff_user2', role: 'Staff', status: 'Inactive' })}>
+                            <FaEdit />
+                          </button>
+                          <button title="Delete">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>

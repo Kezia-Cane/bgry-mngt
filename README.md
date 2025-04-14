@@ -68,7 +68,7 @@ The Barangay Management System aims to modernize the record-keeping and administ
 * **Backend:**
     * [Node.js](https://nodejs.org/en/docs/) (JavaScript runtime environment)
     * [Express.js](https://expressjs.com/) (web application framework for Node.js)
-    * **Database:** (MongoDB)
+    * **Database:** (To be decided - PostgreSQL, MySQL, MongoDB are common choices)
     * **ORM/ODM:** (To be decided - Sequelize for PostgreSQL/MySQL, Mongoose for MongoDB)
     * [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) (for authentication)
     * [bcrypt](https://www.npmjs.com/package/bcrypt) (for password hashing)
