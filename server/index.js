@@ -31,6 +31,10 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// Barangay Official routes
+const barangayOfficialRoutes = require('./routes/barangayOfficials');
+app.use('/api/barangay-officials', barangayOfficialRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
