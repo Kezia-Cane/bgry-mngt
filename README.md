@@ -25,9 +25,6 @@ A web application to streamline the management and administrative tasks of a bar
     * [Phase 5: Certificate Module](#phase-5-certificate-module)
     * [Phase 6: About and Admin Modules](#phase-6-about-and-admin-modules)
     * [Phase 7: Logout and Refinements](#phase-7-logout-and-refinements)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
 
 ## Project Overview
 
