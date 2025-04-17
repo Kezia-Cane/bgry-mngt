@@ -68,8 +68,8 @@ The Barangay Management System aims to modernize the record-keeping and administ
 * **Backend:**
     * [Node.js](https://nodejs.org/en/docs/) (JavaScript runtime environment)
     * [Express.js](https://expressjs.com/) (web application framework for Node.js)
-    * **Database:** (To be decided - PostgreSQL, MySQL, MongoDB are common choices)
-    * **ORM/ODM:** (To be decided - Sequelize for PostgreSQL/MySQL, Mongoose for MongoDB)
+    * **Database:** (MongoDB)
+    * **ORM/ODM:** (Mongoose for MongoDB)
     * [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken) (for authentication)
     * [bcrypt](https://www.npmjs.com/package/bcrypt) (for password hashing)
     * [cors](https://www.npmjs.com/package/cors) (for enabling Cross-Origin Resource Sharing)
@@ -215,16 +215,3 @@ This is a tentative development plan outlining the phases for building the Baran
     * Implement robust input validation.
     * Enhance security measures.
 
-## Contributing
-
-Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes. Ensure your code adheres to the project's coding standards and includes appropriate tests.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Contact
-
-[Your Name/Organization Name]
-[Your Email Address]
-[Link to your GitHub profile (optional)]
