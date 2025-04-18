@@ -38,7 +38,11 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Handle unauthorized errors (e.g., token expired or invalid)
       console.error("Unauthorized access - possibly token expired:", error.response.data);
-      // Optionally: Force logout the user
+      // Optionally: Force logout the user by dispatching the logout action
+      // This requires importing the store and dispatching, which can be complex here.
+      // A better approach might be to handle this in the component making the call
+      // or use a dedicated error handling middleware/context.
+      // Example of direct logout (not always recommended from interceptors):
       // localStorage.removeItem('authToken');
       // localStorage.removeItem('userInfo');
       // window.location.href = '/login'; // Force redirect
