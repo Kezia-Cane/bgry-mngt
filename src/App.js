@@ -4,7 +4,8 @@ import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'; /
 import { logout, logoutUserBackend } from './store/authSlice'; // Import logout actions
 
 // Import Page Components
-import LoginPage from './pages/LoginPage';
+// import LoginPage from './pages/LoginPage'; // Remove this import
+import Login from './components/Login'; // Import your Login component
 // Import other page components as needed (e.g., Dashboard, ResidentList, etc.)
 // import DashboardPage from './pages/DashboardPage';
 
@@ -59,7 +60,8 @@ function App() {
       <main style={styles.mainContent}> { /* Ensure main content area exists */}
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
+          {/* Use your Login component for the /login route */}
+          <Route path="/login" element={<Login />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute allowedRoles={['admin', 'staff']} />}> { /* Wrap protected routes */}
