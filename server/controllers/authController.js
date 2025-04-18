@@ -46,4 +46,12 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const logout = async (req, res) => {
+  // With JWT, logout is primarily handled client-side by removing the token.
+  // This backend route is mostly symbolic or for potential future use (e.g., blacklisting).
+  // We can optionally log the logout event here if needed.
+  console.log(`User ${req.user.username} (ID: ${req.user.userId}) logged out.`);
+  res.status(200).json({ message: 'Logout successful.' });
+};
+
+module.exports = { register, login, logout };
