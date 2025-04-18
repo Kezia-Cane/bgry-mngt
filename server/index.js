@@ -27,6 +27,10 @@ app.use('/api/auth', authRoutes);
 const barangayOfficialRoutes = require('./routes/barangayOfficials');
 app.use('/api/barangay-officials', barangayOfficialRoutes);
 
+// Resident routes
+const residentRoutes = require('./routes/residents');
+app.use('/api/residents', residentRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
