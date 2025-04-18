@@ -35,6 +35,10 @@ app.use('/api/residents', residentRoutes);
 const blotterRoutes = require('./routes/blotters');
 app.use('/api/blotters', blotterRoutes);
 
+// Certificate routes
+const certificateRoutes = require('./routes/certificates');
+app.use('/api/certificates', certificateRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
