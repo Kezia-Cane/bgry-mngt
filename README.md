@@ -5,7 +5,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-v18.x-green)](https://nodejs.org/en/docs/)
 [![Express](https://img.shields.io/badge/Express-v4.x-orange)](https://expressjs.com/)
 
-A web application to streamline the management and administrative tasks of a barangay (village/district) in the Philippines. Built with React for the frontend and Node.js/Express for the backend.
+This was our project back in my college years. It was originally built using .NET and focused on streamlining the management and administrative tasks of a barangay in the Philippines. I'm now working on converting it into a web application using React for the frontend and Node.js/Express for the backend, mainly to practice and improve my software development skills.
 
 ## Table of Contents
 
