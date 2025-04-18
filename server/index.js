@@ -39,6 +39,10 @@ app.use('/api/blotters', blotterRoutes);
 const certificateRoutes = require('./routes/certificates');
 app.use('/api/certificates', certificateRoutes);
 
+// Admin routes (for user management)
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
