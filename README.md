@@ -12,19 +12,6 @@ A web application to streamline the management and administrative tasks of a bar
 * [Project Overview](#project-overview)
 * [Modules and Functionalities](#modules-and-functionalities)
 * [Technology Stack](#technology-stack)
-* [Getting Started](#getting-started)
-    * [Prerequisites](#prerequisites)
-    * [Frontend Setup](#frontend-setup)
-    * [Backend Setup](#backend-setup)
-    * [Running the Application](#running-the-application)
-* [Development Plan](#development-plan)
-    * [Phase 1: Project Setup and Authentication](#phase-1-project-setup-and-authentication)
-    * [Phase 2: Dashboard and Barangay Official Module](#phase-2-dashboard-and-barangay-official-module)
-    * [Phase 3: Resident Module](#phase-3-resident-module)
-    * [Phase 4: Blotter Module](#phase-4-blotter-module)
-    * [Phase 5: Certificate Module](#phase-5-certificate-module)
-    * [Phase 6: About and Admin Modules](#phase-6-about-and-admin-modules)
-    * [Phase 7: Logout and Refinements](#phase-7-logout-and-refinements)
 
 ## Project Overview
 
@@ -61,7 +48,6 @@ The Barangay Management System aims to modernize the record-keeping and administ
     * [React Router](https://reactrouter.com/) (for navigation)
     * [Axios](https://axios-http.com/docs/intro) (for making HTTP requests)
     * [State Management:** (To be decided - potentially Context API with `useReducer`, Redux, or Zustand)
-    * **Styling:** (To be decided - CSS Modules, Styled Components, or a UI library like Material UI or Ant Design)
 * **Backend:**
     * [Node.js](https://nodejs.org/en/docs/) (JavaScript runtime environment)
     * [Express.js](https://expressjs.com/) (web application framework for Node.js)
