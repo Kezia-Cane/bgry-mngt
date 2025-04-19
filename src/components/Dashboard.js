@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
+import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
+import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
 import "./Dashboard.css";
 // Import necessary icons from react-icons
 import {
@@ -24,10 +27,13 @@ import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
     // Assuming you have a logo image in your public folder or src/assets
 // import logo from '/logo192.png'; // Example path if logo is in public folder
 
-// Accept onLogout prop
-function Dashboard({ onLogout }) {
-  // In a real app, user info and permissions would determine which modules are shown
-  // const { user } = useAuth(); // Example of getting user context
+// Remove onLogout prop
+function Dashboard() {
+  const dispatch = useDispatch(); // <-- Get dispatch function
+  const navigate = useNavigate(); // <-- Get navigate function
+  // Get user info for potential display, if needed
+  const { user } = useSelector((state) => state.auth);
+
   // Placeholder for active module state
   const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
   const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
@@ -63,28 +69,15 @@ function Dashboard({ onLogout }) {
       const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
       const [isCertificateViewModalOpen, setIsCertificateViewModalOpen] = useState(false);
 
-      // Placeholder data for the table
-  const officials = [
-    {
-      id: 1,
-      fullName: "Juan Dela Cruz",
-      gender: "Male",
-      age: 45,
-      position: "Captain",
-      term: "2023-2025",
-      status: "Active",
-    },
-    {
-      id: 2,
-      fullName: "Maria Clara",
-      gender: "Female",
-      age: 38,
-      position: "Kagawad",
-      term: "2023-2025",
-      status: "Active",
-    },
-    // Add more placeholder officials as needed
-  ];
+  // --- Define Logout Handler ---
+  const handleLogout = () => {
+    // Optional: Call backend logout first
+    dispatch(logoutUserBackend());
+    // Immediately clear client-side state and storage
+    dispatch(logout());
+    navigate('/login'); // Redirect to login page
+  };
+  // --- End Define Logout Handler ---
 
   // --- Handlers for VIEW Modal ---
   const handleViewOfficial = (official) => {
@@ -182,7 +175,6 @@ function Dashboard({ onLogout }) {
   };
   // --- End Handlers for User EDIT Modal ---
 
-
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -235,14 +227,17 @@ function Dashboard({ onLogout }) {
             >
               <FaInfoCircle /> <span>About</span>
             </li>
-            <li
-              className={activeModule === "Admin" ? "active" : ""}
-              onClick={() => setActiveModule("Admin")}
-            >
-              <FaUserCog /> <span>Admin</span>
-            </li>
-            {/* Attach onLogout to onClick */}
-            <li onClick={onLogout}>
+            {/* Conditionally render Admin module link based on user role */}
+            {user?.role === 'admin' && (
+              <li
+                className={activeModule === "Admin" ? "active" : ""}
+                onClick={() => setActiveModule("Admin")}
+              >
+                <FaUserCog /> <span>Admin</span>
+              </li>
+            )}
+            {/* Attach handleLogout to the onClick event */}
+            <li onClick={handleLogout}>
               <FaSignOutAlt /> <span>Logout</span>
             </li>
           </ul>
@@ -289,42 +284,54 @@ function Dashboard({ onLogout }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {officials.map((official) => (
-                      <tr key={official.id}>
-                        <td>{official.fullName}</td>
-                        <td>{official.gender}</td>
-                        <td>{official.age}</td>
-                        <td>{official.position}</td>
-                        <td>{official.term}</td>
-                        <td>{official.status}</td>
-                        <td className="action-buttons">
-                          {/* Updated onClick for VIEW modal */}
-                          <button
-                            title="View"
-                            onClick={() => handleViewOfficial(official)}
-                          >
-                            <FaEye />
-                          </button>
-                          {/* Attach handler to Edit button */}
-                          <button title="Edit" onClick={() => handleOpenOfficialModal(official)}>
-                            <FaEdit />
-                          </button>
-                          {/* Using FaTrash for delete as per image */}
-                          <button title="Delete">
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {/* Placeholder data */}
+                    {/* Replace with actual data from API */}
+                    <tr>
+                      <td>Juan Dela Cruz</td>
+                      <td>Male</td>
+                      <td>45</td>
+                      <td>Captain</td>
+                      <td>2023-2025</td>
+                      <td>Active</td>
+                      <td className="action-buttons">
+                        <button title="View" onClick={() => handleViewOfficial({ id: 1, fullName: 'Juan Dela Cruz', gender: 'Male', age: 45, position: 'Captain', term: '2023-2025', status: 'Active' })}>
+                          <FaEye />
+                        </button>
+                        <button title="Edit" onClick={() => handleOpenOfficialModal({ id: 1, fullName: 'Juan Dela Cruz', gender: 'Male', age: 45, position: 'Captain', term: '2023-2025', status: 'Active' })}>
+                          <FaEdit />
+                        </button>
+                        <button title="Delete">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maria Clara</td>
+                      <td>Female</td>
+                      <td>38</td>
+                      <td>Kagawad</td>
+                      <td>2023-2025</td>
+                      <td>Active</td>
+                      <td className="action-buttons">
+                        <button title="View" onClick={() => handleViewOfficial({ id: 2, fullName: 'Maria Clara', gender: 'Female', age: 38, position: 'Kagawad', term: '2023-2025', status: 'Active' })}>
+                          <FaEye />
+                        </button>
+                        <button title="Edit" onClick={() => handleOpenOfficialModal({ id: 2, fullName: 'Maria Clara', gender: 'Female', age: 38, position: 'Kagawad', term: '2023-2025', status: 'Active' })}>
+                          <FaEdit />
+                        </button>
+                        <button title="Delete">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
               <div className="content-footer">
-                {/* Add Button moved here, class changed */}
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenOfficialModal()} // Use the new handler for Add
+                  onClick={() => handleOpenOfficialModal()}
                 >
                   Add Official
                 </button>
@@ -339,14 +346,10 @@ function Dashboard({ onLogout }) {
           {isOfficialModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseOfficialModal(); }}>
               <div className="modal-content">
-                {/* Dynamic Title */}
                 <h2>{officialToEdit ? "Edit Barangay Official" : "Add New Barangay Official"}</h2>
-                {/* TODO: Add form submission handler */}
                 <form>
-                  {/* Add input fields, prefill with officialToEdit data if available */}
                   <div className="form-group">
                     <label htmlFor="fullName">Full Name:</label>
-                    {/* Use defaultValue for prefilling */}
                     <input type="text" id="fullName" name="fullName" defaultValue={officialToEdit?.fullName || ''} />
                   </div>
                   <div className="form-group">
@@ -383,14 +386,13 @@ function Dashboard({ onLogout }) {
                     </select>
                   </div>
                   <div className="modal-actions">
-                     {/* Dynamic Button Text */}
                     <button type="submit" className="save-button">
                       {officialToEdit ? "Update" : "Save"}
                     </button>
                     <button
                       type="button"
                       className="cancel-button"
-                      onClick={handleCloseOfficialModal} // Use the new close handler
+                      onClick={handleCloseOfficialModal}
                     >
                       Cancel
                     </button>

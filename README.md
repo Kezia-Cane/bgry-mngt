@@ -47,7 +47,7 @@ The Barangay Management System aims to modernize the record-keeping and administ
     * [React](https://react.dev/) (JavaScript library for building user interfaces)
     * [React Router](https://reactrouter.com/) (for navigation)
     * [Axios](https://axios-http.com/docs/intro) (for making HTTP requests)
-    * [State Management:** (Redux)
+    * [State Management:** (Redux)]
 * **Backend:**
     * [Node.js](https://nodejs.org/en/docs/) (JavaScript runtime environment)
     * [Express.js](https://expressjs.com/) (web application framework for Node.js)
