@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
 import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
 import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
 import "./Dashboard.css";
 // Import necessary icons from react-icons
+import axios from 'axios'; // <-- Import axios
 import {
   FaAddressBook,
   FaEdit,
@@ -24,15 +25,12 @@ import CertificateViewModal from "./CertificateViewModal.js"; // Import Certific
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
-    // Assuming you have a logo image in your public folder or src/assets
-// import logo from '/logo192.png'; // Example path if logo is in public folder
 
 // Remove onLogout prop
 function Dashboard() {
   const dispatch = useDispatch(); // <-- Get dispatch function
   const navigate = useNavigate(); // <-- Get navigate function
-  // Get user info for potential display, if needed
-  const { user } = useSelector((state) => state.auth);
+  const { user, token } = useSelector((state) => state.auth); // <-- Get token
 
   // Placeholder for active module state
   const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
@@ -68,6 +66,73 @@ function Dashboard() {
       // State for Certificate VIEW modal
       const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
       const [isCertificateViewModalOpen, setIsCertificateViewModalOpen] = useState(false);
+
+  // --- State for Add/Edit Official Form ---
+  const initialOfficialFormState = {
+    fullName: '',
+    gender: '',
+    age: '',
+    position: '',
+    term: '',
+    status: 'Active', // Default status
+  };
+  const [officialFormData, setOfficialFormData] = useState(initialOfficialFormState);
+  const [officialFormErrors, setOfficialFormErrors] = useState({});
+  const [officialFormLoading, setOfficialFormLoading] = useState(false); // Loading state for submit
+  const [officialFormMessage, setOfficialFormMessage] = useState(''); // For success/error messages
+
+  // --- Effect to pre-fill form when editing ---
+   useEffect(() => {
+    if (officialToEdit) {
+      setOfficialFormData({
+        fullName: officialToEdit.fullName || '',
+        gender: officialToEdit.gender || '',
+        age: officialToEdit.age || '',
+        position: officialToEdit.position || '',
+        term: officialToEdit.term || '',
+        status: officialToEdit.status || 'Active',
+      });
+      setOfficialFormErrors({}); // Clear errors when opening for edit
+      setOfficialFormMessage(''); // Clear message
+    } else {
+      setOfficialFormData(initialOfficialFormState); // Reset form for add
+      setOfficialFormErrors({});
+      setOfficialFormMessage('');
+    }
+  }, [officialToEdit, isOfficialModalOpen]); // Depend on officialToEdit and modal state
+
+  // --- Input change handler for official form ---
+  const handleOfficialFormChange = (e) => {
+    const { name, value } = e.target;
+    setOfficialFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+    // Optional: Clear specific error on change
+    if (officialFormErrors[name]) {
+      setOfficialFormErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: null
+      }));
+    }
+     setOfficialFormMessage(''); // Clear general message on input change
+  };
+
+  // --- Validation function for official form ---
+  const validateOfficialForm = () => {
+    const errors = {};
+    if (!officialFormData.fullName.trim()) errors.fullName = 'Full Name is required';
+    if (!officialFormData.gender) errors.gender = 'Gender is required';
+    if (!officialFormData.age) errors.age = 'Age is required';
+    else if (isNaN(officialFormData.age) || Number(officialFormData.age) <= 0) errors.age = 'Age must be a positive number';
+    else if (Number(officialFormData.age) < 18) errors.age = 'Official must be at least 18 years old'; // Example validation
+    if (!officialFormData.position.trim()) errors.position = 'Position is required';
+    if (!officialFormData.term.trim()) errors.term = 'Term is required'; // Basic check, could add format validation
+    if (!officialFormData.status) errors.status = 'Status is required';
+
+    setOfficialFormErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if no errors
+  };
 
   // --- Define Logout Handler ---
   const handleLogout = () => {
@@ -124,8 +189,83 @@ function Dashboard() {
   const handleCloseOfficialModal = () => {
     setIsOfficialModalOpen(false);
     setOfficialToEdit(null); // Clear editing state on close
+    setOfficialFormData(initialOfficialFormState); // Explicitly reset form state on close
+    setOfficialFormErrors({}); // Clear errors
+    setOfficialFormMessage(''); // Clear message
   };
-  // --- End Handlers for Official ADD/EDIT Modal ---
+
+  // --- SAVE/UPDATE Official Handler ---
+  const handleSaveOfficial = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    setOfficialFormMessage(''); // Clear previous messages
+    setOfficialFormErrors({}); // Clear previous errors explicitly
+
+    if (!validateOfficialForm()) {
+      setOfficialFormMessage('Please fix the errors in the form.');
+      return; // Stop if validation fails
+    }
+
+    setOfficialFormLoading(true);
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Include the auth token
+      }
+    };
+
+    // Prepare data, ensure age is a number
+    const dataToSubmit = {
+        ...officialFormData,
+        age: Number(officialFormData.age)
+    };
+
+    try {
+      let response;
+      if (officialToEdit) {
+        // --- UPDATE LOGIC (Example - assumes PUT /api/barangay-officials/:id) ---
+        // response = await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
+        // setOfficialFormMessage('Official updated successfully!');
+         console.log("Update logic to be implemented"); // Placeholder for update
+         setOfficialFormMessage('Update functionality not yet implemented.'); // Temporary message
+
+      } else {
+        // --- ADD LOGIC ---
+        response = await axios.post('/api/barangay-officials', dataToSubmit, config);
+         setOfficialFormMessage('Official added successfully!');
+          // Optionally reset form after successful add
+          setOfficialFormData(initialOfficialFormState);
+          // TODO: Add logic to refresh the officials list displayed in the dashboard if needed
+      }
+
+     // Close modal after a short delay to show message (optional)
+      setTimeout(() => {
+          handleCloseOfficialModal();
+          // You might want to trigger a refresh of the officials list here
+           setActiveModule("Brgy Official"); // Switch back to the list view maybe
+      }, 1500); // Adjust delay as needed
+
+
+    } catch (error) {
+      console.error("Error saving official:", error.response || error);
+      let errorMessage = 'Failed to save official. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+        // Handle specific validation errors from backend if needed
+        if (error.response.data.errors) {
+           // Example: Convert backend errors to frontend format if structure differs
+           // const backendErrors = error.response.data.errors;
+           // const frontendErrors = {}; // Map backendErrors to officialFormErrors structure
+           // setOfficialFormErrors(frontendErrors);
+           console.error("Backend validation errors:", error.response.data.errors);
+        }
+      }
+      setOfficialFormMessage(errorMessage);
+    } finally {
+      setOfficialFormLoading(false);
+    }
+  };
+  // --- End SAVE/UPDATE Official Handler ---
 
   // --- Handlers for Resident ADD/EDIT Modal ---
   const handleOpenResidentModal = (resident = null) => {
@@ -347,27 +487,65 @@ function Dashboard() {
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseOfficialModal(); }}>
               <div className="modal-content">
                 <h2>{officialToEdit ? "Edit Barangay Official" : "Add New Barangay Official"}</h2>
-                <form>
+                <form onSubmit={handleSaveOfficial} className="modal-form">
+                  {officialFormMessage && <p className={`form-message ${officialFormErrors && Object.keys(officialFormErrors).length > 0 ? 'error' : 'success'}`}>{officialFormMessage}</p>}
+
                   <div className="form-group">
                     <label htmlFor="fullName">Full Name:</label>
-                    <input type="text" id="fullName" name="fullName" defaultValue={officialToEdit?.fullName || ''} />
+                    <input
+                      type="text"
+                      id="fullName"
+                      name="fullName"
+                      value={officialFormData.fullName}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.fullName}
+                    />
+                    {officialFormErrors.fullName && <span className="error-message">{officialFormErrors.fullName}</span>}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="gender">Gender:</label>
-                    <select id="gender" name="gender" defaultValue={officialToEdit?.gender || ''}>
-                      <option value="">Select Gender</option>
+                    <select
+                      id="gender"
+                      name="gender"
+                      value={officialFormData.gender}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.gender}
+                    >
+                      <option value="" disabled>Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
+                      <option value="Other">Other</option>
                     </select>
+                    {officialFormErrors.gender && <span className="error-message">{officialFormErrors.gender}</span>}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="age">Age:</label>
-                    <input type="number" id="age" name="age" defaultValue={officialToEdit?.age || ''} />
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      value={officialFormData.age}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.age}
+                    />
+                    {officialFormErrors.age && <span className="error-message">{officialFormErrors.age}</span>}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="position">Position:</label>
-                    <input type="text" id="position" name="position" defaultValue={officialToEdit?.position || ''} />
+                    <input
+                      type="text"
+                      id="position"
+                      name="position"
+                      value={officialFormData.position}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.position}
+                    />
+                    {officialFormErrors.position && <span className="error-message">{officialFormErrors.position}</span>}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="term">Term:</label>
                     <input
@@ -375,27 +553,34 @@ function Dashboard() {
                       id="term"
                       name="term"
                       placeholder="e.g., 2023-2025"
-                      defaultValue={officialToEdit?.term || ''}
+                      value={officialFormData.term}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.term}
                     />
+                    {officialFormErrors.term && <span className="error-message">{officialFormErrors.term}</span>}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="status">Status:</label>
-                    <select id="status" name="status" defaultValue={officialToEdit?.status || 'Active'}>
+                    <select
+                      id="status"
+                      name="status"
+                      value={officialFormData.status}
+                      onChange={handleOfficialFormChange}
+                      aria-invalid={!!officialFormErrors.status}
+                    >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
+                      <option value="On Leave">On Leave</option>
                     </select>
+                    {officialFormErrors.status && <span className="error-message">{officialFormErrors.status}</span>}
                   </div>
+
                   <div className="modal-actions">
-                    <button type="submit" className="save-button">
-                      {officialToEdit ? "Update" : "Save"}
+                    <button type="submit" className="save-button" disabled={officialFormLoading}>
+                      {officialFormLoading ? 'Saving...' : (officialToEdit ? "Update" : "Save")}
                     </button>
-                    <button
-                      type="button"
-                      className="cancel-button"
-                      onClick={handleCloseOfficialModal}
-                    >
-                      Cancel
-                    </button>
+                    <button type="button" onClick={handleCloseOfficialModal} className="cancel-button" disabled={officialFormLoading}>Cancel</button>
                   </div>
                 </form>
               </div>
@@ -1107,12 +1292,11 @@ function Dashboard() {
           />
         )}
         {/* --- Render User EDIT Modal --- */}
-        {isUserEditModalOpen && (
+        {isUserEditModalOpen && userToEdit && (
           <UserEditModal
-            show={isUserEditModalOpen}
-            onClose={handleCloseUserEditModal}
             user={userToEdit}
-            // onSave={handleSaveUser} // Add a save handler later
+            onClose={handleCloseUserEditModal}
+            // onSave={handleUpdateUser} // Pass a function to handle the update API call
           />
         )}
         {/* --- End Render VIEW Modals --- */}
