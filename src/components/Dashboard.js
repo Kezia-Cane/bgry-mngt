@@ -35,6 +35,17 @@ const initialOfficialFormState = {
   term: '',
   status: 'Active', // Default status
 };
+const initialResidentFormState = {
+  fullName: '',
+  gender: '',
+  age: '', // Note: Model uses birthdate, UI shows age. Will handle conversion or adjust form.
+  birthdate: '', // Actual field for the model
+  address: '', // Simplify for now, model has nested address
+  contactNumber: '',
+  // Add other optional fields from Resident model if needed in the form
+  civilStatus: '',
+  occupation: '',
+};
 
 // Remove onLogout prop
 function Dashboard() {
@@ -83,8 +94,74 @@ function Dashboard() {
   const [officialFormLoading, setOfficialFormLoading] = useState(false); // Loading state for submit
   const [officialFormMessage, setOfficialFormMessage] = useState(''); // For success/error messages
 
+  // --- Data Fetching State (Officials) ---
+  const [officials, setOfficials] = useState([]);
+  const [officialsLoading, setOfficialsLoading] = useState(false);
+  const [officialsError, setOfficialsError] = useState(null);
+
+  // --- Data Fetching State (Residents) ---
+  const [residents, setResidents] = useState([]);
+  const [residentsLoading, setResidentsLoading] = useState(false);
+  const [residentsError, setResidentsError] = useState(null);
+
+  // --- State for Add/Edit Resident Form ---
+  const [residentFormData, setResidentFormData] = useState(initialResidentFormState);
+  const [residentFormErrors, setResidentFormErrors] = useState({});
+  const [residentFormLoading, setResidentFormLoading] = useState(false);
+  const [residentFormMessage, setResidentFormMessage] = useState('');
+
+  // --- Fetch Officials Function ---
+  const fetchOfficials = async () => {
+    setOfficialsLoading(true);
+    setOfficialsError(null);
+    try {
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      };
+      const response = await axios.get('/api/barangay-officials', config);
+      setOfficials(response.data); // Assuming the API returns an array directly
+    } catch (error) {
+      console.error("Error fetching officials:", error.response || error);
+      setOfficialsError('Failed to load officials. Please try again.');
+    } finally {
+      setOfficialsLoading(false);
+    }
+  };
+
+  // --- Fetch Residents Function ---
+  const fetchResidents = async () => {
+    setResidentsLoading(true);
+    setResidentsError(null);
+    try {
+      const config = { headers: { 'Authorization': `Bearer ${token}` } };
+      // Assuming API returns { residents: [...] } structure based on controller
+      const response = await axios.get('/api/residents', config);
+      setResidents(response.data.residents || response.data); // Adapt based on actual API response structure
+    } catch (error) {
+      console.error("Error fetching residents:", error.response || error);
+      setResidentsError('Failed to load residents. Please try again.');
+    } finally {
+      setResidentsLoading(false);
+    }
+  };
+
+  // --- Effect to Fetch Data when module is active ---
+  useEffect(() => {
+    if (token) {
+      if (activeModule === "Brgy Official") {
+        fetchOfficials();
+      }
+      if (activeModule === "Resident") {
+        fetchResidents();
+      }
+      // Add other modules here as needed
+    }
+  }, [activeModule, token]);
+
   // --- Effect to pre-fill form when editing ---
-   useEffect(() => {
+  useEffect(() => {
     if (officialToEdit) {
       setOfficialFormData({
         fullName: officialToEdit.fullName || '',
@@ -103,6 +180,31 @@ function Dashboard() {
     }
   }, [officialToEdit, isOfficialModalOpen]);
 
+  // --- Effect to pre-fill Resident form when editing ---
+  useEffect(() => {
+    if (residentToEdit) {
+      // Convert birthdate back to YYYY-MM-DD for the input field if needed
+      const birthdateValue = residentToEdit.birthdate ? new Date(residentToEdit.birthdate).toISOString().split('T')[0] : '';
+      setResidentFormData({
+        fullName: residentToEdit.fullName || '',
+        gender: residentToEdit.gender || '',
+        // age field is likely derived, use birthdate
+        birthdate: birthdateValue,
+        // Simplify address for now, requires handling nested object if complex
+        address: residentToEdit.address?.street || residentToEdit.address || '', // Example access
+        contactNumber: residentToEdit.contactNumber || '',
+        civilStatus: residentToEdit.civilStatus || '',
+        occupation: residentToEdit.occupation || '',
+      });
+      setResidentFormErrors({});
+      setResidentFormMessage('');
+    } else {
+      setResidentFormData(initialResidentFormState);
+      setResidentFormErrors({});
+      setResidentFormMessage('');
+    }
+  }, [residentToEdit, isResidentModalOpen]);
+
   // --- Input change handler for official form ---
   const handleOfficialFormChange = (e) => {
     const { name, value } = e.target;
@@ -120,6 +222,19 @@ function Dashboard() {
      setOfficialFormMessage(''); // Clear general message on input change
   };
 
+  // --- Input Handlers ---
+  const handleResidentFormChange = (e) => {
+    const { name, value } = e.target;
+    setResidentFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+    if (residentFormErrors[name]) {
+      setResidentFormErrors(prevErrors => ({ ...prevErrors, [name]: null }));
+    }
+    setResidentFormMessage('');
+  };
+
   // --- Validation function for official form ---
   const validateOfficialForm = () => {
     const errors = {};
@@ -134,6 +249,23 @@ function Dashboard() {
 
     setOfficialFormErrors(errors);
     return Object.keys(errors).length === 0; // Return true if no errors
+  };
+
+  // --- Validation Functions ---
+  const validateResidentForm = () => {
+    const errors = {};
+    if (!residentFormData.fullName.trim()) errors.fullName = 'Full Name is required';
+    if (!residentFormData.gender) errors.gender = 'Gender is required';
+    if (!residentFormData.birthdate) errors.birthdate = 'Birthdate is required';
+    // Basic address check, model might require more detail
+    if (!residentFormData.address.trim()) errors.address = 'Address is required';
+    // Optional: Add validation for contact number format, birthdate format/validity etc.
+    if (residentFormData.contactNumber && !/^[0-9\-+()\s]*$/.test(residentFormData.contactNumber)) {
+        errors.contactNumber = 'Invalid contact number format';
+    }
+
+    setResidentFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   // --- Define Logout Handler ---
@@ -239,13 +371,14 @@ function Dashboard() {
           // TODO: Add logic to refresh the officials list displayed in the dashboard if needed
       }
 
-     // Close modal after a short delay to show message (optional)
+      // --- Refresh the list after save/update --- Wait for it!
+      await fetchOfficials();
+
+      // Close modal after a short delay (optional)
       setTimeout(() => {
           handleCloseOfficialModal();
-          // You might want to trigger a refresh of the officials list here
-           setActiveModule("Brgy Official"); // Switch back to the list view maybe
-      }, 1500); // Adjust delay as needed
-
+          // No need to switch module explicitly if already there
+      }, 1500);
 
     } catch (error) {
       console.error("Error saving official:", error.response || error);
@@ -267,6 +400,79 @@ function Dashboard() {
     }
   };
   // --- End SAVE/UPDATE Official Handler ---
+
+  // --- SAVE/UPDATE Resident Handler ---
+  const handleSaveResident = async (e) => {
+    e.preventDefault();
+    setResidentFormMessage('');
+    setResidentFormErrors({});
+
+    if (!validateResidentForm()) {
+      setResidentFormMessage('Please fix the errors in the form.');
+      return;
+    }
+
+    setResidentFormLoading(true);
+    const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+
+    // Prepare data for API - structure might need adjustment based on backend model
+    // Especially the address field
+    const dataToSubmit = {
+      fullName: residentFormData.fullName,
+      gender: residentFormData.gender,
+      birthdate: residentFormData.birthdate,
+      address: { // Assuming nested address in model
+          street: residentFormData.address, // This might need more fields (barangay, city etc.)
+          // Add other address parts if needed, potentially from other form fields
+          // barangay: 'Your Barangay Name', // Example default or fetched value
+          // city: 'Your City Name',
+          // province: 'Your Province Name'
+      },
+      contactNumber: residentFormData.contactNumber || undefined, // Send undefined if empty
+      civilStatus: residentFormData.civilStatus || undefined,
+      occupation: residentFormData.occupation || undefined,
+    };
+
+    try {
+      if (residentToEdit) {
+        // --- UPDATE RESIDENT LOGIC ---
+        // await axios.put(`/api/residents/${residentToEdit._id}`, dataToSubmit, config);
+        // setResidentFormMessage('Resident updated successfully!');
+        console.log("Update resident logic to be implemented");
+        setResidentFormMessage('Update functionality not yet implemented.');
+      } else {
+        // --- ADD RESIDENT LOGIC ---
+        await axios.post('/api/residents', dataToSubmit, config);
+        setResidentFormMessage('Resident added successfully!');
+        setResidentFormData(initialResidentFormState);
+      }
+
+      // Refresh the list
+      await fetchResidents();
+
+      // Close modal
+      setTimeout(() => {
+        handleCloseResidentModal();
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error saving resident:", error.response || error);
+      let errorMessage = 'Failed to save resident. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+        if (error.response.data.errors) {
+           // Handle detailed backend validation errors if needed
+           // const backendErrors = error.response.data.errors;
+           // Map backendErrors to residentFormErrors state
+           console.error("Backend validation errors:", error.response.data.errors);
+        }
+      }
+      setResidentFormMessage(errorMessage);
+    } finally {
+      setResidentFormLoading(false);
+    }
+  };
+  // --- End SAVE/UPDATE Resident Handler ---
 
   // --- Handlers for Resident ADD/EDIT Modal ---
   const handleOpenResidentModal = (resident = null) => {
@@ -396,7 +602,6 @@ function Dashboard() {
             <div>
               <div className="content-title-bar">
                 <h2>Brgy Official</h2>
-                {/* Button removed from here */}
                 <div className="search-section">
                   <label htmlFor="search-type">Search Type:</label>
                   <select id="search-type" defaultValue="last name">
@@ -425,46 +630,44 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Placeholder data */}
-                    {/* Replace with actual data from API */}
-                    <tr>
-                      <td>Juan Dela Cruz</td>
-                      <td>Male</td>
-                      <td>45</td>
-                      <td>Captain</td>
-                      <td>2023-2025</td>
-                      <td>Active</td>
-                      <td className="action-buttons">
-                        <button title="View" onClick={() => handleViewOfficial({ id: 1, fullName: 'Juan Dela Cruz', gender: 'Male', age: 45, position: 'Captain', term: '2023-2025', status: 'Active' })}>
-                          <FaEye />
-                        </button>
-                        <button title="Edit" onClick={() => handleOpenOfficialModal({ id: 1, fullName: 'Juan Dela Cruz', gender: 'Male', age: 45, position: 'Captain', term: '2023-2025', status: 'Active' })}>
-                          <FaEdit />
-                        </button>
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Maria Clara</td>
-                      <td>Female</td>
-                      <td>38</td>
-                      <td>Kagawad</td>
-                      <td>2023-2025</td>
-                      <td>Active</td>
-                      <td className="action-buttons">
-                        <button title="View" onClick={() => handleViewOfficial({ id: 2, fullName: 'Maria Clara', gender: 'Female', age: 38, position: 'Kagawad', term: '2023-2025', status: 'Active' })}>
-                          <FaEye />
-                        </button>
-                        <button title="Edit" onClick={() => handleOpenOfficialModal({ id: 2, fullName: 'Maria Clara', gender: 'Female', age: 38, position: 'Kagawad', term: '2023-2025', status: 'Active' })}>
-                          <FaEdit />
-                        </button>
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
+                    {/* --- Conditional Rendering for Loading/Error/Data --- */}
+                    {officialsLoading && (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center' }}>Loading officials...</td>
+                      </tr>
+                    )}
+                    {officialsError && (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td>
+                      </tr>
+                    )}
+                    {!officialsLoading && !officialsError && officials.length === 0 && (
+                       <tr>
+                        <td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td>
+                      </tr>
+                    )}
+                    {!officialsLoading && !officialsError && officials.map((official) => (
+                      <tr key={official._id}> {/* Use a unique key, like _id from MongoDB */}
+                        <td>{official.fullName}</td>
+                        <td>{official.gender}</td>
+                        <td>{official.age}</td>
+                        <td>{official.position}</td>
+                        <td>{official.term}</td>
+                        <td>{official.status}</td>
+                        <td className="action-buttons">
+                          {/* Pass the fetched official object to handlers */}
+                          <button title="View" onClick={() => handleViewOfficial(official)}>
+                            <FaEye />
+                          </button>
+                          <button title="Edit" onClick={() => handleOpenOfficialModal(official)}>
+                            <FaEdit />
+                          </button>
+                          <button title="Delete"> {/* TODO: Implement Delete */}
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -664,59 +867,48 @@ function Dashboard() {
                     <tr>
                       <th>Full name</th>
                       <th>Gender</th>
-                      <th>Age</th>
+                      <th>Age</th> {/* Displaying Age from virtual field */}
                       <th>Address</th>
-                      <th>Contact Number</th> {/* Resident specific column */}
+                      <th>Contact Number</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Placeholder Resident Data */}
-                    <tr>
-                      <td>John Doe</td>
-                      <td>Male</td>
-                      <td>30</td>
-                      <td>123 Main St, Barangay XYZ</td>
-                      <td>0917-123-4567</td>
-                      <td className="action-buttons">
-                        {/* Placeholder resident object for onClick */}
-                        <button title="View" onClick={() => handleViewResident({ fullName: 'John Doe', gender: 'Male', age: 30, address: '123 Main St, Barangay XYZ', contactNumber: '0917-123-4567' })}>
-                          <FaEye />
-                        </button>
-                        <button title="Edit" onClick={() => handleOpenResidentModal({ fullName: 'John Doe', gender: 'Male', age: 30, address: '123 Main St, Barangay XYZ', contactNumber: '0917-123-4567' })}>
-                          <FaEdit />
-                        </button>
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Jane Smith</td>
-                      <td>Female</td>
-                      <td>25</td>
-                      <td>456 Oak Ave, Barangay XYZ</td>
-                      <td>0928-987-6543</td>
-                      <td className="action-buttons">
-                         {/* Placeholder resident object for onClick */}
-                        <button title="View" onClick={() => handleViewResident({ fullName: 'Jane Smith', gender: 'Female', age: 25, address: '456 Oak Ave, Barangay XYZ', contactNumber: '0928-987-6543' })}>
-                          <FaEye />
-                        </button>
-                        <button title="Edit" onClick={() => handleOpenResidentModal({ fullName: 'Jane Smith', gender: 'Female', age: 25, address: '456 Oak Ave, Barangay XYZ', contactNumber: '0928-987-6543' })}>
-                          <FaEdit />
-                        </button>
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
-                    {/* Add more placeholder residents as needed */}
+                    {/* Conditional Rendering for Residents */}
+                    {residentsLoading && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading residents...</td></tr>
+                    )}
+                    {residentsError && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{residentsError}</td></tr>
+                    )}
+                    {!residentsLoading && !residentsError && residents.length === 0 && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>No residents found.</td></tr>
+                    )}
+                    {!residentsLoading && !residentsError && residents.map((resident) => (
+                      <tr key={resident._id}>
+                        <td>{resident.fullName}</td>
+                        <td>{resident.gender}</td>
+                        <td>{resident.age}</td> {/* Assuming 'age' virtual field exists from model */}
+                        {/* Display simplified or full address based on model */}
+                        <td>{resident.address?.street || resident.address}</td>
+                        <td>{resident.contactNumber || 'N/A'}</td>
+                        <td className="action-buttons">
+                          <button title="View" onClick={() => handleViewResident(resident)}>
+                            <FaEye />
+                          </button>
+                          <button title="Edit" onClick={() => handleOpenResidentModal(resident)}>
+                            <FaEdit />
+                          </button>
+                          <button title="Delete"> {/* TODO: Implement Delete */}
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
               <div className="content-footer">
-                {/* Add Resident Button */}
-                {/* Add Resident Button */}
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
@@ -736,41 +928,98 @@ function Dashboard() {
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseResidentModal(); }}>
               <div className="modal-content">
                 <h2>{residentToEdit ? "Edit Resident" : "Add New Resident"}</h2>
-                <form>
-                  {/* Add input fields based on resident table columns */}
+                {/* Updated form with validation and controlled inputs */}
+                <form onSubmit={handleSaveResident} className="modal-form">
+                   {residentFormMessage && <p className={`form-message ${residentFormErrors && Object.keys(residentFormErrors).length > 0 ? 'error' : 'success'}`}>{residentFormMessage}</p>}
+
+                  {/* Resident Form Fields */}
                   <div className="form-group">
                     <label htmlFor="resFullName">Full Name:</label>
-                    <input type="text" id="resFullName" name="resFullName" defaultValue={residentToEdit?.fullName || ''} />
+                    <input
+                      type="text"
+                      id="resFullName"
+                      name="fullName" /* Name matches state key */
+                      value={residentFormData.fullName}
+                      onChange={handleResidentFormChange}
+                      aria-invalid={!!residentFormErrors.fullName}
+                      />
+                    {residentFormErrors.fullName && <span className="error-message">{residentFormErrors.fullName}</span>}
                   </div>
                   <div className="form-group">
                     <label htmlFor="resGender">Gender:</label>
-                    <select id="resGender" name="resGender" defaultValue={residentToEdit?.gender || ''}>
-                      <option value="">Select Gender</option>
+                    <select
+                      id="resGender"
+                      name="gender" /* Name matches state key */
+                      value={residentFormData.gender}
+                      onChange={handleResidentFormChange}
+                      aria-invalid={!!residentFormErrors.gender}
+                      >
+                      <option value="" disabled>Select Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
+                      <option value="Other">Other</option>
                     </select>
+                    {residentFormErrors.gender && <span className="error-message">{residentFormErrors.gender}</span>}
+                  </div>
+                   <div className="form-group">
+                    <label htmlFor="resBirthdate">Birthdate:</label>
+                    <input
+                       type="date"
+                       id="resBirthdate"
+                       name="birthdate" /* Name matches state key */
+                       value={residentFormData.birthdate}
+                       onChange={handleResidentFormChange}
+                       aria-invalid={!!residentFormErrors.birthdate}
+                      />
+                    {residentFormErrors.birthdate && <span className="error-message">{residentFormErrors.birthdate}</span>}
                   </div>
                   <div className="form-group">
-                    <label htmlFor="resAge">Age:</label>
-                    <input type="number" id="resAge" name="resAge" defaultValue={residentToEdit?.age || ''} />
+                    <label htmlFor="resAddress">Address (Street/Purok):</label> {/* Clarify label */}
+                    <input
+                      type="text"
+                      id="resAddress"
+                      name="address" /* Name matches state key */
+                      value={residentFormData.address}
+                      onChange={handleResidentFormChange}
+                      aria-invalid={!!residentFormErrors.address}
+                      />
+                       {/* Add more address fields if needed (barangay, city based on model) */}
+                     {residentFormErrors.address && <span className="error-message">{residentFormErrors.address}</span>}
                   </div>
                   <div className="form-group">
-                    <label htmlFor="resAddress">Address:</label>
-                    <input type="text" id="resAddress" name="resAddress" defaultValue={residentToEdit?.address || ''} />
+                    <label htmlFor="resContact">Contact Number (Optional):</label>
+                    <input
+                      type="text"
+                      id="resContact"
+                      name="contactNumber" /* Name matches state key */
+                      value={residentFormData.contactNumber}
+                      onChange={handleResidentFormChange}
+                      aria-invalid={!!residentFormErrors.contactNumber}
+                     />
+                    {residentFormErrors.contactNumber && <span className="error-message">{residentFormErrors.contactNumber}</span>}
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="resContact">Contact Number:</label>
-                    <input type="text" id="resContact" name="resContact" defaultValue={residentToEdit?.contactNumber || ''} />
-                  </div>
+                   {/* Optional Fields */}
+                   <div className="form-group">
+                      <label htmlFor="resCivilStatus">Civil Status (Optional):</label>
+                      <select id="resCivilStatus" name="civilStatus" value={residentFormData.civilStatus} onChange={handleResidentFormChange}>
+                        <option value="">Select Status</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                        <option value="Widowed">Widowed</option>
+                        <option value="Separated">Separated</option>
+                        <option value="Divorced">Divorced</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="resOccupation">Occupation (Optional):</label>
+                      <input type="text" id="resOccupation" name="occupation" value={residentFormData.occupation} onChange={handleResidentFormChange} />
+                    </div>
+
                   <div className="modal-actions">
-                    <button type="submit" className="save-button">
-                      {residentToEdit ? "Update" : "Save"}
+                    <button type="submit" className="save-button" disabled={residentFormLoading}>
+                      {residentFormLoading ? 'Saving...' : (residentToEdit ? "Update" : "Save")}
                     </button>
-                    <button
-                      type="button"
-                      className="cancel-button"
-                      onClick={handleCloseResidentModal} // Use the new close handler
-                    >
+                    <button type="button" onClick={handleCloseResidentModal} className="cancel-button" disabled={residentFormLoading}>
                       Cancel
                     </button>
                   </div>
