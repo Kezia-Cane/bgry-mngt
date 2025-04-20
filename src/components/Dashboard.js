@@ -27,11 +27,17 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
+  CartesianGrid,
   Cell,
+  Line,
+  // --- Add Line Chart imports ---
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 // --- Define Initial State OUTSIDE Component ---
@@ -823,6 +829,40 @@ function Dashboard() {
 
   }, [blotters]); // Recompute only when blotters array changes
 
+  const recentBlotterData = useMemo(() => {
+    if (!blotters || blotters.length === 0) return [];
+
+    const dayMap = {};
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+    // Initialize counts for the last 7 days
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dayName = dayNames[date.getDay()];
+        dayMap[dateString] = { name: dayName, count: 0, date: dateString };
+    }
+
+    // Count blotters within the last 7 days
+    blotters.forEach(blotter => {
+        if (!blotter.createdAt) return; // Skip if no creation date
+        const blotterDate = new Date(blotter.createdAt);
+        blotterDate.setHours(0, 0, 0, 0);
+        const dateString = blotterDate.toISOString().split('T')[0];
+
+        // Check if the date is within our 7-day map
+        if (dayMap[dateString]) {
+            dayMap[dateString].count += 1;
+        }
+    });
+
+    // Convert map back to array sorted by date
+    return Object.values(dayMap).sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [blotters]); // Recompute only when blotters array changes
+
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -1152,9 +1192,35 @@ function Dashboard() {
 
               {/* --- Bottom Row with Charts --- */}
               <div className="dashboard-bottom-row">
-                  {/* Placeholder for Large Bar/Line Chart */}
+                  {/* Large Chart Area - Replace Placeholder */}
                   <div className="bottom-chart-container large">
-                      <span>AP / AR Balance Chart Placeholder</span>
+                      <h4>Blotters Recorded (Last 7 Days)</h4>
+                      {(blottersLoading || dashboardStatsLoading) && <p>Loading chart data...</p>}
+                      {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading blotter data for chart.</p>}
+                      {!blottersLoading && !blottersError && !dashboardStatsLoading && (
+                          recentBlotterData.length > 0 ? (
+                              <ResponsiveContainer width="100%" height={300}>
+                                  <LineChart
+                                      data={recentBlotterData}
+                                      margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                                  >
+                                      <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+                                      <XAxis dataKey="name" tickLine={false} axisLine={false} dy={10} />
+                                      <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} />
+                                      <Tooltip />
+                                      <Line
+                                          type="monotone"
+                                          dataKey="count"
+                                          stroke="#4e73df" /* Blue line */
+                                          strokeWidth={2}
+                                          dot={{ r: 4 }}
+                                          activeDot={{ r: 6 }}
+                                          name="Blotters" // Tooltip label
+                                      />
+                                  </LineChart>
+                              </ResponsiveContainer>
+                          ) : <p>No blotter data available for the last 7 days.</p>
+                      )}
                   </div>
 
                   {/* Container for the two smaller doughnut charts */}
