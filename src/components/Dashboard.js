@@ -870,7 +870,7 @@ function Dashboard() {
         <div className="sidebar-header">
           {/* Replace with actual logo */}
           <img
-            src="/logo192.png"
+            src="/logo.png"
             alt="Barangay Logo"
             className="sidebar-logo"
           />
