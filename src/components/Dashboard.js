@@ -26,6 +26,16 @@ import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 
+// --- Define Initial State OUTSIDE Component ---
+const initialOfficialFormState = {
+  fullName: '',
+  gender: '',
+  age: '',
+  position: '',
+  term: '',
+  status: 'Active', // Default status
+};
+
 // Remove onLogout prop
 function Dashboard() {
   const dispatch = useDispatch(); // <-- Get dispatch function
@@ -68,14 +78,6 @@ function Dashboard() {
       const [isCertificateViewModalOpen, setIsCertificateViewModalOpen] = useState(false);
 
   // --- State for Add/Edit Official Form ---
-  const initialOfficialFormState = {
-    fullName: '',
-    gender: '',
-    age: '',
-    position: '',
-    term: '',
-    status: 'Active', // Default status
-  };
   const [officialFormData, setOfficialFormData] = useState(initialOfficialFormState);
   const [officialFormErrors, setOfficialFormErrors] = useState({});
   const [officialFormLoading, setOfficialFormLoading] = useState(false); // Loading state for submit
@@ -99,7 +101,7 @@ function Dashboard() {
       setOfficialFormErrors({});
       setOfficialFormMessage('');
     }
-  }, [officialToEdit, isOfficialModalOpen]); // Depend on officialToEdit and modal state
+  }, [officialToEdit, isOfficialModalOpen]);
 
   // --- Input change handler for official form ---
   const handleOfficialFormChange = (e) => {
@@ -221,7 +223,6 @@ function Dashboard() {
     };
 
     try {
-      let response;
       if (officialToEdit) {
         // --- UPDATE LOGIC (Example - assumes PUT /api/barangay-officials/:id) ---
         // response = await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
@@ -231,7 +232,7 @@ function Dashboard() {
 
       } else {
         // --- ADD LOGIC ---
-        response = await axios.post('/api/barangay-officials', dataToSubmit, config);
+        await axios.post('/api/barangay-officials', dataToSubmit, config);
          setOfficialFormMessage('Official added successfully!');
           // Optionally reset form after successful add
           setOfficialFormData(initialOfficialFormState);
@@ -1018,7 +1019,7 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Placeholder Certificate Data */}
+                     {/* Placeholder Certificate Data */}
                     <tr>
                       <td>Barangay Indigency</td>
                       <td>John Doe</td>
