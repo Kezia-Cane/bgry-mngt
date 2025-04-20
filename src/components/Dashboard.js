@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react"; // Add useMemo
 import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
 import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
 import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
@@ -25,6 +25,15 @@ import CertificateViewModal from "./CertificateViewModal.js"; // Import Certific
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
+// --- Import Recharts components ---
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip
+} from 'recharts';
 
 // --- Define Initial State OUTSIDE Component ---
 const initialOfficialFormState = {
@@ -61,6 +70,10 @@ const initialCertificateFormState = {
     residentId: '',
     purpose: '',
 };
+
+// --- Define Colors for Charts --- (Can be customized)
+const GENDER_COLORS = ['#0088FE', '#FF8042', '#FFBB28']; // Blue, Pink, Yellow
+const BLOTTER_COLORS = ['#DD4444', '#FFBB28', '#00C49F', '#8884d8', '#82ca9d']; // Red(Open), Yellow(Invest), Green(Settled), Purple(Referred), Gray(Closed)
 
 // Remove onLogout prop
 function Dashboard() {
@@ -785,6 +798,32 @@ function Dashboard() {
       setCertificateFormMessage('');
   }
 
+  // --- Data Processing for Charts (using useMemo for efficiency) ---
+  const genderData = useMemo(() => {
+    if (!residents || residents.length === 0) return [];
+    const counts = residents.reduce((acc, resident) => {
+      const gender = resident?.gender || 'Unknown';
+      acc[gender] = (acc[gender] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [residents]); // Recompute only when residents array changes
+
+  const blotterStatusData = useMemo(() => {
+    if (!blotters || blotters.length === 0) return [];
+    const counts = blotters.reduce((acc, blotter) => {
+      const status = blotter?.status || 'Unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    // Ensure consistent order for colors if needed
+    const statusOrder = ['Open', 'Under Investigation', 'Amicably Settled', 'Referred', 'Closed', 'Unknown'];
+    return statusOrder
+      .filter(status => counts[status] > 0) // Only include statuses present
+      .map(status => ({ name: status, value: counts[status] }));
+
+  }, [blotters]); // Recompute only when blotters array changes
+
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -1073,7 +1112,6 @@ function Dashboard() {
           {activeModule === "Dashboard" && (
             <div className="dashboard-overview">
               <h2>Dashboard Overview</h2>
-              {/* Welcome message removed */}
               <div className="overview-cards">
                 {/* Total Residents Card */}
                 <div className="overview-card">
@@ -1126,13 +1164,91 @@ function Dashboard() {
                    {certificatesError && <span className="error-message small">Failed to load</span>}
                 </div>
               </div>
-               {/* ... Placeholder for Charts ... */}
-               <div className="dashboard-section">
-                <h3>Analytics</h3>
-                <div className="chart-placeholder">
-                  Chart: Resident Demographics (Placeholder)
-                </div>
+
+              {/* --- Charts Section --- */}
+              <div className="dashboard-section charts-section">
+                <h3>Data Overview</h3>
+                {(dashboardStatsLoading) && <p>Loading chart data...</p>}
+                {(!dashboardStatsLoading && residentsError && blottersError) && <p style={{ color: 'red' }}>Could not load data for charts.</p>}
+
+                {/* Render charts only if not loading and no major errors */}
+                {!dashboardStatsLoading && (!residentsError || !blottersError) && (
+                    <div className="charts-container">
+                         {/* Resident Gender Chart */}
+                         {!residentsError && genderData.length > 0 && (
+                            <div className="chart-wrapper">
+                                <h4>Resident Gender Distribution</h4>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={genderData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            outerRadius={80}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                            nameKey="name"
+                                        >
+                                            {genderData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                         )}
+                         {/* Show message if no resident data */}
+                         {!residentsError && genderData.length === 0 && !residentsLoading && (
+                             <div className="chart-wrapper"><p>No resident data available for gender chart.</p></div>
+                         )}
+                         {/* Show error specific to residents */}
+                         {residentsError && (
+                              <div className="chart-wrapper"><p style={{ color: 'red' }}>Could not load resident data.</p></div>
+                         )}
+
+                         {/* Blotter Status Chart */}
+                         {!blottersError && blotterStatusData.length > 0 && (
+                            <div className="chart-wrapper">
+                                <h4>Blotter Status Distribution</h4>
+                                 <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={blotterStatusData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            // label={({ name, value }) => `${name}: ${value}`}
+                                            outerRadius={80}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                            nameKey="name"
+                                        >
+                                            {blotterStatusData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={BLOTTER_COLORS[index % BLOTTER_COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => `${value} cases`} />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                         )}
+                         {/* Show message if no blotter data */}
+                         {!blottersError && blotterStatusData.length === 0 && !blottersLoading && (
+                             <div className="chart-wrapper"><p>No blotter data available for status chart.</p></div>
+                         )}
+                         {/* Show error specific to blotters */}
+                         {blottersError && (
+                              <div className="chart-wrapper"><p style={{ color: 'red' }}>Could not load blotter data.</p></div>
+                         )}
+                    </div>
+                 )}
               </div>
+              {/* --- End Charts Section --- */}
             </div>
           )}
           {/* Add specific rendering for Resident module */}
