@@ -48,6 +48,19 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
 
       // Basic layout - This should be customized based on actual certificate formats
       const renderCertificateLayout = () => {
+        // --- Safely access potentially nested/populated data ---
+        const residentName = certificate?.resident?.fullName
+                             || certificate?.residentName // Fallback if resident object not populated but name is passed directly
+                             || '[Resident Name Not Found]';
+        const issuerName = certificate?.issuedBy?.username
+                           || certificate?.issuedBy // Fallback if issuedBy is just a string/ID
+                           || '[Issuer Name Not Found]';
+        const issueDateFormatted = certificate?.issueDate
+                                   ? new Date(certificate.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                                   : '[Date Not Found]';
+        const certificateType = certificate?.certificateType || '[Certificate Type Not Found]';
+        const purpose = certificate?.purpose || '[Purpose Not Specified]'; // Added purpose
+
         return (
           <div id="certificate-layout" className="certificate-layout">
             {/* Header */}
@@ -64,39 +77,39 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
             </div>
 
             {/* Title */}
-            <h2 className="certificate-title">{certificate.certificateType}</h2>
+            <h2 className="certificate-title">{certificateType}</h2>
 
             {/* Body */}
             <div className="certificate-body">
               <p><strong>TO WHOM IT MAY CONCERN:</strong></p>
               <p>
-                This is to certify that <strong>{certificate.residentName}</strong>, of legal age, Filipino,
+                This is to certify that <strong>{residentName}</strong>, of legal age, Filipino,
                 is a bonafide resident of Barangay [Barangay Name], [Municipality/City Name], [Province Name].
               </p>
               {/* Add specific content based on certificate type */}
-              {certificate.certificateType === 'Barangay Indigency' && (
+              {certificateType === 'Barangay Indigency' && (
                 <p>
                   This certification is issued upon the request of the above-named person for the purpose of
-                  [State Purpose, e.g., applying for financial assistance, medical assistance, etc.].
+                  <strong> {purpose}</strong>.
                   Based on records available in this office, the subject person belongs to an indigent family.
                 </p>
               )}
-              {certificate.certificateType === 'Barangay Residency' && (
+              {certificateType === 'Barangay Residency' && (
                 <p>
                   This certification is issued upon the request of the above-named person for the purpose of
-                  [State Purpose, e.g., employment requirements, school enrollment, etc.].
+                  <strong> {purpose}</strong>.
                 </p>
               )}
-               {certificate.certificateType === 'Barangay Clearance' && (
+               {certificateType === 'Barangay Clearance' && (
                 <p>
                   This certifies further that the subject person has no pending case filed before this office.
-                  This clearance is issued upon the request of the subject person for [State Purpose, e.g., local employment, ID application, etc.].
+                  This clearance is issued upon the request of the subject person for the purpose of <strong> {purpose}</strong>.
                 </p>
               )}
               {/* Add more conditions for other certificate types */}
 
               <p>
-                Issued this <strong>{new Date(certificate.dateIssued).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong> at the Office of the Punong Barangay,
+                Issued this <strong>{issueDateFormatted}</strong> at the Office of the Punong Barangay,
                 Barangay [Barangay Name], [Municipality/City Name], [Province Name], Philippines.
               </p>
             </div>
@@ -105,7 +118,7 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
             <div className="certificate-signature">
               <p>Issued by:</p>
               <br />
-              <p><strong>{certificate.issuedBy}</strong></p>
+              <p><strong>{issuerName}</strong></p>
               <p><em>[Position of Issuer, e.g., Barangay Secretary]</em></p>
               <br /><br />
               <p>Attested by:</p>

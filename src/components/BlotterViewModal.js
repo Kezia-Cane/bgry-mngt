@@ -18,25 +18,34 @@ import "./BlotterViewModal.css"; // We'll create this CSS file next
             <h2>Blotter Record Details</h2>
             <div className="modal-details">
               <p>
-                <strong>Date Recorded:</strong> {blotter?.dateRecorded}
+                <strong>Incident Date:</strong> {blotter?.incidentDate ? new Date(blotter.incidentDate).toLocaleDateString() : 'N/A'}
               </p>
               <p>
-                <strong>Complainant:</strong> {blotter?.complainant}
+                <strong>Incident Type:</strong> {blotter?.incidentType || 'N/A'}
               </p>
               <p>
-                <strong>Respondent:</strong> {blotter?.respondent}
+                <strong>Location:</strong> {blotter?.incidentLocation || 'N/A'}
               </p>
               <p>
-                <strong>Narrative:</strong> {blotter?.narrative}
+                <strong>Complainant:</strong> {blotter?.complainant?.name || 'N/A'}
               </p>
               <p>
-                <strong>Status:</strong> {blotter?.status}
+                <strong>Respondent:</strong> {blotter?.respondent?.name || 'N/A'}
               </p>
               <p>
-                <strong>Actions Taken:</strong> {blotter?.actionsTaken}
+                <strong>Narrative:</strong> <span style={{ whiteSpace: 'pre-wrap' }}>{blotter?.narrative || 'N/A'}</span>
               </p>
               <p>
-                <strong>Recorded By:</strong> {blotter?.recordedBy}
+                <strong>Status:</strong> {blotter?.status || 'N/A'}
+              </p>
+              <p>
+                <strong>Actions Taken:</strong> {Array.isArray(blotter?.actionsTaken) ? `${blotter.actionsTaken.length} action(s) recorded` : (blotter?.actionsTaken || 'None')}
+              </p>
+              <p>
+                <strong>Recorded By:</strong> {blotter?.recordedBy?.username || 'N/A'}
+              </p>
+              <p>
+                <strong>Date Recorded:</strong> {blotter?.createdAt ? new Date(blotter.createdAt).toLocaleString() : 'N/A'}
               </p>
             </div>
           </div>
