@@ -1158,15 +1158,22 @@ function Dashboard() {
 
                   <div className="form-group">
                     <label htmlFor="position">Position:</label>
-                    <input
-                      type="text"
+                     {/* Changed from input to select */}
+                    <select
                       id="position"
                       name="position"
                       value={officialFormData.position}
                       onChange={handleOfficialFormChange}
                       aria-invalid={!!officialFormErrors.position}
-                    />
-                    {officialFormErrors.position && <span className="error-message">{officialFormErrors.position}</span>}
+                      >
+                        <option value="" disabled>Select Position</option>
+                        <option value="Punong Barangay">Punong Barangay</option>
+                        <option value="Sangguniang Barangay Member">Sangguniang Barangay Member</option>
+                        <option value="SK Chairperson">SK Chairperson</option>
+                        <option value="Barangay Secretary">Barangay Secretary</option>
+                        {/* Add other positions like Treasurer if needed */}
+                     </select>
+                      {officialFormErrors.position && <span className="error-message">{officialFormErrors.position}</span>}
                   </div>
 
                   <div className="form-group">
@@ -1546,16 +1553,34 @@ function Dashboard() {
                     {residentFormErrors.birthdate && <span className="error-message">{residentFormErrors.birthdate}</span>}
                   </div>
                   <div className="form-group">
-                    <label htmlFor="resAddress">Address (Street/Purok):</label> {/* Clarify label */}
-                    <input
-                      type="text"
+                    <label htmlFor="resAddress">Purok:</label>
+                    <select
                       id="resAddress"
                       name="address" /* Name matches state key */
-                      value={residentFormData.address}
+                      value={residentFormData.address} /* Still controlled by residentFormData.address */
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.address}
-                      />
-                       {/* Add more address fields if needed (barangay, city based on model) */}
+                      >
+                        <option value="" disabled>Select Purok</option>
+                        <option value="Purok 1 – Durian">Purok 1 – Durian</option>
+                        <option value="Purok 2 – Oakwood Residence">Purok 2 – Oakwood Residence</option>
+                        <option value="Purok 3 – Lemonsito">Purok 3 – Lemonsito</option>
+                        <option value="Purok 4 – Cabaluna Street">Purok 4 – Cabaluna Street</option>
+                        <option value="Purok 5">Purok 5</option>
+                        <option value="Purok 6">Purok 6</option>
+                        <option value="Purok 7">Purok 7</option>
+                        <option value="Purok 8">Purok 8</option>
+                        <option value="Purok 9">Purok 9</option>
+                        <option value="Purok 10 – Andrea Homes Subdivision">Purok 10 – Andrea Homes Subdivision</option>
+                        <option value="Purok 11">Purok 11</option>
+                        <option value="Purok 12 - Northern Plain Subdivision">Purok 12 - Northern Plain Subdivision</option>
+                        <option value="Purok 13">Purok 13</option>
+                        <option value="Purok 14">Purok 14</option>
+                        <option value="Purok 15">Purok 15</option>
+                        <option value="Purok 16">Purok 16</option>
+                        <option value="Purok 17 – Katipunan ng Kabataan">Purok 17 – Katipunan ng Kabataan</option>
+                        <option value="Purok 18">Purok 18</option>
+                     </select>
                      {residentFormErrors.address && <span className="error-message">{residentFormErrors.address}</span>}
                   </div>
                   <div className="form-group">
