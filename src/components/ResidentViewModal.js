@@ -27,11 +27,23 @@ import "./ResidentViewModal.css";
             <strong>Age:</strong> {resident?.age}
           </p>
           <p>
-            <strong>Address:</strong> {resident?.address}
+            <strong>Address:</strong>
+            {resident?.address
+              ? `${resident.address.street ? resident.address.street + ', ' : ''}${resident.address.barangay ? resident.address.barangay + ', ' : ''}${resident.address.city ? resident.address.city + ', ' : ''}${resident.address.province || ''}`
+              : 'N/A'}
           </p>
           <p>
-            <strong>Contact Number:</strong> {resident?.contactNumber}
+            <strong>Contact Number:</strong> {resident?.contactNumber || 'N/A'}
           </p>
+          {resident?.birthdate && (
+             <p><strong>Birthdate:</strong> {new Date(resident.birthdate).toLocaleDateString()}</p>
+          )}
+           {resident?.civilStatus && (
+             <p><strong>Civil Status:</strong> {resident.civilStatus}</p>
+          )}
+           {resident?.occupation && (
+             <p><strong>Occupation:</strong> {resident.occupation}</p>
+          )}
         </div>
       </div>
     </div>
