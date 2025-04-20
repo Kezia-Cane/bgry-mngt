@@ -1953,15 +1953,14 @@ function Dashboard() {
             <div className="about-section">
               <h2>About the Barangay Management System</h2>
               <p>
-                The Barangay Management System aims to modernize the
-                record-keeping and administrative processes within a barangay.
-                It provides a centralized platform for managing resident
-                information, barangay officials, blotter incidents, certificate
-                issuance, and user accounts.
+              The Barangay Management System is a personal project developed to simulate and modernize the administrative processes within a barangay. It provides a centralized platform for managing resident information, barangay officials, blotter records, certificate issuance, and user accounts.
               </p>
               <p>
-                This system intends to improve efficiency, transparency, and
-                communication within the community.
+              This system is designed to improve efficiency, transparency, and communication in a community setting through digital transformation.
+              </p>
+              {/* Add the disclaimer text */}
+              <p style={{ marginTop: '20px', fontStyle: 'italic', color: '#6c757d' }}>
+                 <strong>Disclaimer:</strong> This project is not affiliated with or officially connected to any actual barangay. All data used within the system is fictional and intended for demonstration purposes only.
               </p>
               {/* Add more details if needed, e.g., version, contact */}
               <p>Version: 1.0.0 (Placeholder)</p>
