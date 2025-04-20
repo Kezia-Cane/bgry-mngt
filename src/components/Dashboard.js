@@ -56,6 +56,11 @@ const initialBlotterFormState = {
   status: 'Open', // Default status
   // complainantAddress, complainantContact, respondentAddress can be added if needed
 };
+const initialCertificateFormState = {
+    certificateType: '',
+    residentId: '',
+    purpose: '',
+};
 
 // Remove onLogout prop
 function Dashboard() {
@@ -131,21 +136,32 @@ function Dashboard() {
   const [blotterFormLoading, setBlotterFormLoading] = useState(false);
   const [blotterFormMessage, setBlotterFormMessage] = useState('');
 
+  // --- Data Fetching State (Certificates) ---
+  const [certificates, setCertificates] = useState([]);
+  const [certificatesLoading, setCertificatesLoading] = useState(false);
+  const [certificatesError, setCertificatesError] = useState(null);
+
+  // --- State for Issue Certificate Form ---
+  const [certificateFormData, setCertificateFormData] = useState(initialCertificateFormState);
+  const [certificateFormErrors, setCertificateFormErrors] = useState({});
+  const [certificateFormLoading, setCertificateFormLoading] = useState(false);
+  const [certificateFormMessage, setCertificateFormMessage] = useState('');
+
+  // Add loading state specifically for dashboard stats aggregation
+  const [dashboardStatsLoading, setDashboardStatsLoading] = useState(false);
+
   // --- Fetch Functions ---
   const fetchOfficials = async () => {
     setOfficialsLoading(true);
     setOfficialsError(null);
     try {
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      };
+      const config = { headers: { 'Authorization': `Bearer ${token}` } };
       const response = await axios.get('/api/barangay-officials', config);
-      setOfficials(response.data); // Assuming the API returns an array directly
+      setOfficials(response.data || []);
     } catch (error) {
       console.error("Error fetching officials:", error.response || error);
-      setOfficialsError('Failed to load officials. Please try again.');
+      setOfficialsError('Failed to load officials.');
+      setOfficials([]);
     } finally {
       setOfficialsLoading(false);
     }
@@ -156,12 +172,14 @@ function Dashboard() {
     setResidentsError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      // Assuming API returns { residents: [...] } structure based on controller
       const response = await axios.get('/api/residents', config);
-      setResidents(response.data.residents || response.data); // Adapt based on actual API response structure
+      setResidents(response.data.residents || response.data || []);
+      // If API provides totalResidents, store it (optional)
+      // setTotalResidents(response.data.totalResidents || 0);
     } catch (error) {
       console.error("Error fetching residents:", error.response || error);
-      setResidentsError('Failed to load residents. Please try again.');
+      setResidentsError('Failed to load residents.');
+      setResidents([]);
     } finally {
       setResidentsLoading(false);
     }
@@ -172,26 +190,59 @@ function Dashboard() {
     setBlottersError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      // Assuming API returns { blotters: [...] } structure based on controller
       const response = await axios.get('/api/blotters', config);
-      setBlotters(response.data.blotters || response.data); // Adjust as needed
+      setBlotters(response.data.blotters || response.data || []);
     } catch (error) {
       console.error("Error fetching blotters:", error.response || error);
-      setBlottersError('Failed to load blotter records. Please try again.');
+      setBlottersError('Failed to load blotter records.');
+      setBlotters([]);
     } finally {
       setBlottersLoading(false);
+    }
+  };
+
+  const fetchCertificates = async () => {
+    setCertificatesLoading(true);
+    setCertificatesError(null);
+    try {
+      const config = { headers: { 'Authorization': `Bearer ${token}` } };
+      const response = await axios.get('/api/certificates', config);
+      setCertificates(response.data.certificates || response.data || []);
+    } catch (error) {
+      console.error("Error fetching certificates:", error.response || error);
+      setCertificatesError('Failed to load certificates.');
+      setCertificates([]);
+    } finally {
+      setCertificatesLoading(false);
     }
   };
 
   // --- Effect to Fetch Data when module is active ---
   useEffect(() => {
     if (token) {
+      // Fetch specific data based on active module
       if (activeModule === "Brgy Official") fetchOfficials();
       if (activeModule === "Resident") fetchResidents();
       if (activeModule === "Blotter") fetchBlotters();
+      if (activeModule === "Certificate") {
+          fetchCertificates();
+          if (residents.length === 0 && !residentsLoading) fetchResidents();
+      }
+      if (activeModule === "Dashboard") {
+          // Fetch all data needed for dashboard stats
+          setDashboardStatsLoading(true);
+          Promise.all([
+              fetchOfficials(),
+              fetchResidents(),
+              fetchBlotters(),
+              fetchCertificates()
+          ]).finally(() => {
+              setDashboardStatsLoading(false);
+          });
+      }
       // Add other modules here
     }
-  }, [activeModule, token]);
+  }, [activeModule, token]); // Rerun when module or token changes
 
   // --- Effect to pre-fill form when editing ---
   useEffect(() => {
@@ -299,6 +350,15 @@ function Dashboard() {
     setBlotterFormMessage('');
   };
 
+  const handleCertificateFormChange = (e) => {
+    const { name, value } = e.target;
+    setCertificateFormData(prevState => ({ ...prevState, [name]: value }));
+    if (certificateFormErrors[name]) {
+      setCertificateFormErrors(prevErrors => ({ ...prevErrors, [name]: null }));
+    }
+    setCertificateFormMessage('');
+  };
+
   // --- Validation function for official form ---
   const validateOfficialForm = () => {
     const errors = {};
@@ -343,6 +403,15 @@ function Dashboard() {
     if (!blotterFormData.status) errors.status = 'Status is required';
 
     setBlotterFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateCertificateForm = () => {
+    const errors = {};
+    if (!certificateFormData.certificateType) errors.certificateType = 'Certificate Type is required';
+    if (!certificateFormData.residentId) errors.residentId = 'Resident is required';
+    if (!certificateFormData.purpose.trim()) errors.purpose = 'Purpose is required';
+    setCertificateFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -665,6 +734,57 @@ function Dashboard() {
     }
   };
 
+  const handleIssueCertificate = async (e) => {
+    e.preventDefault();
+    setCertificateFormMessage('');
+    setCertificateFormErrors({});
+
+    if (!validateCertificateForm()) {
+      setCertificateFormMessage('Please fix the errors in the form.');
+      return;
+    }
+
+    setCertificateFormLoading(true);
+    const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+    const dataToSubmit = {
+      certificateType: certificateFormData.certificateType,
+      residentId: certificateFormData.residentId,
+      purpose: certificateFormData.purpose,
+    };
+
+    try {
+      await axios.post('/api/certificates', dataToSubmit, config);
+      setCertificateFormMessage('Certificate issued successfully!');
+      setCertificateFormData(initialCertificateFormState);
+      await fetchCertificates(); // Refresh list
+      setTimeout(() => {
+        handleCloseCertificateModal();
+      }, 1500);
+    } catch (error) {
+      console.error("Error issuing certificate:", error.response || error);
+      let errorMessage = 'Failed to issue certificate. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+        if (error.response.status === 404 && error.response.data.message.includes('Resident not found')){
+            setCertificateFormErrors(prev => ({...prev, residentId: 'Selected resident not found in database.' }))
+        }
+        if (error.response.data.errors) {
+           console.error("Backend validation errors:", error.response.data.errors);
+        }
+      }
+      setCertificateFormMessage(errorMessage);
+    } finally {
+      setCertificateFormLoading(false);
+    }
+  };
+
+  const handleCloseCertificateModal = () => {
+      setIsCertificateModalOpen(false);
+      setCertificateFormData(initialCertificateFormState);
+      setCertificateFormErrors({});
+      setCertificateFormMessage('');
+  }
+
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -952,35 +1072,66 @@ function Dashboard() {
             )}
           {activeModule === "Dashboard" && (
             <div className="dashboard-overview">
-              <h2>Dashboard Overview</h2> {/* Added title back */}
-              <p className="welcome-message">Welcome back, [User Name]!</p>{" "}
-              {/* Added Welcome Message */}
-              {/* Keep existing Dashboard content */}
+              <h2>Dashboard Overview</h2>
+              {/* Welcome message removed */}
               <div className="overview-cards">
+                {/* Total Residents Card */}
                 <div className="overview-card">
                   <h3>Total Residents</h3>
-                  <p>150</p> {/* Placeholder */}
+                  <p
+                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
+                     onClick={() => setActiveModule('Resident')}
+                     title="Go to Residents"
+                     >
+                     {/* Show loading state or actual count */}
+                     {residentsLoading || dashboardStatsLoading ? '...' : residents.length}
+                   </p>
+                   {residentsError && <span className="error-message small">Failed to load</span>}
                 </div>
+                 {/* Active Officials Card */}
                 <div className="overview-card">
                   <h3>Active Officials</h3>
-                  <p>12</p> {/* Placeholder */}
+                  <p
+                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
+                     onClick={() => setActiveModule('Brgy Official')}
+                     title="Go to Officials"
+                     >
+                     {officialsLoading || dashboardStatsLoading ? '...' : officials.filter(o => o?.status === 'Active').length}
+                   </p>
+                    {officialsError && <span className="error-message small">Failed to load</span>}
                 </div>
+                 {/* New Blotter Cases Card */}
                 <div className="overview-card">
-                  <h3>New Blotter Cases </h3>
-                  <p>5</p> {/* Placeholder */}
+                  <h3>Open Blotter Cases</h3> {/* Changed title for clarity */}
+                  <p
+                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
+                     onClick={() => setActiveModule('Blotter')}
+                     title="Go to Blotter"
+                     >
+                     {/* Assuming 'Open' is the status for new/active cases */}
+                     {blottersLoading || dashboardStatsLoading ? '...' : blotters.filter(b => b?.status === 'Open').length}
+                   </p>
+                   {blottersError && <span className="error-message small">Failed to load</span>}
                 </div>
+                 {/* Certificates Issued Card */}
                 <div className="overview-card">
                   <h3>Certificates Issued</h3>
-                  <p>25</p> {/* Placeholder */}
+                  <p
+                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
+                     onClick={() => setActiveModule('Certificate')}
+                     title="Go to Certificates"
+                     >
+                     {certificatesLoading || dashboardStatsLoading ? '...' : certificates.length}
+                   </p>
+                   {certificatesError && <span className="error-message small">Failed to load</span>}
                 </div>
               </div>
-              {/* Placeholder for Charts */}
-              <div className="dashboard-section">
+               {/* ... Placeholder for Charts ... */}
+               <div className="dashboard-section">
                 <h3>Analytics</h3>
                 <div className="chart-placeholder">
                   Chart: Resident Demographics (Placeholder)
                 </div>
-                {/* Add more chart placeholders if needed */}
               </div>
             </div>
           )}
@@ -1393,37 +1544,36 @@ function Dashboard() {
                       <th>Resident Name</th>
                       <th>Date Issued</th>
                       <th>Issued By</th>
+                      <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                     {/* Placeholder Certificate Data */}
-                    <tr>
-                      <td>Barangay Indigency</td>
-                      <td>John Doe</td>
-                      <td>2025-04-01</td>
-                      <td>Secretary Lee</td>
-                      <td className="action-buttons">
-                        {/* Attach handler to View button - using placeholder data */}
-                        <button title="View/Download" onClick={() => handleViewCertificate({ certificateType: 'Barangay Indigency', residentName: 'John Doe', dateIssued: '2025-04-01', issuedBy: 'Secretary Lee' })}>
-                          <FaEye />
-                        </button>
-                        {/* Maybe Revoke? */}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Barangay Residency</td>
-                      <td>Jane Smith</td>
-                      <td>2025-03-25</td>
-                      <td>Secretary Lee</td>
-                      <td className="action-buttons">
-                        {/* Attach handler to View button - using placeholder data */}
-                        <button title="View/Download" onClick={() => handleViewCertificate({ certificateType: 'Barangay Residency', residentName: 'Jane Smith', dateIssued: '2025-03-25', issuedBy: 'Secretary Lee' })}>
-                          <FaEye />
-                        </button>
-                      </td>
-                    </tr>
-                    {/* Add more placeholder certificate records as needed */}
+                    {/* Conditional Rendering for Certificates */}
+                     {certificatesLoading && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading certificates...</td></tr>
+                    )}
+                    {certificatesError && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{certificatesError}</td></tr>
+                    )}
+                    {!certificatesLoading && !certificatesError && certificates.length === 0 && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>No certificates found.</td></tr>
+                    )}
+                    {/* Use optional chaining for safety */}
+                    {!certificatesLoading && !certificatesError && certificates.map((certificate) => (
+                      <tr key={certificate?._id}>
+                        <td>{certificate?.certificateType}</td>
+                        <td>{certificate?.resident?.fullName || 'N/A'}</td>
+                        <td>{certificate?.issueDate ? new Date(certificate.issueDate).toLocaleDateString() : 'N/A'}</td>
+                        <td>{certificate?.issuedBy?.username || 'N/A'}</td>
+                        <td>{certificate?.status}</td>
+                        <td className="action-buttons">
+                          <button title="View/Download" onClick={() => handleViewCertificate(certificate)}>
+                            <FaEye />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -1440,57 +1590,78 @@ function Dashboard() {
 
           {/* Modal for Issuing Certificate */}
           {isCertificateModalOpen && (
-            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsCertificateModalOpen(false); }}>
+            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseCertificateModal(); }}>
               <div className="modal-content">
+                <button onClick={handleCloseCertificateModal} className="modal-close-button">&times;</button>
                 <h2>Issue New Certificate</h2>
-                <form>
-                  {/* Add input fields based on certificate table columns */}
+                <form onSubmit={handleIssueCertificate} className="modal-form">
+                   {certificateFormMessage && <p className={`form-message ${certificateFormErrors && Object.keys(certificateFormErrors).length > 0 ? 'error' : 'success'}`}>{certificateFormMessage}</p>}
+
                   <div className="form-group">
-                    <label htmlFor="certType">Certificate Type:</label>
-                    <select id="certType" name="certType">
-                      <option value="">Select Type</option>
-                      <option value="Barangay Indigency">
-                        Barangay Indigency
-                      </option>
-                      <option value="Barangay Residency">
-                        Barangay Residency
-                      </option>
-                      <option value="Barangay Clearance">
-                        Barangay Clearance
-                      </option>
-                      {/* Add other certificate types as needed */}
+                    <label htmlFor="certificateType">Certificate Type:</label>
+                    <select
+                      id="certificateType"
+                      name="certificateType"
+                      value={certificateFormData.certificateType}
+                      onChange={handleCertificateFormChange}
+                      aria-invalid={!!certificateFormErrors.certificateType}
+                      >
+                      <option value="" disabled>Select Type</option>
+                      <option value="Barangay Clearance">Barangay Clearance</option>
+                      <option value="Certificate of Residency">Certificate of Residency</option>
+                      <option value="Certificate of Indigency">Certificate of Indigency</option>
+                      <option value="Business Permit">Business Permit</option>
+                      <option value="Other">Other</option>
                     </select>
+                    {certificateFormErrors.certificateType && <span className="error-message">{certificateFormErrors.certificateType}</span>}
                   </div>
+
+                   <div className="form-group">
+                    <label htmlFor="residentId">Resident:</label>
+                    <select
+                       id="residentId"
+                       name="residentId"
+                       value={certificateFormData.residentId}
+                       onChange={handleCertificateFormChange}
+                       aria-invalid={!!certificateFormErrors.residentId}
+                       disabled={residentsLoading} // Disable while residents are loading
+                      >
+                      <option value="" disabled>Select Resident</option>
+                      {/* Handle loading and error states for residents */}
+                      {residentsLoading && <option value="" disabled>Loading residents...</option>}
+                      {!residentsLoading && residentsError && <option value="" disabled>Error loading residents</option>}
+                      {!residentsLoading && !residentsError && residents.map(resident => (
+                          // Ensure resident object and _id exist before rendering option
+                          resident?._id && <option key={resident._id} value={resident._id}>{resident.fullName}</option>
+                      ))}
+                      {!residentsLoading && !residentsError && residents.length === 0 && <option value="" disabled>No residents found</option>}
+                    </select>
+                    {/* Wrap conditional error messages in a Fragment */}
+                    <>
+                      {certificateFormErrors.residentId && <span className="error-message">{certificateFormErrors.residentId}</span>}
+                      {/* Display resident fetch error only if relevant */}
+                      {residentsError && !residentsLoading && <span className="error-message">{residentsError}</span>}
+                    </>
+                  </div>
+
                   <div className="form-group">
-                    <label htmlFor="certResidentName">Resident Name:</label>
+                    <label htmlFor="purpose">Purpose:</label>
                     <input
                       type="text"
-                      id="certResidentName"
-                      name="certResidentName"
-                    />
+                      id="purpose"
+                      name="purpose"
+                      value={certificateFormData.purpose}
+                      onChange={handleCertificateFormChange}
+                      aria-invalid={!!certificateFormErrors.purpose}
+                     />
+                     {certificateFormErrors.purpose && <span className="error-message">{certificateFormErrors.purpose}</span>}
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="certDateIssued">Date Issued:</label>
-                    <input
-                      type="date"
-                      id="certDateIssued"
-                      name="certDateIssued"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="certIssuedBy">Issued By:</label>
-                    <input type="text" id="certIssuedBy" name="certIssuedBy" />
-                  </div>
-                  {/* Add other relevant fields like Purpose, OR Number, Amount Paid if needed */}
+
                   <div className="modal-actions">
-                    <button type="submit" className="save-button">
-                      Issue Certificate
+                    <button type="submit" className="save-button" disabled={certificateFormLoading || residentsLoading}>
+                      {certificateFormLoading ? 'Issuing...' : 'Issue Certificate'}
                     </button>
-                    <button
-                      type="button"
-                      className="cancel-button"
-                      onClick={() => setIsCertificateModalOpen(false)} // Close certificate modal
-                    >
+                    <button type="button" onClick={handleCloseCertificateModal} className="cancel-button" disabled={certificateFormLoading}>
                       Cancel
                     </button>
                   </div>
