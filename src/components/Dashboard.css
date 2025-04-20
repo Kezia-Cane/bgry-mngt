@@ -386,33 +386,34 @@ table tbody tr:hover {
 }
 
 .overview-card {
-  background-color: #fff;
   border-radius: 10px;
-  padding: 30px;
-  width: 200px; /* Fixed width for horizontal cards */
-  min-width: 100px; /* Ensure cards don't shrink */
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
-}
-
-.overview-card:hover {
-  transform: translateY(-3px);
+  padding: 20px;
+  /* Set default colors now */
+  background-color: #ffffff; /* Default white background */
+  color: #5a5c69; /* Default dark grey text */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .overview-card h3 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  color: #333;
+  margin: 0 0 5px 0;
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 500; /* Make title slightly bolder */
+  color: #858796; /* Lighter grey for title */
 }
 
-.overview-card p {
-  font-size: 1.2em;
-  font-weight: 600;
-  color: #2980b9;
+.overview-card p.card-value {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  line-height: 1;
+  color: #343a40; /* Darker color for value */
+}
+
+.overview-card p.card-secondary {
+  font-size: 0.9em;
+  opacity: 0.8;
   margin: 0;
+  color: #858796; /* Match title color */
 }
 
 .quick-links {
@@ -609,39 +610,41 @@ table tbody tr:hover {
 .overview-card {
   border-radius: 10px;
   padding: 20px;
-  color: #fff; /* White text for colored backgrounds */
+  /* Set default colors now */
+  background-color: #ffffff; /* Default white background */
+  color: #5a5c69; /* Default dark grey text */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  /* Remove cursor pointer if not linking */
-  /* cursor: default; */
 }
 
 .overview-card h3 {
   margin: 0 0 5px 0;
   font-size: 1em;
-  font-weight: normal;
+  font-weight: 500; /* Make title slightly bolder */
+  color: #858796; /* Lighter grey for title */
 }
 
 .overview-card p.card-value {
-  /* Style for the large number */
   font-size: 2em;
   font-weight: bold;
   margin: 0 0 10px 0;
   line-height: 1;
+  color: #343a40; /* Darker color for value */
 }
 
 .overview-card p.card-secondary {
-   /* Style for the smaller text below */
   font-size: 0.9em;
   opacity: 0.8;
   margin: 0;
+  color: #858796; /* Match title color */
 }
 
-/* Assign background colors (adjust as needed) */
-.overview-card.residents-card { background-color: #4e73df; } /* Blue */
-.overview-card.officials-card { background-color: #36b9cc; } /* Light Blue */
-.overview-card.blotters-card { background-color: #858796; } /* Gray/Purpleish */
-.overview-card.certificates-card { background-color: #1cc88a; } /* Green */
-
+/* REMOVE Specific background colors */
+/*
+.overview-card.residents-card { background-color: #4e73df; }
+.overview-card.officials-card { background-color: #36b9cc; }
+.overview-card.blotters-card { background-color: #858796; }
+.overview-card.certificates-card { background-color: #1cc88a; }
+*/
 
 /* --- Bottom Row Layout --- */
 .dashboard-bottom-row {

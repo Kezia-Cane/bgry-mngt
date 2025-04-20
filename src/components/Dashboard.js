@@ -28,7 +28,6 @@ import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
   Cell,
-  Legend,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -1111,144 +1110,123 @@ function Dashboard() {
             )}
           {activeModule === "Dashboard" && (
             <div className="dashboard-overview">
-              <h2>Dashboard Overview</h2>
+              {/* Cards Section - Apply new structure and classes */}
               <div className="overview-cards">
                 {/* Total Residents Card */}
-                <div className="overview-card">
+                <div className="overview-card residents-card">
                   <h3>Total Residents</h3>
-                  <p
-                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
-                     onClick={() => setActiveModule('Resident')}
-                     title="Go to Residents"
-                     >
-                     {/* Show loading state or actual count */}
-                     {residentsLoading || dashboardStatsLoading ? '...' : residents.length}
-                   </p>
-                   {residentsError && <span className="error-message small">Failed to load</span>}
+                  <p className="card-value">
+                    {residentsLoading || dashboardStatsLoading ? '...' : residents.length}
+                  </p>
+                  <p className="card-secondary">Updated recently</p> {/* Placeholder secondary text */}
+                  {residentsError && <span className="error-message small">Failed to load</span>}
                 </div>
-                 {/* Active Officials Card */}
-                <div className="overview-card">
+                {/* Active Officials Card */}
+                <div className="overview-card officials-card">
                   <h3>Active Officials</h3>
-                  <p
-                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
-                     onClick={() => setActiveModule('Brgy Official')}
-                     title="Go to Officials"
-                     >
-                     {officialsLoading || dashboardStatsLoading ? '...' : officials.filter(o => o?.status === 'Active').length}
-                   </p>
-                    {officialsError && <span className="error-message small">Failed to load</span>}
+                  <p className="card-value">
+                    {officialsLoading || dashboardStatsLoading ? '...' : officials.filter(o => o?.status === 'Active').length}
+                  </p>
+                  <p className="card-secondary">Currently serving</p> {/* Placeholder */}
+                  {officialsError && <span className="error-message small">Failed to load</span>}
                 </div>
-                 {/* New Blotter Cases Card */}
-                <div className="overview-card">
-                  <h3>Open Blotter Cases</h3> {/* Changed title for clarity */}
-                  <p
-                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
-                     onClick={() => setActiveModule('Blotter')}
-                     title="Go to Blotter"
-                     >
-                     {/* Assuming 'Open' is the status for new/active cases */}
-                     {blottersLoading || dashboardStatsLoading ? '...' : blotters.filter(b => b?.status === 'Open').length}
-                   </p>
-                   {blottersError && <span className="error-message small">Failed to load</span>}
+                {/* Open Blotter Cases Card */}
+                <div className="overview-card blotters-card">
+                  <h3>Open Blotter Cases</h3>
+                  <p className="card-value">
+                    {blottersLoading || dashboardStatsLoading ? '...' : blotters.filter(b => b?.status === 'Open').length}
+                  </p>
+                  <p className="card-secondary">Require action</p> {/* Placeholder */}
+                  {blottersError && <span className="error-message small">Failed to load</span>}
                 </div>
-                 {/* Certificates Issued Card */}
-                <div className="overview-card">
+                {/* Certificates Issued Card */}
+                <div className="overview-card certificates-card">
                   <h3>Certificates Issued</h3>
-                  <p
-                     style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '1.5em' }}
-                     onClick={() => setActiveModule('Certificate')}
-                     title="Go to Certificates"
-                     >
-                     {certificatesLoading || dashboardStatsLoading ? '...' : certificates.length}
-                   </p>
-                   {certificatesError && <span className="error-message small">Failed to load</span>}
+                  <p className="card-value">
+                    {certificatesLoading || dashboardStatsLoading ? '...' : certificates.length}
+                  </p>
+                  <p className="card-secondary">Total documents</p> {/* Placeholder */}
+                  {certificatesError && <span className="error-message small">Failed to load</span>}
                 </div>
               </div>
 
-              {/* --- Charts Section --- */}
-              <div className="dashboard-section charts-section">
-                <h3>Data Overview</h3>
-                {(dashboardStatsLoading) && <p>Loading chart data...</p>}
-                {(!dashboardStatsLoading && residentsError && blottersError) && <p style={{ color: 'red' }}>Could not load data for charts.</p>}
+              {/* --- Bottom Row with Charts --- */}
+              <div className="dashboard-bottom-row">
+                  {/* Placeholder for Large Bar/Line Chart */}
+                  <div className="bottom-chart-container large">
+                      <span>AP / AR Balance Chart Placeholder</span>
+                  </div>
 
-                {/* Render charts only if not loading and no major errors */}
-                {!dashboardStatsLoading && (!residentsError || !blottersError) && (
-                    <div className="charts-container">
-                         {/* Resident Gender Chart */}
-                         {!residentsError && genderData.length > 0 && (
-                            <div className="chart-wrapper">
-                                <h4>Resident Gender Distribution</h4>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={genderData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                            nameKey="name"
-                                        >
-                                            {genderData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                         )}
-                         {/* Show message if no resident data */}
-                         {!residentsError && genderData.length === 0 && !residentsLoading && (
-                             <div className="chart-wrapper"><p>No resident data available for gender chart.</p></div>
-                         )}
-                         {/* Show error specific to residents */}
-                         {residentsError && (
-                              <div className="chart-wrapper"><p style={{ color: 'red' }}>Could not load resident data.</p></div>
-                         )}
+                  {/* Container for the two smaller doughnut charts */}
+                  <div className="bottom-chart-container small-charts">
+                      {/* Resident Gender Doughnut Chart */}
+                      <div className="chart-wrapper">
+                          <h4>Resident Gender</h4>
+                          {(residentsLoading || dashboardStatsLoading) && <p>Loading...</p>}
+                          {residentsError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
+                          {!residentsLoading && !residentsError && !dashboardStatsLoading && (
+                              genderData.length > 0 ? (
+                                  <ResponsiveContainer width="100%" height={200}> {/* Adjust height */}
+                                      <PieChart>
+                                          <Pie
+                                              data={genderData}
+                                              cx="50%"
+                                              cy="50%"
+                                              innerRadius={60} // Make it a doughnut
+                                              outerRadius={80}
+                                              fill="#8884d8"
+                                              paddingAngle={2}
+                                              dataKey="value"
+                                              nameKey="name"
+                                          >
+                                              {genderData.map((entry, index) => (
+                                                  <Cell key={`cell-gender-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
+                                              ))}
+                                          </Pie>
+                                          <Tooltip />
+                                          {/* <Legend /> Optional: Legend might clutter small charts */}
+                                      </PieChart>
+                                  </ResponsiveContainer>
+                              ) : <p>No resident data</p>
+                          )}
+                      </div>
 
-                         {/* Blotter Status Chart */}
-                         {!blottersError && blotterStatusData.length > 0 && (
-                            <div className="chart-wrapper">
-                                <h4>Blotter Status Distribution</h4>
-                                 <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={blotterStatusData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            // label={({ name, value }) => `${name}: ${value}`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                            nameKey="name"
-                                        >
-                                            {blotterStatusData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={BLOTTER_COLORS[index % BLOTTER_COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip formatter={(value) => `${value} cases`} />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                         )}
-                         {/* Show message if no blotter data */}
-                         {!blottersError && blotterStatusData.length === 0 && !blottersLoading && (
-                             <div className="chart-wrapper"><p>No blotter data available for status chart.</p></div>
-                         )}
-                         {/* Show error specific to blotters */}
-                         {blottersError && (
-                              <div className="chart-wrapper"><p style={{ color: 'red' }}>Could not load blotter data.</p></div>
-                         )}
-                    </div>
-                 )}
+                       {/* Blotter Status Doughnut Chart */}
+                       <div className="chart-wrapper">
+                          <h4>Blotter Status</h4>
+                           {(blottersLoading || dashboardStatsLoading) && <p>Loading...</p>}
+                           {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
+                           {!blottersLoading && !blottersError && !dashboardStatsLoading && (
+                              blotterStatusData.length > 0 ? (
+                                  <ResponsiveContainer width="100%" height={200}> {/* Adjust height */}
+                                      <PieChart>
+                                          <Pie
+                                              data={blotterStatusData}
+                                              cx="50%"
+                                              cy="50%"
+                                              innerRadius={60} // Make it a doughnut
+                                              outerRadius={80}
+                                              fill="#8884d8"
+                                              paddingAngle={2}
+                                              dataKey="value"
+                                              nameKey="name"
+                                          >
+                                              {blotterStatusData.map((entry, index) => (
+                                                  <Cell key={`cell-status-${index}`} fill={BLOTTER_COLORS[index % BLOTTER_COLORS.length]} />
+                                              ))}
+                                          </Pie>
+                                          <Tooltip formatter={(value) => `${value} cases`} />
+                                           {/* <Legend /> Optional */}
+                                      </PieChart>
+                                  </ResponsiveContainer>
+                              ) : <p>No blotter data</p>
+                           )}
+                      </div>
+                  </div>
               </div>
-              {/* --- End Charts Section --- */}
+               {/* --- End Bottom Row --- */}
+
+              {/* Old Charts Section Removed */}
             </div>
           )}
           {/* Add specific rendering for Resident module */}
