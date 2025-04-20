@@ -611,7 +611,13 @@ function Dashboard() {
       fullName: residentFormData.fullName,
       gender: residentFormData.gender,
       birthdate: residentFormData.birthdate,
-      address: { street: residentFormData.address },
+      // Hardcode Barangay, City, Province; Street comes from the Purok dropdown
+      address: {
+          street: residentFormData.address, // This holds the selected Purok
+          barangay: "New Visayas",
+          city: "Panabo City",
+          province: "Davao del Norte"
+      },
       contactNumber: residentFormData.contactNumber || undefined,
       civilStatus: residentFormData.civilStatus || undefined,
       occupation: residentFormData.occupation || undefined,

@@ -27,10 +27,8 @@ import "./ResidentViewModal.css";
             <strong>Age:</strong> {resident?.age}
           </p>
           <p>
-            <strong>Address:</strong>
-            {resident?.address
-              ? `${resident.address.street ? resident.address.street + ', ' : ''}${resident.address.barangay ? resident.address.barangay + ', ' : ''}${resident.address.city ? resident.address.city + ', ' : ''}${resident.address.province || ''}`
-              : 'N/A'}
+            <strong>Purok:</strong>
+            {resident?.address?.street || 'N/A'}
           </p>
           <p>
             <strong>Contact Number:</strong> {resident?.contactNumber || 'N/A'}
