@@ -59,3 +59,40 @@
       width: 140px; /* Adjusted width for longer labels */
       color: #343a40;
     }
+    /* --- CSS for Hanging Indent on Narrative --- */
+    .narrative-paragraph {
+      padding-left: 150px; /* Match or slightly exceed the strong width + desired gap */
+      text-indent: -150px; /* Negative indent to pull the first line back */
+      margin-left: 0; /* Ensure no extra margin pushes it */
+    }
+
+    .narrative-paragraph strong {
+      /* Override the general strong style for the narrative label */
+      display: inline; /* Keep label inline */
+      width: auto; /* Remove fixed width */
+      margin-right: 5px; /* Add a small space between label and text */
+      padding-left: 0; /* Remove any potential padding */
+      text-indent: 0; /* Reset text-indent for the label itself */
+    }
+    /* --- End Narrative CSS --- */
+
+    /* --- Flexbox styling for Narrative --- */
+    .narrative-flex-row {
+      display: flex;
+      margin-bottom: 12px; /* Match paragraph spacing */
+      color: #495057; /* Match paragraph text color */
+    }
+
+    .narrative-flex-row strong {
+      width: 140px; /* Fixed width matching other labels */
+      flex-shrink: 0; /* Prevent shrinking */
+      margin-right: 0; /* Ensure no extra space */
+      color: #343a40; /* Match other label colors */
+      font-weight: bold; /* Ensure it's bold */
+    }
+
+    .narrative-flex-row span {
+       /* Inherits color and font-size from parent div */
+       /* white-space: pre-wrap; is handled inline */
+    }
+    /* --- End Flexbox Narrative Styling --- */

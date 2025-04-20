@@ -17,36 +17,46 @@ import "./BlotterViewModal.css"; // We'll create this CSS file next
             </button>
             <h2>Blotter Record Details</h2>
             <div className="modal-details">
-              <p>
-                <strong>Incident Date:</strong> {blotter?.incidentDate ? new Date(blotter.incidentDate).toLocaleDateString() : 'N/A'}
-              </p>
-              <p>
-                <strong>Incident Type:</strong> {blotter?.incidentType || 'N/A'}
-              </p>
-              <p>
-                <strong>Location:</strong> {blotter?.incidentLocation || 'N/A'}
-              </p>
-              <p>
-                <strong>Complainant:</strong> {blotter?.complainant?.name || 'N/A'}
-              </p>
-              <p>
-                <strong>Respondent:</strong> {blotter?.respondent?.name || 'N/A'}
-              </p>
-              <p>
-                <strong>Narrative:</strong> <span style={{ whiteSpace: 'pre-wrap' }}>{blotter?.narrative || 'N/A'}</span>
-              </p>
-              <p>
-                <strong>Status:</strong> {blotter?.status || 'N/A'}
-              </p>
-              <p>
-                <strong>Actions Taken:</strong> {Array.isArray(blotter?.actionsTaken) ? `${blotter.actionsTaken.length} action(s) recorded` : (blotter?.actionsTaken || 'None')}
-              </p>
-              <p>
-                <strong>Recorded By:</strong> {blotter?.recordedBy?.username || 'N/A'}
-              </p>
-              <p>
-                <strong>Date Recorded:</strong> {blotter?.createdAt ? new Date(blotter.createdAt).toLocaleString() : 'N/A'}
-              </p>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Incident Date:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.incidentDate ? new Date(blotter.incidentDate).toLocaleDateString() : 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Incident Type:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.incidentType || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Location:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.incidentLocation || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Complainant:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.complainant?.name || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Respondent:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.respondent?.name || 'N/A'}</span>
+              </div>
+              <div className="narrative-flex-row">
+                  <strong style={{ fontSize: '16px' }}>Narrative:</strong>
+                  <span style={{ whiteSpace: 'pre-wrap', fontSize: '16px' }}>{blotter?.narrative || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Status:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.status || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Actions Taken:</strong>
+                <span style={{ color: '#495057' }}>{Array.isArray(blotter?.actionsTaken) ? `${blotter.actionsTaken.length} action(s) recorded` : (blotter?.actionsTaken || 'None')}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Recorded By:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.recordedBy?.username || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '12px' }}>
+                <strong style={{ width: '140px', flexShrink: 0, color: '#343a40' }}>Date Recorded:</strong>
+                <span style={{ color: '#495057' }}>{blotter?.createdAt ? new Date(blotter.createdAt).toLocaleString() : 'N/A'}</span>
+              </div>
             </div>
           </div>
         </div>
