@@ -6,19 +6,19 @@ import "./Dashboard.css";
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
 import {
-  FaAddressBook,
-  FaEdit,
-  FaEye,
-  FaFileAlt,
-  FaInfoCircle,
-  FaPrint,
-  FaSearch,
-  FaSignOutAlt,
-  FaTachometerAlt,
-  FaTrash,
-  FaUserCog,
-  FaUserTie,
-  FaUsers,
+    FaAddressBook,
+    FaEdit,
+    FaEye,
+    FaFileAlt,
+    FaInfoCircle,
+    FaPrint,
+    FaSearch,
+    FaSignOutAlt,
+    FaTachometerAlt,
+    FaTrash,
+    FaUserCog,
+    FaUserTie,
+    FaUsers,
 } from "react-icons/fa";
 import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
@@ -27,18 +27,18 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
-  // --- Add Area import ---
-  Area,
-  // --- Add AreaChart import ---
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
+    // --- Add Area import ---
+    Area,
+    // --- Add AreaChart import ---
+    AreaChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
 } from 'recharts';
 // --- Import SweetAlert2 ---
 import Swal from 'sweetalert2';
@@ -594,6 +594,48 @@ function Dashboard() {
   };
   // --- End SAVE/UPDATE Official Handler ---
 
+  // --- DELETE Official Handler ---
+  const handleDeleteOfficial = async (officialId) => {
+    // Confirmation Dialog
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const config = { headers: { 'Authorization': `Bearer ${token}` } };
+          // API Call to delete
+          await axios.delete(`/api/barangay-officials/${officialId}`, config);
+
+          // Success Feedback
+          Swal.fire(
+            'Deleted!',
+            'The official record has been deleted.',
+            'success'
+          );
+
+          // Refresh the list
+          await fetchOfficials();
+
+        } catch (error) {
+          console.error("Error deleting official:", error.response || error);
+          // Error Feedback
+          Swal.fire(
+            'Error!',
+            'Failed to delete the official record. Please try again.',
+            'error'
+          );
+        }
+      }
+    });
+  };
+  // --- End DELETE Official Handler ---
+
   // --- SAVE/UPDATE Resident Handler ---
   const handleSaveResident = async (e) => {
     e.preventDefault();
@@ -1084,24 +1126,12 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* --- Conditional Rendering for Loading/Error/Data --- */}
-                    {officialsLoading && (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center' }}>Loading officials...</td>
-                      </tr>
-                    )}
-                    {officialsError && (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td>
-                      </tr>
-                    )}
-                    {!officialsLoading && !officialsError && officials.length === 0 && (
-                       <tr>
-                        <td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td>
-                      </tr>
-                    )}
+                    {/* Conditional Rendering - Ensure no extra whitespace around blocks */}
+                    {officialsLoading && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>Loading officials...</td></tr>)}
+                    {officialsError && (<tr><td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td></tr>)}
+                    {!officialsLoading && !officialsError && officials.length === 0 && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td></tr>)}
                     {!officialsLoading && !officialsError && officials.map((official) => (
-                      <tr key={official._id}> {/* Use a unique key, like _id from MongoDB */}
+                      <tr key={official._id}>
                         <td>{official.fullName}</td>
                         <td>{official.gender}</td>
                         <td>{official.age}</td>
@@ -1109,16 +1139,9 @@ function Dashboard() {
                         <td>{official.term}</td>
                         <td>{official.status}</td>
                         <td className="action-buttons">
-                          {/* Pass the fetched official object to handlers */}
-                          <button title="View" onClick={() => handleViewOfficial(official)}>
-                            <FaEye />
-                          </button>
-                          <button title="Edit" onClick={() => handleOpenOfficialModal(official)}>
-                            <FaEdit />
-                          </button>
-                          <button title="Delete"> {/* TODO: Implement Delete */}
-                            <FaTrash />
-                          </button>
+                          <button title="View" onClick={() => handleViewOfficial(official)}><FaEye /></button>
+                          <button title="Edit" onClick={() => handleOpenOfficialModal(official)}><FaEdit /></button>
+                          <button title="Delete" onClick={() => handleDeleteOfficial(official._id)}><FaTrash /></button>
                         </td>
                       </tr>
                     ))}
