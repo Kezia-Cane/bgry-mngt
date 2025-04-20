@@ -438,11 +438,40 @@ function Dashboard() {
 
   // --- Define Logout Handler ---
   const handleLogout = () => {
-    // Optional: Call backend logout first
-    dispatch(logoutUserBackend());
-    // Immediately clear client-side state and storage
-    dispatch(logout());
-    navigate('/login'); // Redirect to login page
+    // --- Add SweetAlert Confirmation ---
+    Swal.fire({
+      title: "Are you sure you want to logout?",
+      text: "You will be returned to the login page.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6", // Blue for confirm
+      cancelButtonColor: "#d33", // Red for cancel
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      reverseButtons: true // Place confirm button on the right
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // --- Existing Logout Logic ---
+        // Optional: Call backend logout first
+        dispatch(logoutUserBackend());
+        // Immediately clear client-side state and storage
+        dispatch(logout());
+        navigate('/login'); // Redirect to login page
+        // --- End Existing Logout Logic ---
+
+        // Optional: Show a success message after logout (can be removed)
+        // Swal.fire({
+        //   title: "Logged Out!",
+        //   text: "You have been successfully logged out.",
+        //   icon: "success",
+        //   timer: 1500, // Auto-close after 1.5 seconds
+        //   showConfirmButton: false
+        // });
+      }
+      // No need for an explicit 'else' or 'cancel' message here,
+      // as closing the dialog is the default behavior on cancel.
+    });
+    // --- End SweetAlert Confirmation ---
   };
   // --- End Define Logout Handler ---
 
