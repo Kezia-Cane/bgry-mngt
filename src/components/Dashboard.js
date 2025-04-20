@@ -27,11 +27,12 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
+  // --- Add Area import ---
+  Area,
+  // --- Add AreaChart import ---
+  AreaChart,
   CartesianGrid,
   Cell,
-  Line,
-  // --- Add Line Chart imports ---
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -863,6 +864,51 @@ function Dashboard() {
     return Object.values(dayMap).sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [blotters]); // Recompute only when blotters array changes
 
+  const recentlyAddedItems = useMemo(() => {
+    const combined = [
+      ...(officials || []).map(item => ({ ...item, type: 'Official', name: item.fullName, date: item.createdAt })),
+      ...(residents || []).map(item => ({ ...item, type: 'Resident', name: item.fullName, date: item.createdAt })),
+      // Use incidentDate for blotters if createdAt isn't reliable or relevant for 'added'
+      ...(blotters || []).map(item => ({ ...item, type: 'Blotter', name: item.incidentType, date: item.createdAt || item.incidentDate })),
+      ...(certificates || []).map(item => ({ ...item, type: 'Certificate', name: `${item.certificateType} for ${item.resident?.fullName || 'N/A'}`, date: item.createdAt || item.issueDate }))
+    ];
+
+    // Filter out items without a valid date
+    const validItems = combined.filter(item => item.date && !isNaN(new Date(item.date).getTime()));
+
+    // Sort by date descending
+    validItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Return top 4 (changed from 5)
+    return validItems.slice(0, 4);
+
+  }, [officials, residents, blotters, certificates]);
+
+  // Function to get icon based on item type
+  const getItemIcon = (type) => {
+      switch(type) {
+          case 'Official': return <FaUserTie />;
+          case 'Resident': return <FaUsers />;
+          case 'Blotter': return <FaAddressBook />;
+          case 'Certificate': return <FaFileAlt />;
+          default: return null;
+      }
+  };
+
+  // --- Helper function moved INSIDE component ---
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        // Use locale-specific date formatting
+        return new Date(dateString).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+    } catch (e) {
+        console.error("Error formatting date:", dateString, e);
+        return dateString; // Fallback
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -1192,34 +1238,49 @@ function Dashboard() {
 
               {/* --- Bottom Row with Charts --- */}
               <div className="dashboard-bottom-row">
-                  {/* Large Chart Area - Replace Placeholder */}
-                  <div className="bottom-chart-container large">
-                      <h4>Blotters Recorded (Last 7 Days)</h4>
+                  {/* Large Chart Area - Modernized Line/Area Chart */}
+                  <div className="bottom-chart-container large chart-wrapper">
+                      {/* Title - Rely on chart-wrapper for centering */}
+                      <h4 style={{ marginBottom: '20px' }}>Blotters Recorded (Last 7 Days)</h4>
                       {(blottersLoading || dashboardStatsLoading) && <p>Loading chart data...</p>}
                       {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading blotter data for chart.</p>}
                       {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                           recentBlotterData.length > 0 ? (
-                              <ResponsiveContainer width="100%" height={300}>
-                                  <LineChart
+                              <ResponsiveContainer width="100%" height={250}> {/* Adjusted height */}
+                                  {/* Using AreaChart for a filled look */}
+                                  <AreaChart
                                       data={recentBlotterData}
-                                      margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                                      margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
                                   >
-                                      <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                                      <XAxis dataKey="name" tickLine={false} axisLine={false} dy={10} />
-                                      <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} />
-                                      <Tooltip />
-                                      <Line
+                                      <defs>
+                                          {/* Gradient Definition */}
+                                          <linearGradient id="colorBlotters" x1="0" y1="0" x2="0" y2="1">
+                                              <stop offset="5%" stopColor="#4e73df" stopOpacity={0.8}/>
+                                              <stop offset="95%" stopColor="#4e73df" stopOpacity={0}/>
+                                          </linearGradient>
+                                      </defs>
+                                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0"/>
+                                      <XAxis dataKey="name" tickLine={false} axisLine={false} dy={10} fontSize={12} />
+                                      <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={30} fontSize={12} />
+                                      <Tooltip
+                                          contentStyle={{ borderRadius: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', border: 'none'}}
+                                          itemStyle={{ color: '#4e73df' }}
+                                      />
+                                      <Area
                                           type="monotone"
                                           dataKey="count"
-                                          stroke="#4e73df" /* Blue line */
+                                          stroke="#4e73df"
+                                          fillOpacity={1}
+                                          fill="url(#colorBlotters)" /* Apply gradient */
                                           strokeWidth={2}
-                                          dot={{ r: 4 }}
                                           activeDot={{ r: 6 }}
-                                          name="Blotters" // Tooltip label
+                                          name="Blotters"
                                       />
-                                  </LineChart>
+                                      {/* Optional: Keep the line if preferred */}
+                                      {/* <Line type="monotone" dataKey="count" stroke="#4e73df" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Blotters"/> */}
+                                  </AreaChart>
                               </ResponsiveContainer>
-                          ) : <p>No blotter data available for the last 7 days.</p>
+                          ) : <p>No recent blotter data available.</p>
                       )}
                   </div>
 
@@ -1290,9 +1351,34 @@ function Dashboard() {
                       </div>
                   </div>
               </div>
-               {/* --- End Bottom Row --- */}
+              {/* --- End Bottom Row --- */}
 
-              {/* Old Charts Section Removed */}
+              {/* --- Recently Added Section --- */}
+              <div className="dashboard-section recent-items-section">
+                  <h3>Recently Added</h3>
+                  {(dashboardStatsLoading) && <p>Loading recent activity...</p>}
+                  {(!dashboardStatsLoading && recentlyAddedItems.length === 0) && <p>No recent activity found.</p>}
+                  {!dashboardStatsLoading && recentlyAddedItems.length > 0 && (
+                      <ul className="recent-items-list">
+                          {recentlyAddedItems.map((item) => (
+                              <li key={`${item.type}-${item._id}`} className="recent-item">
+                                  {/* Icon removed */}
+                                  {/* <span className="item-icon">{getItemIcon(item.type)}</span> */}
+                                  <div className="item-details">
+                                      <span className="item-type">{item.type}:</span>
+                                      <span className="item-name" title={item.name}> {item.name}</span>
+                                  </div>
+                                  <span className="item-date">{formatDate(item.date)}</span>
+                              </li>
+                          ))}
+                      </ul>
+                  )}
+                  {/* Optional: Add error state display */}
+                  {(!dashboardStatsLoading && (officialsError || residentsError || blottersError || certificatesError)) &&
+                    <p style={{color: 'orange', fontSize: '0.9em'}}>Note: Some data might be missing due to loading errors.</p>}
+              </div>
+              {/* --- End Recently Added Section --- */}
+
             </div>
           )}
           {/* Add specific rendering for Resident module */}

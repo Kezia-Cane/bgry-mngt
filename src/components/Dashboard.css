@@ -23,7 +23,7 @@
 }
 
 .sidebar-logo {
-  max-width: 100px; /* Adjust size as needed */
+  max-width: 150px; /* Increased size */
   height: auto;
 }
 
@@ -660,13 +660,26 @@ table tbody tr:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    /* Placeholder style */
+    /* --- Use Flexbox for centering --- */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px; /* Match chart height */
-    color: #888;
-    font-style: italic;
+    flex-direction: column; /* Stack title and chart vertically */
+    align-items: center; /* Center children horizontally */
+    /* Keep min-height if needed */
+    min-height: 300px;
+    /* text-align: center; /* Optional: Keep for text within children if needed */
+}
+
+/* Ensure h4 title behaves well in flex context */
+.bottom-chart-container.large h4 {
+    width: 100%; /* Allow h4 to span width for text-align */
+    text-align: center; /* Ensure text within h4 is centered */
+    margin-bottom: 20px; /* Space below title */
+}
+
+/* Ensure chart container takes full width */
+.bottom-chart-container.large .recharts-responsive-container {
+    width: 100% !important; /* Force container to take full width */
+    max-width: 100%; /* Prevent potential overflow issues */
 }
 
 .bottom-chart-container.small-charts {
@@ -715,3 +728,71 @@ table tbody tr:hover {
     font-size: 0.8em;
     color: #dc3545;
 }
+
+/* --- Recently Added Section Styles --- */
+
+.recent-items-section {
+    /* Inherits styles from .dashboard-section */
+    margin-top: 20px;
+}
+
+.recent-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 15px; /* Add gap between elements */
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.item-icon {
+    color: #6c757d; /* Icon color */
+    font-size: 1.2em;
+    flex-shrink: 0;
+    width: 25px; /* Give icon fixed width */
+    text-align: center;
+}
+
+.item-details {
+    flex-grow: 1;
+    /* Allow text to wrap */
+    white-space: normal;
+    overflow: hidden;
+}
+
+.item-type {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 5px;
+}
+
+.item-name {
+    color: #5a5c69;
+    /* Optional: Truncate long names if needed, use title attribute for full name */
+    /* display: inline-block; */
+    /* max-width: 200px; */
+    /* white-space: nowrap; */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    /* vertical-align: middle; */
+}
+
+.item-date {
+    font-size: 0.85em;
+    color: #858796; /* Lighter text for date */
+    flex-shrink: 0;
+    white-space: nowrap; /* Prevent date from wrapping */
+}
+
+/* Responsive adjustments if needed */
+/* @media (max-width: 600px) { ... } */
