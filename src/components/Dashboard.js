@@ -46,6 +46,16 @@ const initialResidentFormState = {
   civilStatus: '',
   occupation: '',
 };
+const initialBlotterFormState = {
+  incidentType: '',
+  incidentDate: '',
+  incidentLocation: '',
+  complainantName: '', // Simplified for form
+  respondentName: '', // Simplified for form
+  narrative: '',
+  status: 'Open', // Default status
+  // complainantAddress, complainantContact, respondentAddress can be added if needed
+};
 
 // Remove onLogout prop
 function Dashboard() {
@@ -110,7 +120,18 @@ function Dashboard() {
   const [residentFormLoading, setResidentFormLoading] = useState(false);
   const [residentFormMessage, setResidentFormMessage] = useState('');
 
-  // --- Fetch Officials Function ---
+  // --- Data Fetching State (Blotters) ---
+  const [blotters, setBlotters] = useState([]);
+  const [blottersLoading, setBlottersLoading] = useState(false);
+  const [blottersError, setBlottersError] = useState(null);
+
+  // --- State for Add/Edit Blotter Form ---
+  const [blotterFormData, setBlotterFormData] = useState(initialBlotterFormState);
+  const [blotterFormErrors, setBlotterFormErrors] = useState({});
+  const [blotterFormLoading, setBlotterFormLoading] = useState(false);
+  const [blotterFormMessage, setBlotterFormMessage] = useState('');
+
+  // --- Fetch Functions ---
   const fetchOfficials = async () => {
     setOfficialsLoading(true);
     setOfficialsError(null);
@@ -130,7 +151,6 @@ function Dashboard() {
     }
   };
 
-  // --- Fetch Residents Function ---
   const fetchResidents = async () => {
     setResidentsLoading(true);
     setResidentsError(null);
@@ -147,16 +167,29 @@ function Dashboard() {
     }
   };
 
+  const fetchBlotters = async () => {
+    setBlottersLoading(true);
+    setBlottersError(null);
+    try {
+      const config = { headers: { 'Authorization': `Bearer ${token}` } };
+      // Assuming API returns { blotters: [...] } structure based on controller
+      const response = await axios.get('/api/blotters', config);
+      setBlotters(response.data.blotters || response.data); // Adjust as needed
+    } catch (error) {
+      console.error("Error fetching blotters:", error.response || error);
+      setBlottersError('Failed to load blotter records. Please try again.');
+    } finally {
+      setBlottersLoading(false);
+    }
+  };
+
   // --- Effect to Fetch Data when module is active ---
   useEffect(() => {
     if (token) {
-      if (activeModule === "Brgy Official") {
-        fetchOfficials();
-      }
-      if (activeModule === "Resident") {
-        fetchResidents();
-      }
-      // Add other modules here as needed
+      if (activeModule === "Brgy Official") fetchOfficials();
+      if (activeModule === "Resident") fetchResidents();
+      if (activeModule === "Blotter") fetchBlotters();
+      // Add other modules here
     }
   }, [activeModule, token]);
 
@@ -205,6 +238,28 @@ function Dashboard() {
     }
   }, [residentToEdit, isResidentModalOpen]);
 
+  useEffect(() => {
+    if (blotterToEdit) {
+      // Format date and simplify object fields for the form
+      const incidentDateValue = blotterToEdit.incidentDate ? new Date(blotterToEdit.incidentDate).toISOString().split('T')[0] : '';
+      setBlotterFormData({
+        incidentType: blotterToEdit.incidentType || '',
+        incidentDate: incidentDateValue,
+        incidentLocation: blotterToEdit.incidentLocation || '',
+        complainantName: blotterToEdit.complainant?.name || '',
+        respondentName: blotterToEdit.respondent?.name || '',
+        narrative: blotterToEdit.narrative || '',
+        status: blotterToEdit.status || 'Open',
+      });
+      setBlotterFormErrors({});
+      setBlotterFormMessage('');
+    } else {
+      setBlotterFormData(initialBlotterFormState);
+      setBlotterFormErrors({});
+      setBlotterFormMessage('');
+    }
+  }, [blotterToEdit, isBlotterModalOpen]);
+
   // --- Input change handler for official form ---
   const handleOfficialFormChange = (e) => {
     const { name, value } = e.target;
@@ -233,6 +288,15 @@ function Dashboard() {
       setResidentFormErrors(prevErrors => ({ ...prevErrors, [name]: null }));
     }
     setResidentFormMessage('');
+  };
+
+  const handleBlotterFormChange = (e) => {
+    const { name, value } = e.target;
+    setBlotterFormData(prevState => ({ ...prevState, [name]: value }));
+    if (blotterFormErrors[name]) {
+      setBlotterFormErrors(prevErrors => ({ ...prevErrors, [name]: null }));
+    }
+    setBlotterFormMessage('');
   };
 
   // --- Validation function for official form ---
@@ -265,6 +329,20 @@ function Dashboard() {
     }
 
     setResidentFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateBlotterForm = () => {
+    const errors = {};
+    if (!blotterFormData.incidentType.trim()) errors.incidentType = 'Incident Type is required';
+    if (!blotterFormData.incidentDate) errors.incidentDate = 'Incident Date is required';
+    if (!blotterFormData.incidentLocation.trim()) errors.incidentLocation = 'Incident Location is required';
+    if (!blotterFormData.complainantName.trim()) errors.complainantName = 'Complainant Name is required';
+    if (!blotterFormData.respondentName.trim()) errors.respondentName = 'Respondent Name is required';
+    if (!blotterFormData.narrative.trim()) errors.narrative = 'Narrative is required';
+    if (!blotterFormData.status) errors.status = 'Status is required';
+
+    setBlotterFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -521,6 +599,71 @@ function Dashboard() {
     setUserToEdit(null); // Clear the user data
   };
   // --- End Handlers for User EDIT Modal ---
+
+  // --- SAVE/UPDATE Handlers ---
+  const handleSaveBlotter = async (e) => {
+    e.preventDefault();
+    setBlotterFormMessage('');
+    setBlotterFormErrors({});
+
+    if (!validateBlotterForm()) {
+      setBlotterFormMessage('Please fix the errors in the form.');
+      return;
+    }
+
+    setBlotterFormLoading(true);
+    const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+
+    // Prepare data for API - structure matches backend model
+    // Note: `recordedBy` is handled automatically by the backend
+    const dataToSubmit = {
+      incidentType: blotterFormData.incidentType,
+      incidentDate: blotterFormData.incidentDate,
+      incidentLocation: blotterFormData.incidentLocation,
+      complainant: { name: blotterFormData.complainantName }, // Create nested object
+      respondent: { name: blotterFormData.respondentName }, // Create nested object
+      narrative: blotterFormData.narrative,
+      status: blotterFormData.status,
+      // ActionsTaken are handled via a separate endpoint/process usually
+    };
+
+    try {
+      if (blotterToEdit) {
+        // --- UPDATE BLOTTER LOGIC ---
+        // await axios.put(`/api/blotters/${blotterToEdit._id}`, dataToSubmit, config);
+        // setBlotterFormMessage('Blotter record updated successfully!');
+        console.log("Update blotter logic to be implemented");
+        setBlotterFormMessage('Update functionality not yet implemented.');
+      } else {
+        // --- ADD BLOTTER LOGIC ---
+        await axios.post('/api/blotters', dataToSubmit, config);
+        setBlotterFormMessage('Blotter record added successfully!');
+        setBlotterFormData(initialBlotterFormState);
+      }
+
+      // Refresh the list
+      await fetchBlotters();
+
+      // Close modal
+      setTimeout(() => {
+        handleCloseBlotterModal();
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error saving blotter record:", error.response || error);
+      let errorMessage = 'Failed to save blotter record. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+        if (error.response.data.errors) {
+           console.error("Backend validation errors:", error.response.data.errors);
+           // Map errors to form state if needed
+        }
+      }
+      setBlotterFormMessage(errorMessage);
+    } finally {
+      setBlotterFormLoading(false);
+    }
+  };
 
   return (
     <div className="dashboard-layout">
@@ -1051,95 +1194,58 @@ function Dashboard() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Date Recorded</th>
+                       {/* Adjust columns based on Blotter model and importance */}
+                      <th>Incident Date</th>
+                      <th>Incident Type</th>
                       <th>Complainant</th>
                       <th>Respondent</th>
-                      <th>Narrative</th>
                       <th>Status</th>
-                      <th>Actions Taken</th>
-                      <th>Recorded By</th>
+                      {/* <th>Narrative</th>  Too long for table? */}
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Placeholder Blotter Data */}
-                    <tr>
-                      <td>2025-04-08</td>
-                      <td>Pedro Penduko</td>
-                      <td>Juan Tamad</td>
-                      <td>
-                        {
-                          /* Limit to first two words */
-                          "Verbal altercation regarding property line..."
-                            .split(" ")
-                            .slice(0, 2)
-                            .join(" ")
-                        }
-                      </td>
-                      <td>Amicably Settled</td>
-                      <td>Mediation</td>
-                      <td>Officer Reyes</td>
-                      <td className="action-buttons">
-                        {/* Placeholder blotter object for onClick */}
-                        <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
-                          <FaEye />
-                        </button>
-                        {/* Attach handler to Edit button - using placeholder data */}
-                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-08', complainant: 'Pedro Penduko', respondent: 'Juan Tamad', narrative: 'Verbal altercation regarding property line...', status: 'Amicably Settled', actionsTaken: 'Mediation', recordedBy: 'Officer Reyes' })}>
-                          <FaEdit />
-                        </button>
-                        {/* Add delete button same as resident module */}
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2025-04-07</td>
-                      <td>Maria Makiling</td>
-                      <td>Unknown</td>
-                      <td>
-                        {
-                          /* Limit to first two words */
-                          "Reported theft of livestock..."
-                            .split(" ")
-                            .slice(0, 2)
-                            .join(" ")
-                        }
-                      </td>
-                      <td>Under Investigation</td>
-                      <td>Initial report taken</td>
-                      <td>Officer Santos</td>
-                      <td className="action-buttons">
-                        {/* Placeholder blotter object for onClick */}
-                         <button title="View" onClick={() => handleViewBlotter({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
-                          <FaEye />
-                        </button>
-                        {/* Attach handler to Edit button - using placeholder data */}
-                        <button title="Edit" onClick={() => handleOpenBlotterModal({ dateRecorded: '2025-04-07', complainant: 'Maria Makiling', respondent: 'Unknown', narrative: 'Reported theft of livestock...', status: 'Under Investigation', actionsTaken: 'Initial report taken', recordedBy: 'Officer Santos' })}>
-                          <FaEdit />
-                        </button>
-                        {/* Add delete button same as resident module */}
-                        <button title="Delete">
-                          <FaTrash />
-                        </button>
-                      </td>
-                    </tr>
-                    {/* Add more placeholder blotter records as needed */}
+                    {/* Conditional Rendering for Blotters */}
+                    {blottersLoading && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading records...</td></tr>
+                    )}
+                    {blottersError && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{blottersError}</td></tr>
+                    )}
+                    {!blottersLoading && !blottersError && blotters.length === 0 && (
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>No blotter records found.</td></tr>
+                    )}
+                    {!blottersLoading && !blottersError && blotters.map((blotter) => (
+                      <tr key={blotter._id}>
+                        <td>{new Date(blotter.incidentDate).toLocaleDateString()}</td>
+                        <td>{blotter.incidentType}</td>
+                        <td>{blotter.complainant?.name}</td>
+                        <td>{blotter.respondent?.name}</td>
+                        <td>{blotter.status}</td>
+                        <td className="action-buttons">
+                          <button title="View" onClick={() => handleViewBlotter(blotter)}>
+                            <FaEye />
+                          </button>
+                          <button title="Edit" onClick={() => handleOpenBlotterModal(blotter)}>
+                            <FaEdit />
+                          </button>
+                          <button title="Delete"> {/* TODO: Implement Delete */}
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
               <div className="content-footer">
-                {/* Add Record Button */}
-                {/* Add Record Button */}
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenBlotterModal()} // Use the new handler for Add/Edit
+                  onClick={() => handleOpenBlotterModal()} // Use the handler for Add/Edit
                 >
                   Add New Record
                 </button>
-                {/* Print Button Added */}
                 <button className="print-button">
                   <FaPrint /> Print
                 </button>
@@ -1151,84 +1257,107 @@ function Dashboard() {
           {isBlotterModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseBlotterModal(); }}>
               <div className="modal-content">
-                {/* Dynamic Title */}
                 <h2>{blotterToEdit ? "Edit Blotter Record" : "Add New Blotter Record"}</h2>
-                {/* TODO: Add form submission handler */}
-                <form>
-                  {/* Add input fields, prefill with blotterToEdit data if available */}
+                <form onSubmit={handleSaveBlotter} className="modal-form">
+                   {blotterFormMessage && <p className={`form-message ${blotterFormErrors && Object.keys(blotterFormErrors).length > 0 ? 'error' : 'success'}`}>{blotterFormMessage}</p>}
+
+                  {/* Blotter Form Fields */}
                   <div className="form-group">
-                    <label htmlFor="blotterDate">Date Recorded:</label>
-                    <input type="date" id="blotterDate" name="blotterDate" defaultValue={blotterToEdit?.dateRecorded || ''} />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="blotterComplainant">Complainant:</label>
+                    <label htmlFor="incidentType">Incident Type:</label>
                     <input
                       type="text"
-                      id="blotterComplainant"
-                      name="blotterComplainant"
-                      defaultValue={blotterToEdit?.complainant || ''}
+                      id="incidentType"
+                      name="incidentType"
+                      value={blotterFormData.incidentType}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.incidentType}
                     />
+                    {blotterFormErrors.incidentType && <span className="error-message">{blotterFormErrors.incidentType}</span>}
                   </div>
                   <div className="form-group">
-                    <label htmlFor="blotterRespondent">Respondent:</label>
+                    <label htmlFor="incidentDate">Incident Date:</label>
+                    <input
+                      type="date"
+                      id="incidentDate"
+                      name="incidentDate"
+                      value={blotterFormData.incidentDate}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.incidentDate}
+                    />
+                    {blotterFormErrors.incidentDate && <span className="error-message">{blotterFormErrors.incidentDate}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="incidentLocation">Incident Location:</label>
                     <input
                       type="text"
-                      id="blotterRespondent"
-                      name="blotterRespondent"
-                      defaultValue={blotterToEdit?.respondent || ''}
+                      id="incidentLocation"
+                      name="incidentLocation"
+                      value={blotterFormData.incidentLocation}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.incidentLocation}
                     />
+                    {blotterFormErrors.incidentLocation && <span className="error-message">{blotterFormErrors.incidentLocation}</span>}
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="blotterNarrative">Narrative:</label>
+                   <div className="form-group">
+                    <label htmlFor="complainantName">Complainant Name:</label>
+                    <input
+                      type="text"
+                      id="complainantName"
+                      name="complainantName"
+                      value={blotterFormData.complainantName}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.complainantName}
+                    />
+                     {blotterFormErrors.complainantName && <span className="error-message">{blotterFormErrors.complainantName}</span>}
+                  </div>
+                   <div className="form-group">
+                    <label htmlFor="respondentName">Respondent Name:</label>
+                    <input
+                      type="text"
+                      id="respondentName"
+                      name="respondentName"
+                      value={blotterFormData.respondentName}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.respondentName}
+                    />
+                     {blotterFormErrors.respondentName && <span className="error-message">{blotterFormErrors.respondentName}</span>}
+                  </div>
+                   <div className="form-group">
+                    <label htmlFor="narrative">Narrative:</label>
                     <textarea
-                      id="blotterNarrative"
-                      name="blotterNarrative"
-                      rows="3"
-                      defaultValue={blotterToEdit?.narrative || ''}
+                      id="narrative"
+                      name="narrative"
+                      rows="4"
+                      value={blotterFormData.narrative}
+                      onChange={handleBlotterFormChange}
+                      aria-invalid={!!blotterFormErrors.narrative}
                     ></textarea>
+                     {blotterFormErrors.narrative && <span className="error-message">{blotterFormErrors.narrative}</span>}
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="blotterStatus">Status:</label>
-                    <select id="blotterStatus" name="blotterStatus" defaultValue={blotterToEdit?.status || ''}>
-                      <option value="">Select Status</option>
+                   <div className="form-group">
+                    <label htmlFor="status">Status:</label>
+                    <select
+                       id="status"
+                       name="status"
+                       value={blotterFormData.status}
+                       onChange={handleBlotterFormChange}
+                       aria-invalid={!!blotterFormErrors.status}
+                       >
+                       {/* Values from Blotter model enum */}
+                      <option value="Open">Open</option>
+                      <option value="Under Investigation">Under Investigation</option>
                       <option value="Amicably Settled">Amicably Settled</option>
-                      <option value="Under Investigation">
-                        Under Investigation
-                      </option>
-                      <option value="Referred to Higher Authority">
-                        Referred to Higher Authority
-                      </option>
-                      <option value="Closed/Dismissed">Closed/Dismissed</option>
+                      <option value="Referred">Referred</option>
+                      <option value="Closed">Closed</option>
                     </select>
+                     {blotterFormErrors.status && <span className="error-message">{blotterFormErrors.status}</span>}
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="blotterActionsTaken">Actions Taken:</label>
-                    <input
-                      type="text"
-                      id="blotterActionsTaken"
-                      name="blotterActionsTaken"
-                      defaultValue={blotterToEdit?.actionsTaken || ''}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="blotterRecordedBy">Recorded By:</label>
-                    <input
-                      type="text"
-                      id="blotterRecordedBy"
-                      name="blotterRecordedBy"
-                      defaultValue={blotterToEdit?.recordedBy || ''}
-                    />
-                  </div>
+
                   <div className="modal-actions">
-                    {/* Dynamic Button Text */}
-                    <button type="submit" className="save-button">
-                      {blotterToEdit ? "Update" : "Save"}
+                    <button type="submit" className="save-button" disabled={blotterFormLoading}>
+                      {blotterFormLoading ? 'Saving...' : (blotterToEdit ? "Update" : "Save Record")}
                     </button>
-                    <button
-                      type="button"
-                      className="cancel-button"
-                      onClick={handleCloseBlotterModal} // Use the new close handler
-                    >
+                    <button type="button" onClick={handleCloseBlotterModal} className="cancel-button" disabled={blotterFormLoading}>
                       Cancel
                     </button>
                   </div>
