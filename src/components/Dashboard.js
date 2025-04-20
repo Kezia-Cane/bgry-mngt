@@ -40,6 +40,8 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
+// --- Import SweetAlert2 ---
+import Swal from 'sweetalert2';
 
 // --- Define Initial State OUTSIDE Component ---
 const initialOfficialFormState = {
@@ -506,61 +508,57 @@ function Dashboard() {
     }
 
     setOfficialFormLoading(true);
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Include the auth token
-      }
-    };
-
-    // Prepare data, ensure age is a number
-    const dataToSubmit = {
-        ...officialFormData,
-        age: Number(officialFormData.age)
-    };
+    const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+    const dataToSubmit = { ...officialFormData, age: Number(officialFormData.age) };
 
     try {
       if (officialToEdit) {
-        // --- UPDATE LOGIC (Example - assumes PUT /api/barangay-officials/:id) ---
-        // response = await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
-        // setOfficialFormMessage('Official updated successfully!');
-         console.log("Update logic to be implemented"); // Placeholder for update
-         setOfficialFormMessage('Update functionality not yet implemented.'); // Temporary message
+        // --- UPDATE LOGIC (Placeholder) ---
+        // await axios.put(...)
+        console.log("Update logic to be implemented");
+        setOfficialFormMessage('Update functionality not yet implemented.');
+        // TODO: Add Swal confirmation for update too?
+
+         // Refresh list even on placeholder update for now
+        await fetchOfficials();
+        // Close modal (no delay needed for placeholder)
+        handleCloseOfficialModal();
 
       } else {
         // --- ADD LOGIC ---
         await axios.post('/api/barangay-officials', dataToSubmit, config);
-         setOfficialFormMessage('Official added successfully!');
-          // Optionally reset form after successful add
-          setOfficialFormData(initialOfficialFormState);
-          // TODO: Add logic to refresh the officials list displayed in the dashboard if needed
+
+        // --- Show SweetAlert on successful add ---
+        Swal.fire({
+          icon: "success",
+          title: "New Official has been saved",
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        // --- Close modal immediately after firing alert ---
+        handleCloseOfficialModal();
+
+        // --- Refresh the list after save/update ---
+        await fetchOfficials();
+
+        // Form reset is handled by handleCloseOfficialModal
+        // Removed: setOfficialFormData(initialOfficialFormState);
+        // Removed: setOfficialFormMessage('Official added successfully!');
+        // Removed: setTimeout block
       }
-
-      // --- Refresh the list after save/update --- Wait for it!
-      await fetchOfficials();
-
-      // Close modal after a short delay (optional)
-      setTimeout(() => {
-          handleCloseOfficialModal();
-          // No need to switch module explicitly if already there
-      }, 1500);
 
     } catch (error) {
+      // Keep existing error handling to show messages within the modal
       console.error("Error saving official:", error.response || error);
       let errorMessage = 'Failed to save official. Please try again.';
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-        // Handle specific validation errors from backend if needed
         if (error.response.data.errors) {
-           // Example: Convert backend errors to frontend format if structure differs
-           // const backendErrors = error.response.data.errors;
-           // const frontendErrors = {}; // Map backendErrors to officialFormErrors structure
-           // setOfficialFormErrors(frontendErrors);
-           console.error("Backend validation errors:", error.response.data.errors);
+          console.error("Backend validation errors:", error.response.data.errors);
         }
       }
-      setOfficialFormMessage(errorMessage);
+      setOfficialFormMessage(errorMessage); // Show error in modal
     } finally {
       setOfficialFormLoading(false);
     }
@@ -580,56 +578,61 @@ function Dashboard() {
 
     setResidentFormLoading(true);
     const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
-
-    // Prepare data for API - structure might need adjustment based on backend model
-    // Especially the address field
     const dataToSubmit = {
       fullName: residentFormData.fullName,
       gender: residentFormData.gender,
       birthdate: residentFormData.birthdate,
-      address: { // Assuming nested address in model
-          street: residentFormData.address, // This might need more fields (barangay, city etc.)
-          // Add other address parts if needed, potentially from other form fields
-          // barangay: 'Your Barangay Name', // Example default or fetched value
-          // city: 'Your City Name',
-          // province: 'Your Province Name'
-      },
-      contactNumber: residentFormData.contactNumber || undefined, // Send undefined if empty
+      address: { street: residentFormData.address },
+      contactNumber: residentFormData.contactNumber || undefined,
       civilStatus: residentFormData.civilStatus || undefined,
       occupation: residentFormData.occupation || undefined,
     };
 
     try {
       if (residentToEdit) {
-        // --- UPDATE RESIDENT LOGIC ---
-        // await axios.put(`/api/residents/${residentToEdit._id}`, dataToSubmit, config);
-        // setResidentFormMessage('Resident updated successfully!');
+        // --- UPDATE RESIDENT LOGIC (Placeholder) ---
+        // await axios.put(...)
         console.log("Update resident logic to be implemented");
         setResidentFormMessage('Update functionality not yet implemented.');
+        // TODO: Add Swal for update?
+
+        // Refresh list even on placeholder update
+        await fetchResidents();
+        // Close modal (no delay needed for placeholder)
+        handleCloseResidentModal();
+
       } else {
         // --- ADD RESIDENT LOGIC ---
         await axios.post('/api/residents', dataToSubmit, config);
-        setResidentFormMessage('Resident added successfully!');
-        setResidentFormData(initialResidentFormState);
+
+        // --- Show SweetAlert on successful add ---
+        Swal.fire({
+            // Defaults to center position
+            icon: "success",
+            title: "New Resident has been saved",
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+        // --- Close modal immediately after firing alert ---
+        handleCloseResidentModal();
+
+        // --- Refresh the list ---
+        await fetchResidents();
+
+        // Form reset handled by handleCloseResidentModal
+        // Removed: setResidentFormMessage('Resident added successfully!');
+        // Removed: setResidentFormData(initialResidentFormState);
+        // Removed: setTimeout block
       }
 
-      // Refresh the list
-      await fetchResidents();
-
-      // Close modal
-      setTimeout(() => {
-        handleCloseResidentModal();
-      }, 1500);
-
     } catch (error) {
+      // Keep existing error handling for modal message
       console.error("Error saving resident:", error.response || error);
       let errorMessage = 'Failed to save resident. Please try again.';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
         if (error.response.data.errors) {
-           // Handle detailed backend validation errors if needed
-           // const backendErrors = error.response.data.errors;
-           // Map backendErrors to residentFormErrors state
            console.error("Backend validation errors:", error.response.data.errors);
         }
       }
@@ -701,50 +704,62 @@ function Dashboard() {
 
     setBlotterFormLoading(true);
     const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
-
-    // Prepare data for API - structure matches backend model
-    // Note: `recordedBy` is handled automatically by the backend
     const dataToSubmit = {
       incidentType: blotterFormData.incidentType,
       incidentDate: blotterFormData.incidentDate,
       incidentLocation: blotterFormData.incidentLocation,
-      complainant: { name: blotterFormData.complainantName }, // Create nested object
-      respondent: { name: blotterFormData.respondentName }, // Create nested object
+      complainant: { name: blotterFormData.complainantName },
+      respondent: { name: blotterFormData.respondentName },
       narrative: blotterFormData.narrative,
       status: blotterFormData.status,
-      // ActionsTaken are handled via a separate endpoint/process usually
     };
 
     try {
       if (blotterToEdit) {
-        // --- UPDATE BLOTTER LOGIC ---
-        // await axios.put(`/api/blotters/${blotterToEdit._id}`, dataToSubmit, config);
-        // setBlotterFormMessage('Blotter record updated successfully!');
+        // --- UPDATE BLOTTER LOGIC (Placeholder) ---
+        // await axios.put(...)
         console.log("Update blotter logic to be implemented");
         setBlotterFormMessage('Update functionality not yet implemented.');
+        // TODO: Add Swal for update?
+
+        // Refresh list even on placeholder update
+        await fetchBlotters();
+        // Close modal (no delay needed for placeholder)
+        handleCloseBlotterModal();
+
       } else {
         // --- ADD BLOTTER LOGIC ---
         await axios.post('/api/blotters', dataToSubmit, config);
-        setBlotterFormMessage('Blotter record added successfully!');
-        setBlotterFormData(initialBlotterFormState);
+
+        // --- Show SweetAlert on successful add ---
+        Swal.fire({
+            // Defaults to center position
+            icon: "success",
+            title: "New Blotter Record has been saved",
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+        // --- Close modal immediately after firing alert ---
+        handleCloseBlotterModal();
+
+        // --- Refresh the list ---
+        await fetchBlotters();
+
+        // Form reset handled by handleCloseBlotterModal
+        // Removed: setBlotterFormMessage('Blotter record added successfully!');
+        // Removed: setBlotterFormData(initialBlotterFormState);
+        // Removed: setTimeout block
       }
 
-      // Refresh the list
-      await fetchBlotters();
-
-      // Close modal
-      setTimeout(() => {
-        handleCloseBlotterModal();
-      }, 1500);
-
     } catch (error) {
+      // Keep existing error handling
       console.error("Error saving blotter record:", error.response || error);
       let errorMessage = 'Failed to save blotter record. Please try again.';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
         if (error.response.data.errors) {
            console.error("Backend validation errors:", error.response.data.errors);
-           // Map errors to form state if needed
         }
       }
       setBlotterFormMessage(errorMessage);
