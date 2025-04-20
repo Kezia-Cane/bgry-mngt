@@ -65,12 +65,12 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
           <div id="certificate-layout" className="certificate-layout">
             {/* Header */}
             <div className="certificate-header">
-              <img src="/logo192.png" alt="Barangay Logo" className="certificate-logo" />
+              <img src="/logo.png" alt="Barangay Logo" className="certificate-logo" />
               <div>
                 <p>Republic of the Philippines</p>
-                <p>Province of [Province Name]</p>
-                <p>Municipality/City of [Municipality/City Name]</p>
-                <p><strong>BARANGAY [Barangay Name]</strong></p>
+                <p>Province of Davao del Norte</p>
+                <p>Municipality/City of Panabo City</p>
+                <p><strong>BARANGAY NEW VISAYAS</strong></p>
                 <p><em>Office of the Punong Barangay</em></p>
               </div>
               {/* Optional: Add another logo or seal */}
@@ -84,7 +84,7 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
               <p><strong>TO WHOM IT MAY CONCERN:</strong></p>
               <p>
                 This is to certify that <strong>{residentName}</strong>, of legal age, Filipino,
-                is a bonafide resident of Barangay [Barangay Name], [Municipality/City Name], [Province Name].
+                is a bonafide resident of Barangay New Visayas, Panabo City, Davao del Norte.
               </p>
               {/* Add specific content based on certificate type */}
               {certificateType === 'Barangay Indigency' && (
@@ -110,21 +110,25 @@ import './CertificateViewModal.css'; // We'll create this CSS file next
 
               <p>
                 Issued this <strong>{issueDateFormatted}</strong> at the Office of the Punong Barangay,
-                Barangay [Barangay Name], [Municipality/City Name], [Province Name], Philippines.
+                Barangay Barangay New Visayas, Panabo City, Davao del Norte.
               </p>
             </div>
 
             {/* Signature */}
             <div className="certificate-signature">
-              <p>Issued by:</p>
-              <br />
-              <p><strong>{issuerName}</strong></p>
-              <p><em>[Position of Issuer, e.g., Barangay Secretary]</em></p>
-              <br /><br />
-              <p>Attested by:</p>
-              <br />
-              <p><strong>[Punong Barangay Name]</strong></p>
-              <p><em>Punong Barangay</em></p>
+              {/* Issuer Section */}
+              <div className="signature-block issuer-block">
+                <p className="signature-label">Issued by:</p>
+                <p className="signature-name"><strong>{issuerName}</strong></p>
+                <p className="signature-position"><em>Barangay Staff</em></p>
+              </div>
+              {/* Attestor Section */}
+              <div className="signature-block attestor-block">
+                  <p className="signature-label">Attested by:</p>
+                  {/* Hardcoded Captain for now - could fetch dynamically later */}
+                  <p className="signature-name"><strong>BRGY. CAPTAIN JOHN DOE</strong></p>
+                  <p className="signature-position"><em>Punong Barangay</em></p>
+              </div>
             </div>
 
              {/* Footer (Optional) */}

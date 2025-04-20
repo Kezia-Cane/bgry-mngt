@@ -91,10 +91,40 @@
     }
 
     .certificate-signature {
-      margin-top: 50px;
-      display: flex;
-      justify-content: space-around; /* Position signatures */
-      text-align: center;
+      margin-top: 50px; /* Space above signatures */
+      padding-top: 20px;
+      /* border-top: 1px solid #eee; /* Optional separator */
+      display: flex; /* Use flexbox */
+      justify-content: space-around; /* Space out the blocks */
+      align-items: flex-start; /* Align blocks to the top */
+      text-align: center; /* Center text within each block */
+    }
+
+    .signature-block {
+      /* Styles for each signature group */
+      width: 40%; /* Adjust width as needed */
+    }
+
+    .signature-label {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 25px; /* Space between label and name */
+    }
+
+    .signature-name {
+      font-weight: bold;
+      margin-bottom: 2px; /* Minimal space between name and position */
+      text-transform: uppercase; /* Match image style */
+      border-bottom: 1px solid #000; /* Underline the name */
+      display: inline-block; /* Allow underline to fit content */
+      padding-bottom: 2px;
+    }
+
+    .signature-position {
+      font-style: italic;
+      font-size: 0.9em;
+      color: #333;
+      margin-top: 0; /* Remove top margin */
     }
 
     .certificate-signature p {
