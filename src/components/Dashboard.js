@@ -787,14 +787,31 @@ function Dashboard() {
     };
 
     try {
+      // --- ISSUE CERTIFICATE LOGIC ---
       await axios.post('/api/certificates', dataToSubmit, config);
-      setCertificateFormMessage('Certificate issued successfully!');
-      setCertificateFormData(initialCertificateFormState);
-      await fetchCertificates(); // Refresh list
-      setTimeout(() => {
-        handleCloseCertificateModal();
-      }, 1500);
+
+      // --- Show SweetAlert on successful issue ---
+      Swal.fire({
+          // Defaults to center position
+          icon: "success",
+          title: "Certificate issued successfully!",
+          showConfirmButton: false,
+          timer: 1500
+      });
+
+      // --- Close modal immediately after firing alert ---
+      handleCloseCertificateModal();
+
+      // --- Refresh the list ---
+      await fetchCertificates();
+
+      // Form reset is handled by handleCloseCertificateModal
+      // Remove: setCertificateFormMessage('Certificate issued successfully!');
+      // Remove: setCertificateFormData(initialCertificateFormState);
+      // Remove: setTimeout(() => { handleCloseCertificateModal(); }, 1500);
+
     } catch (error) {
+      // ... (keep existing error handling) ...
       console.error("Error issuing certificate:", error.response || error);
       let errorMessage = 'Failed to issue certificate. Please try again.';
       if (error.response?.data?.message) {
