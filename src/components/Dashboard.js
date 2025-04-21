@@ -6,19 +6,19 @@ import "./Dashboard.css";
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
 import {
-    FaAddressBook,
-    FaEdit,
-    FaEye,
-    FaFileAlt,
-    FaInfoCircle,
-    FaPrint,
-    FaSearch,
-    FaSignOutAlt,
-    FaTachometerAlt,
-    FaTrash,
-    FaUserCog,
-    FaUserTie,
-    FaUsers,
+  FaAddressBook,
+  FaEdit,
+  FaEye,
+  FaFileAlt,
+  FaInfoCircle,
+  FaPrint,
+  FaSearch,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTrash,
+  FaUserCog,
+  FaUserTie,
+  FaUsers,
 } from "react-icons/fa";
 import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
@@ -27,18 +27,18 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
-    // --- Add Area import ---
-    Area,
-    // --- Add AreaChart import ---
-    AreaChart,
-    CartesianGrid,
-    Cell,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis
+  // --- Add Area import ---
+  Area,
+  // --- Add AreaChart import ---
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 // --- Import SweetAlert2 ---
 import Swal from 'sweetalert2';
@@ -542,19 +542,26 @@ function Dashboard() {
 
     try {
       if (officialToEdit) {
-        // --- UPDATE LOGIC (Placeholder) ---
-        // await axios.put(...)
-        console.log("Update logic to be implemented");
-        setOfficialFormMessage('Update functionality not yet implemented.');
-        // TODO: Add Swal confirmation for update too?
+        // --- UPDATE LOGIC ---
+        await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
-         // Refresh list even on placeholder update for now
-        await fetchOfficials();
-        // Close modal (no delay needed for placeholder)
+        // Show success alert
+        Swal.fire({
+          icon: "success",
+          title: "Official Updated",
+          text: "The official's information has been successfully updated.",
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        // Close modal immediately after firing alert
         handleCloseOfficialModal();
 
+        // Refresh list after update
+        await fetchOfficials();
+
       } else {
-        // --- ADD LOGIC ---
+        // --- ADD LOGIC (remains the same) ---
         await axios.post('/api/barangay-officials', dataToSubmit, config);
 
         // --- Show SweetAlert on successful add ---
@@ -570,24 +577,24 @@ function Dashboard() {
 
         // --- Refresh the list after save/update ---
         await fetchOfficials();
-
-        // Form reset is handled by handleCloseOfficialModal
-        // Removed: setOfficialFormData(initialOfficialFormState);
-        // Removed: setOfficialFormMessage('Official added successfully!');
-        // Removed: setTimeout block
       }
 
     } catch (error) {
       // Keep existing error handling to show messages within the modal
       console.error("Error saving official:", error.response || error);
-      let errorMessage = 'Failed to save official. Please try again.';
+      let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`; // Dynamic error message
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-        if (error.response.data.errors) {
-          console.error("Backend validation errors:", error.response.data.errors);
-        }
       }
-      setOfficialFormMessage(errorMessage); // Show error in modal
+      // Display error within the modal OR use Swal for error
+      // Option 1: Keep error in modal
+      setOfficialFormMessage(errorMessage);
+      // Option 2: Use Swal for error (remove setOfficialFormMessage above if using this)
+      // Swal.fire({
+      //   icon: 'error',
+      //   title: 'Save Failed',
+      //   text: errorMessage,
+      // });
     } finally {
       setOfficialFormLoading(false);
     }
@@ -596,7 +603,18 @@ function Dashboard() {
 
   // --- DELETE Official Handler ---
   const handleDeleteOfficial = async (officialId) => {
-    // Confirmation Dialog
+    // --- Role Check ---
+    if (user?.role !== 'admin') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Denied',
+        text: 'Only administrators can delete official records.',
+      });
+      return; // Stop execution if not admin
+    }
+    // --- End Role Check ---
+
+    // Confirmation Dialog (Only shown for admins)
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -731,6 +749,58 @@ function Dashboard() {
     setResidentToEdit(null); // Clear editing state on close
   };
   // --- End Handlers for Resident ADD/EDIT Modal ---
+
+  // --- DELETE Resident Handler --- (Keep this one)
+  const handleDeleteResident = async (residentId) => {
+    // --- Role Check ---
+    if (user?.role !== 'admin') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Denied',
+        text: 'Only administrators can delete resident records.',
+      });
+      return; // Stop execution if not admin
+    }
+    // --- End Role Check ---
+
+    // Confirmation Dialog (Only shown for admins)
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this resident record!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const config = { headers: { 'Authorization': `Bearer ${token}` } };
+          // API Call to delete
+          await axios.delete(`/api/residents/${residentId}`, config);
+
+          // Success Feedback
+          Swal.fire(
+            'Deleted!',
+            'The resident record has been deleted.',
+            'success'
+          );
+
+          // Refresh the list
+          await fetchResidents();
+
+        } catch (error) {
+          console.error("Error deleting resident:", error.response || error);
+          // Error Feedback
+          Swal.fire(
+            'Error!',
+            'Failed to delete the resident record. Please try again.',
+            'error'
+          );
+        }
+      }
+    });
+  };
 
   // --- Handlers for Blotter ADD/EDIT Modal ---
   const handleOpenBlotterModal = (blotter = null) => {
@@ -1016,6 +1086,58 @@ function Dashboard() {
         console.error("Error formatting date:", dateString, e);
         return dateString; // Fallback
     }
+  };
+
+  // --- DELETE Blotter Handler ---
+  const handleDeleteBlotter = async (blotterId) => {
+    // --- Role Check ---
+    if (user?.role !== 'admin') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Denied',
+        text: 'Only administrators can delete blotter records.',
+      });
+      return; // Stop execution if not admin
+    }
+    // --- End Role Check ---
+
+    // Confirmation Dialog (Only shown for admins)
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this blotter record!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const config = { headers: { 'Authorization': `Bearer ${token}` } };
+          // API Call to delete
+          await axios.delete(`/api/blotters/${blotterId}`, config);
+
+          // Success Feedback
+          Swal.fire(
+            'Deleted!',
+            'The blotter record has been deleted.',
+            'success'
+          );
+
+          // Refresh the list
+          await fetchBlotters();
+
+        } catch (error) {
+          console.error("Error deleting blotter:", error.response || error);
+          // Error Feedback
+          Swal.fire(
+            'Error!',
+            'Failed to delete the blotter record. Please try again.',
+            'error'
+          );
+        }
+      }
+    });
   };
 
   return (
@@ -1536,7 +1658,7 @@ function Dashboard() {
                           <button title="Edit" onClick={() => handleOpenResidentModal(resident)}>
                             <FaEdit />
                           </button>
-                          <button title="Delete"> {/* TODO: Implement Delete */}
+                          <button title="Delete" onClick={() => handleDeleteResident(resident._id)}>
                             <FaTrash />
                           </button>
                         </td>
@@ -1741,7 +1863,7 @@ function Dashboard() {
                           <button title="Edit" onClick={() => handleOpenBlotterModal(blotter)}>
                             <FaEdit />
                           </button>
-                          <button title="Delete"> {/* TODO: Implement Delete */}
+                          <button title="Delete" onClick={() => handleDeleteBlotter(blotter._id)}>
                             <FaTrash />
                           </button>
                         </td>
