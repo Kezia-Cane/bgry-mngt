@@ -2,8 +2,8 @@
 
     .certificate-view-modal {
       width: 850px !important; /* Fixed width */
-      height: 750px !important; /* Fixed height */
-      overflow-y: auto; /* Enable vertical scrolling if content overflows */
+      height: 900px !important; /* Fixed height */
+      overflow-y: hidden; /* Disable vertical scrolling */
       max-width: none !important; /* Remove max-width to allow full width */
       min-width: unset !important; /* Remove min-width */
       max-height: unset !important; /* Remove max-height */
@@ -34,7 +34,7 @@
       font-family: 'Times New Roman', Times, serif; /* Common font for certificates */
       color: #000;
       line-height: 1.6;
-      padding: 20px; /* Add padding inside the layout */
+      padding: 60px; /* Add padding inside the layout */
       border: 1px solid #eee; /* Optional border for the paper */
       background-color: #fdfdfd; /* Slightly off-white */
     }
