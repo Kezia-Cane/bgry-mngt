@@ -6,19 +6,19 @@ import "./Dashboard.css";
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
 import {
-  FaAddressBook,
-  FaEdit,
-  FaEye,
-  FaFileAlt,
-  FaInfoCircle,
-  FaPrint,
-  FaSearch,
-  FaSignOutAlt,
-  FaTachometerAlt,
-  FaTrash,
-  FaUserCog,
-  FaUserTie,
-  FaUsers,
+    FaAddressBook,
+    FaEdit,
+    FaEye,
+    FaFileAlt,
+    FaInfoCircle,
+    FaPrint,
+    FaSearch,
+    FaSignOutAlt,
+    FaTachometerAlt,
+    FaTrash,
+    FaUserCog,
+    FaUserTie,
+    FaUsers,
 } from "react-icons/fa";
 import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
@@ -27,18 +27,18 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
-  // --- Add Area import ---
-  Area,
-  // --- Add AreaChart import ---
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
+    // --- Add Area import ---
+    Area,
+    // --- Add AreaChart import ---
+    AreaChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
 } from 'recharts';
 // --- Import SweetAlert2 ---
 import Swal from 'sweetalert2';
@@ -168,6 +168,11 @@ function Dashboard() {
   const [certificateFormLoading, setCertificateFormLoading] = useState(false);
   const [certificateFormMessage, setCertificateFormMessage] = useState('');
 
+  // --- Data Fetching State (Users - Admin Module) ---
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState(null);
+
   // Add loading state specifically for dashboard stats aggregation
   const [dashboardStatsLoading, setDashboardStatsLoading] = useState(false);
 
@@ -238,6 +243,26 @@ function Dashboard() {
     }
   };
 
+  // --- Fetch Users (Admin Module) ---
+  const fetchUsers = async () => {
+    // Optional: Add check if user is admin before fetching, though backend should enforce this
+    // if (user?.role !== 'admin') return;
+
+    setUsersLoading(true);
+    setUsersError(null);
+    try {
+      const config = { headers: { 'Authorization': `Bearer ${token}` } };
+      const response = await axios.get('/api/users', config); // Assuming GET /api/users endpoint
+      setUsers(response.data.users || response.data || []); // Adjust based on your API response structure
+    } catch (error) {
+      console.error("Error fetching users:", error.response || error);
+      setUsersError('Failed to load users. Ensure you are logged in as an administrator.');
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   // --- Effect to Fetch Data when module is active ---
   useEffect(() => {
     if (token) {
@@ -261,6 +286,7 @@ function Dashboard() {
               setDashboardStatsLoading(false);
           });
       }
+      if (activeModule === "Admin") fetchUsers(); // Fetch users for Admin module
       // Add other modules here
     }
   }, [activeModule, token]); // Rerun when module or token changes
@@ -1067,6 +1093,68 @@ function Dashboard() {
     // ... (Original function body) ...
   };
 
+  // --- End DELETE Blotter Handler ---
+
+  // --- DELETE User Handler (Admin Module) ---
+  const handleDeleteUser = async (userIdToDelete) => {
+    // Prevent admin from deleting themselves
+    if (user?._id === userIdToDelete) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Action Not Allowed',
+        text: 'You cannot delete your own account.',
+      });
+      return;
+    }
+
+    // Role Check (Redundant if module access is already restricted, but good practice)
+    if (user?.role !== 'admin') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Denied',
+        text: 'Only administrators can delete users.',
+      });
+      return;
+    }
+
+    // Confirmation Dialog
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This will permanently delete the user account!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete user!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const config = { headers: { 'Authorization': `Bearer ${token}` } };
+          // API Call to delete user
+          await axios.delete(`/api/users/${userIdToDelete}`, config); // Assuming DELETE /api/users/:id endpoint
+
+          Swal.fire(
+            'Deleted!',
+            'The user account has been deleted.',
+            'success'
+          );
+
+          // Refresh the user list
+          await fetchUsers();
+
+        } catch (error) {
+          console.error("Error deleting user:", error.response || error);
+          Swal.fire(
+            'Error!',
+            (error.response?.data?.message || 'Failed to delete the user account. Please try again.'), // Show backend message if available
+            'error'
+          );
+        }
+      }
+    });
+  };
+  // --- End DELETE User Handler ---
+
   return (
     <div className="dashboard-layout">
       {/* Sidebar */}
@@ -1553,7 +1641,7 @@ function Dashboard() {
                     <tr>
                       <th>Full name</th>
                       <th>Gender</th>
-                      <th>Age</th> {/* Displaying Age from virtual field */}
+                      {/* <th>Age</th> Removed Age column */}
                       <th>Address</th>
                       <th>Contact Number</th>
                       <th>Actions</th>
@@ -1562,19 +1650,19 @@ function Dashboard() {
                   <tbody>
                     {/* Conditional Rendering for Residents */}
                     {residentsLoading && (
-                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading residents...</td></tr>
+                       <tr><td colSpan="5" style={{ textAlign: 'center' }}>Loading residents...</td></tr>
                     )}
                     {residentsError && (
-                       <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{residentsError}</td></tr>
+                       <tr><td colSpan="5" style={{ textAlign: 'center', color: 'red' }}>{residentsError}</td></tr>
                     )}
                     {!residentsLoading && !residentsError && residents.length === 0 && (
-                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>No residents found.</td></tr>
+                       <tr><td colSpan="5" style={{ textAlign: 'center' }}>No residents found.</td></tr>
                     )}
                     {!residentsLoading && !residentsError && residents.map((resident) => (
                       <tr key={resident._id}>
                         <td>{resident.fullName}</td>
                         <td>{resident.gender}</td>
-                        <td>{resident.age}</td> {/* Assuming 'age' virtual field exists from model */}
+                        {/* <td>{resident.age}</td> Removed Age data cell */}
                         {/* Display simplified or full address based on model */}
                         <td>{resident.address?.street || resident.address}</td>
                         <td>{resident.contactNumber || 'N/A'}</td>
@@ -2117,49 +2205,34 @@ function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Placeholder User Data */}
-                      <tr>
-                        <td>admin_user</td>
-                        <td>Admin</td>
-                        <td>Active</td>
-                        <td className="action-buttons">
-                        {/* Corrected onClick handler for Edit User */}
-                        <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'admin_user', role: 'Admin', status: 'Active' })}>
-                          <FaEdit />
-                        </button>
-                          <button title="Delete">
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>staff_user1</td>
-                        <td>Staff</td>
-                        <td>Active</td>
-                        <td className="action-buttons">
-                        {/* Corrected onClick handler for Edit User */}
-                        <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'staff_user1', role: 'Staff', status: 'Active' })}>
-                          <FaEdit />
-                        </button>
-                          <button title="Delete">
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>staff_user2</td>
-                        <td>Staff</td>
-                        <td>Inactive</td>
-                        <td className="action-buttons">
-                          {/* Corrected onClick handler for Edit User */}
-                           <button title="Edit" onClick={() => handleOpenUserEditModal({ username: 'staff_user2', role: 'Staff', status: 'Inactive' })}>
-                            <FaEdit />
-                          </button>
-                          <button title="Delete">
-                            <FaTrash />
-                          </button>
-                        </td>
-                      </tr>
+                       {/* Conditional Rendering for Users */}
+                      {usersLoading && (
+                        <tr><td colSpan="4" style={{ textAlign: 'center' }}>Loading users...</td></tr>
+                      )}
+                      {usersError && (
+                        <tr><td colSpan="4" style={{ textAlign: 'center', color: 'red' }}>{usersError}</td></tr>
+                      )}
+                      {!usersLoading && !usersError && users.length === 0 && (
+                        <tr><td colSpan="4" style={{ textAlign: 'center' }}>No users found.</td></tr>
+                      )}
+                      {/* Map over actual users data */}
+                      {!usersLoading && !usersError && users.map((userItem) => (
+                        <tr key={userItem._id}>
+                          <td>{userItem.username}</td>
+                          <td>{userItem.role}</td>
+                          <td>{userItem.status || 'N/A'}</td> {/* Handle potentially missing status */}
+                          <td className="action-buttons">
+                            {/* Pass the actual user object to the edit modal handler */}
+                            <button title="Edit" onClick={() => handleOpenUserEditModal(userItem)}>
+                              <FaEdit />
+                            </button>
+                             {/* Add Delete Button Handler (handleDeleteUser to be defined next) */}
+                            <button title="Delete" onClick={() => handleDeleteUser(userItem._id)}>
+                              <FaTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
