@@ -38,7 +38,6 @@ The Barangay Management System aims to modernize the record-keeping and administ
 * **About:** A static page providing information about the system or the barangay.
 * **Admin:** (Accessible to admin users)
     * Manage user accounts (add, edit, delete users and their roles).
-    * Potentially configure system settings.
 * **Logout:** Securely log users out of the system.
 
 ## Technology Stack

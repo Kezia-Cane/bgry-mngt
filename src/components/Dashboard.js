@@ -99,6 +99,71 @@ function Dashboard() {
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); // State for EDIT User modal
   const [userToEdit, setUserToEdit] = useState(null); // State to hold the user being edited
 
+  // Modal handlers for User Management
+  const handleOpenUserModal = () => {
+    setIsUserModalOpen(true);
+  };
+
+  const handleCloseUserModal = () => {
+    setIsUserModalOpen(false);
+  };
+
+  // Render functions for different modules
+  const renderDashboardOverview = () => {
+    return (
+      <div className="dashboard-overview">
+        <h2>Dashboard Overview</h2>
+        {/* Add your dashboard overview content here */}
+      </div>
+    );
+  };
+
+  const renderBrgyOfficial = () => {
+    return (
+      <div className="brgy-official-section">
+        <h2>Barangay Officials</h2>
+        {/* Add your barangay officials content here */}
+      </div>
+    );
+  };
+
+  const renderResident = () => {
+    return (
+      <div className="resident-section">
+        <h2>Residents</h2>
+        {/* Add your residents content here */}
+      </div>
+    );
+  };
+
+  const renderBlotter = () => {
+    return (
+      <div className="blotter-section">
+        <h2>Blotter Records</h2>
+        {/* Add your blotter records content here */}
+      </div>
+    );
+  };
+
+  const renderCertificate = () => {
+    return (
+      <div className="certificate-section">
+        <h2>Certificates</h2>
+        {/* Add your certificates content here */}
+      </div>
+    );
+  };
+
+  const renderAbout = () => {
+    return (
+      <div className="about-section">
+        <h2>About</h2>
+        {/* Add your about content here */}
+      </div>
+    );
+  };
+
+
   // Resident View Modal state - This seems to already exist from a previous attempt, ensuring it's correct.
   const [selectedResidentForView, setSelectedResidentForView] = useState(null);
   const [isResidentViewModalOpen, setIsResidentViewModalOpen] = useState(false);
@@ -2366,7 +2431,7 @@ function Dashboard() {
                         <tr key={userItem._id}>
                           <td>{userItem.username}</td>
                           <td>{userItem.role}</td>
-                          <td>{userItem.status || 'N/A'}</td> {/* Handle potentially missing status */}
+                          <td>{userItem.status || 'N/A'}</td>
                           <td className="action-buttons">
                             {/* Pass the actual user object to the edit modal handler */}
                             <button title="Edit" onClick={() => handleOpenUserEditModal(userItem)}>
