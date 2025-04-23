@@ -98,14 +98,19 @@ function Dashboard() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for ADD User modal
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); // State for EDIT User modal
   const [userToEdit, setUserToEdit] = useState(null); // State to hold the user being edited
-
+  const baseURL = 'http://localhost:5000';
+  const [users, setUsers] = useState([]); // State to hold users list
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState(null);
   // Modal handlers for User Management
   const handleOpenUserModal = () => {
+    setUserToEdit(null); // Clear any previous user data
     setIsUserModalOpen(true);
   };
 
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false);
+    setUserToEdit(null); // Clear user data when closing
   };
 
   // Render functions for different modules
@@ -233,15 +238,29 @@ function Dashboard() {
   const [certificateFormLoading, setCertificateFormLoading] = useState(false);
   const [certificateFormMessage, setCertificateFormMessage] = useState('');
 
-  // --- Data Fetching State (Users - Admin Module) ---
-  const [users, setUsers] = useState([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [usersError, setUsersError] = useState(null);
-
   // Add loading state specifically for dashboard stats aggregation
   const [dashboardStatsLoading, setDashboardStatsLoading] = useState(false);
 
   // --- Fetch Functions ---
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    setUsersError(null);
+    try {
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      };
+      const response = await axios.get(`${baseURL}/api/admin/users`, config);
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setUsersError(error.response?.data?.message || 'Failed to fetch users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const fetchOfficials = async () => {
     setOfficialsLoading(true);
     setOfficialsError(null);
@@ -308,38 +327,7 @@ function Dashboard() {
     }
   };
 
-  // --- Fetch Users (Admin Module) ---
-  const fetchUsers = async () => {
-    // Optional: Add check if user is admin before fetching, though backend should enforce this
-    if (user?.role !== 'admin') {
-        setUsersError("Access denied. Admin privileges required.");
-        setUsers([]);
-        return; // Early return if not admin
-    }
 
-    setUsersLoading(true);
-    setUsersError(null);
-    try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      // Use the correct admin endpoint
-      const response = await axios.get('/api/admin/users', config);
-      setUsers(response.data || []); // Assuming the API returns an array of users directly
-    } catch (error) {
-      console.error("Error fetching users:", error.response || error);
-      // Provide a more specific error message if possible
-      const errorMsg = error.response?.data?.message || 'Failed to load users.';
-      setUsersError(errorMsg);
-      // Display error using Swal for better visibility
-      Swal.fire({
-        icon: 'error',
-        title: 'Error Fetching Users',
-        text: errorMsg,
-      });
-      setUsers([]);
-    } finally {
-      setUsersLoading(false);
-    }
-  };
 
   // --- Effect to Fetch Data when module is active ---
   useEffect(() => {
@@ -1241,8 +1229,9 @@ function Dashboard() {
             'Authorization': `Bearer ${token}`
           }
         };
+        const baseURL = 'http://localhost:5000';
         // Make the DELETE request to the admin endpoint
-        await axios.delete(`/api/admin/users/${userIdToDelete}`, config);
+        await axios.delete(`${baseURL}/api/admin/users/${userIdToDelete}`, config);
 
         // Show success message
         Swal.fire(
@@ -1273,78 +1262,86 @@ function Dashboard() {
   };
   // --- End DELETE User Handler ---
 
+  // Load users when Admin module becomes active
+  useEffect(() => {
+    if (activeModule === "Admin") {
+      fetchUsers();
+    }
+  }, [activeModule]);
+
   // --- JSX for User Management Table (New) ---
-  const renderUserManagementTable = () => (
-    <div className="module-container user-management-module">
-      <h3 className="module-title">User Management</h3>
-      <button className="btn btn-primary mb-3" onClick={() => handleOpenUserModal()}> {/* Add onClick for adding user */}
-        <FaUserCog /> Add New User
-      </button>
-      {usersLoading && <p>Loading users...</p>}
-      {usersError && <p className="text-danger">Error: {usersError}</p>}
-      {!usersLoading && !usersError && (
-        <table className="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length > 0 ? (
-              users.map((userItem) => ( // Changed variable name to avoid conflict
+  const renderUserManagementTable = () => {
+
+    return (
+      <div className="module-container user-management-module">
+        <h3 className="module-title">User Management</h3>
+        <button className="btn btn-primary mb-3" onClick={handleOpenUserModal}>
+          <FaUserCog /> Add New User
+        </button>
+        
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((userItem) => (
                 <tr key={userItem._id}>
                   <td>{userItem.username}</td>
                   <td>{userItem.role}</td>
                   <td>
                     <button
-                      className="btn btn-sm btn-info me-2" // Use me-2 for margin
-                      onClick={() => handleOpenUserEditModal(userItem)} // Pass user data to edit modal
+                      className="btn btn-sm btn-info me-2"
+                      onClick={() => handleOpenUserEditModal(userItem)}
                       title="Edit User"
                     >
                       <FaEdit />
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
-                      onClick={() => handleDeleteUser(userItem._id)} // Call delete handler
+                      onClick={() => handleDeleteUser(userItem._id)}
                       title="Delete User"
                     >
                       <FaTrash />
                     </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="text-center">No users found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
-      {/* EDIT User Modal */}
-      {isUserEditModalOpen && userToEdit && (
-        <UserEditModal
-          isOpen={isUserEditModalOpen}
-          onClose={handleCloseUserEditModal}
-          userData={userToEdit} // Pass the user data
-          onUserUpdated={fetchUsers} // Refresh list after update
-          token={token}
-        />
-      )}
-       {/* ADD User Modal (Assuming UserEditModal can handle adding if userData is null) */}
-      {isUserModalOpen && (
-        <UserEditModal // Reuse Edit Modal for Add? Or create UserAddModal
-          isOpen={isUserModalOpen}
-          onClose={handleCloseUserModal} // Use correct close handler
-          userData={null} // Pass null for adding
-          onUserUpdated={fetchUsers} // Refresh list after adding
-          token={token}
-        />
-      )}
-    </div>
-  );
+              ))}
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan="3" className="text-center">No users found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* User Modals */}
+        {isUserEditModalOpen && userToEdit && (
+          <UserEditModal
+            isOpen={isUserEditModalOpen}
+            onClose={handleCloseUserEditModal}
+            userData={userToEdit}
+            onUserUpdated={fetchUsers}
+            token={token}
+          />
+        )}
+        {isUserModalOpen && (
+          <UserEditModal
+            isOpen={isUserModalOpen}
+            onClose={handleCloseUserModal}
+            userData={null}
+            onUserUpdated={fetchUsers}
+            token={token}
+          />
+        )}
+      </div>
+    );
+  };
 
   // --- Main Render Function ---
   const renderContent = () => {
@@ -2031,6 +2028,17 @@ function Dashboard() {
             </div>
           )}
 
+          {/* User Modals */}
+          {isUserModalOpen && (
+            <UserEditModal
+              isOpen={isUserModalOpen}
+              onClose={handleCloseUserModal}
+              userData={null}
+              onUserUpdated={fetchUsers}
+              token={token}
+            />
+          )}
+
           {/* Add specific rendering for Blotter module */}
           {activeModule === "Blotter" && (
             <div>
@@ -2455,50 +2463,6 @@ function Dashboard() {
                     Add New User
                   </button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal for Adding User */}
-          {isUserModalOpen && (
-            <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsUserModalOpen(false); }}>
-              <div className="modal-content">
-                <h2>Add New User</h2>
-                <form>
-                  {/* Add input fields for adding a new user */}
-                  <div className="form-group">
-                    <label htmlFor="userUsername">Username:</label>
-                    <input type="text" id="userUsername" name="userUsername" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="userRole">Role:</label>
-                    <select id="userRole" name="userRole">
-                      <option value="">Select Role</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Staff">Staff</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="userStatus">Status:</label>
-                    <select id="userStatus" name="userStatus">
-                      <option value="">Select Status</option>
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
-                  <div className="modal-actions">
-                    <button type="submit" className="save-button">
-                      Add User
-                    </button>
-                    <button
-                      type="button"
-                      className="cancel-button"
-                      onClick={() => setIsUserModalOpen(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
               </div>
             </div>
           )}

@@ -7,7 +7,7 @@ import './UserEditModal.css';
 const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
   const [formData, setFormData] = useState({
     username: '',
-    role: 'Staff', // Default role
+    role: 'staff', // Default role - lowercase to match backend
     password: '', // Add password field
     // Status is often handled by backend or separate actions, removing for now unless needed
   });
@@ -22,13 +22,13 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
     if (isEditMode) {
       setFormData({
         username: userData.username || '',
-        role: userData.role || 'Staff',
+        role: userData.role || 'staff',
         password: '', // Clear password field on edit mode open
       });
       setErrors({}); // Clear errors when opening for edit
     } else {
       // Reset form for add mode
-      setFormData({ username: '', role: 'Staff', password: '' });
+      setFormData({ username: '', role: 'staff', password: '' });
       setErrors({});
     }
   }, [userData, isOpen]); // Rerun effect if userData or isOpen changes
@@ -68,43 +68,55 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
     setIsLoading(true);
     setErrors({}); // Clear previous errors
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    };
-
-    // Prepare data payload - exclude password if empty during edit
     const payload = {
-        username: formData.username,
-        role: formData.role,
+      username: formData.username,
+      role: formData.role,
     };
     if (formData.password) { // Only include password if provided
-        payload.password = formData.password;
+      payload.password = formData.password;
     }
 
     try {
+      const baseURL = 'http://localhost:5000';
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
       if (isEditMode) {
-        // --- UPDATE USER --- Filter out password if not changed
-        await axios.put(`/api/admin/users/${userData._id}`, payload, config);
-        Swal.fire('Updated!', 'User information has been updated.', 'success');
+        await axios.put(`${baseURL}/api/admin/users/${userData._id}`, payload, config);
       } else {
-        // --- ADD USER --- Password is included via payload construction above
-        await axios.post('/api/admin/users', payload, config);
-        Swal.fire('Added!', 'New user has been created.', 'success');
+        await axios.post(`${baseURL}/api/admin/users`, payload, config);
       }
-      onUserUpdated(); // Refresh the user list in Dashboard
+
+      // Show success message
+      Swal.fire({
+        icon: 'success',
+        title: `User ${isEditMode ? 'Updated' : 'Added'} Successfully!`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      onUserUpdated(); // Refresh the user list
       onClose(); // Close the modal
 
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'adding'} user:`, error.response || error);
-      const errorMsg = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'add'} user.`;
-       // Update errors state if specific field errors are returned from backend (optional)
-       if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors); // Assuming backend returns errors keyed by field name
+      
+      // Handle field-specific errors
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
       }
-      Swal.fire('Error!', errorMsg, 'error');
+      
+      // Show error message
+      const errorMsg = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'add'} user.`;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: errorMsg
+      });
     } finally {
       setIsLoading(false);
     }
@@ -134,6 +146,22 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
 
           {/* Password field - required for add, optional for edit */}
           <div className="form-group">
+            <label htmlFor="role">Role:</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+              className={errors.role ? 'is-invalid' : ''}
+            >
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+            </select>
+            {errors.role && <span className="error-message">{errors.role}</span>}
+          </div>
+
+          <div className="form-group">
             <label htmlFor="password">Password:</label>
             <input
               type="password"
@@ -148,22 +176,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="role">Role:</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-              className={errors.role ? 'is-invalid' : ''}
-            >
-              {/* Roles should ideally match backend enum/options */}
-              <option value="Staff">Staff</option>
-              <option value="Admin">Admin</option>
-            </select>
-            {errors.role && <span className="error-message">{errors.role}</span>}
-          </div>
+
 
           {/* Removed Status field, assuming backend handles it or separate action */}
 
