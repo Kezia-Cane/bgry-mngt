@@ -2,7 +2,7 @@
 
     .certificate-view-modal {
       width: 850px !important; /* Fixed width */
-      height: 900px !important; /* Fixed height */
+      height: 920px !important; /* Fixed height */
       overflow-y: hidden; /* Disable vertical scrolling */
       max-width: none !important; /* Remove max-width to allow full width */
       min-width: unset !important; /* Remove min-width */

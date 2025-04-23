@@ -1088,10 +1088,56 @@ function Dashboard() {
     });
   };
 
-  // --- ISSUE CERTIFICATE Handler --- (Ensure this function is intact)
+  // --- ISSUE CERTIFICATE Handler ---
   const handleIssueCertificate = async (e) => {
-    // ... (Original function body) ...
+    e.preventDefault(); // Prevent default form submission
+    setCertificateFormMessage('');
+    setCertificateFormErrors({});
+
+    if (!validateCertificateForm()) {
+      setCertificateFormMessage('Please fix the errors in the form.');
+      return;
+    }
+
+    setCertificateFormLoading(true);
+    const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+    const dataToSubmit = {
+      certificateType: certificateFormData.certificateType,
+      residentId: certificateFormData.residentId,
+      purpose: certificateFormData.purpose,
+    };
+
+    try {
+      // API Call to issue certificate
+      await axios.post('/api/certificates', dataToSubmit, config);
+
+      Swal.fire({
+          icon: "success",
+          title: "Certificate Issued!",
+          text: "The certificate has been successfully issued.",
+          showConfirmButton: false,
+          timer: 1500
+      });
+
+      handleCloseCertificateModal(); // Close modal on success
+      await fetchCertificates(); // Refresh the certificate list
+
+    } catch (error) {
+      console.error("Error issuing certificate:", error.response || error);
+      let errorMessage = 'Failed to issue certificate. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+        // Specific error handling for 'Resident not found'
+        if (error.response.status === 404 && error.response.data.message.includes('Resident not found')){
+            setCertificateFormErrors(prev => ({...prev, residentId: 'Selected resident not found.' }))
+        }
+      }
+      setCertificateFormMessage(errorMessage); // Show error in modal
+    } finally {
+      setCertificateFormLoading(false);
+    }
   };
+  // --- End ISSUE CERTIFICATE Handler ---
 
   // --- End DELETE Blotter Handler ---
 
