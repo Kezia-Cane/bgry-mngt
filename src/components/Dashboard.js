@@ -6,19 +6,19 @@ import "./Dashboard.css";
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
 import {
-    FaAddressBook,
-    FaEdit,
-    FaEye,
-    FaFileAlt,
-    FaInfoCircle,
-    FaPrint,
-    FaSearch,
-    FaSignOutAlt,
-    FaTachometerAlt,
-    FaTrash,
-    FaUserCog,
-    FaUserTie,
-    FaUsers,
+  FaAddressBook,
+  FaEdit,
+  FaEye,
+  FaFileAlt,
+  FaInfoCircle,
+  FaPrint,
+  FaSearch,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTrash,
+  FaUserCog,
+  FaUserTie,
+  FaUsers,
 } from "react-icons/fa";
 import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
 import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
@@ -27,18 +27,18 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
 // --- Import Recharts components ---
 import {
-    // --- Add Area import ---
-    Area,
-    // --- Add AreaChart import ---
-    AreaChart,
-    CartesianGrid,
-    Cell,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis
+  // --- Add Area import ---
+  Area,
+  // --- Add AreaChart import ---
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 // --- Import SweetAlert2 ---
 import Swal from 'sweetalert2';
@@ -246,17 +246,30 @@ function Dashboard() {
   // --- Fetch Users (Admin Module) ---
   const fetchUsers = async () => {
     // Optional: Add check if user is admin before fetching, though backend should enforce this
-    // if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin') {
+        setUsersError("Access denied. Admin privileges required.");
+        setUsers([]);
+        return; // Early return if not admin
+    }
 
     setUsersLoading(true);
     setUsersError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/users', config); // Assuming GET /api/users endpoint
-      setUsers(response.data.users || response.data || []); // Adjust based on your API response structure
+      // Use the correct admin endpoint
+      const response = await axios.get('/api/admin/users', config);
+      setUsers(response.data || []); // Assuming the API returns an array of users directly
     } catch (error) {
       console.error("Error fetching users:", error.response || error);
-      setUsersError('Failed to load users. Ensure you are logged in as an administrator.');
+      // Provide a more specific error message if possible
+      const errorMsg = error.response?.data?.message || 'Failed to load users.';
+      setUsersError(errorMsg);
+      // Display error using Swal for better visibility
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Fetching Users',
+        text: errorMsg,
+      });
       setUsers([]);
     } finally {
       setUsersLoading(false);
@@ -289,7 +302,7 @@ function Dashboard() {
       if (activeModule === "Admin") fetchUsers(); // Fetch users for Admin module
       // Add other modules here
     }
-  }, [activeModule, token]); // Rerun when module or token changes
+  }, [activeModule, token, user?.role]); // Add user?.role dependency
 
   // --- Effect to pre-fill form when editing ---
   useEffect(() => {
@@ -1143,63 +1156,150 @@ function Dashboard() {
 
   // --- DELETE User Handler (Admin Module) ---
   const handleDeleteUser = async (userIdToDelete) => {
-    // Prevent admin from deleting themselves
-    if (user?._id === userIdToDelete) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Action Not Allowed',
-        text: 'You cannot delete your own account.',
-      });
-      return;
-    }
-
-    // Role Check (Redundant if module access is already restricted, but good practice)
-    if (user?.role !== 'admin') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Permission Denied',
-        text: 'Only administrators can delete users.',
-      });
-      return;
-    }
-
-    // Confirmation Dialog
-    Swal.fire({
+    // Confirmation dialog
+    const result = await Swal.fire({
       title: 'Are you sure?',
-      text: "This will permanently delete the user account!",
+      text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete user!'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          // API Call to delete user
-          await axios.delete(`/api/users/${userIdToDelete}`, config); // Assuming DELETE /api/users/:id endpoint
-
-          Swal.fire(
-            'Deleted!',
-            'The user account has been deleted.',
-            'success'
-          );
-
-          // Refresh the user list
-          await fetchUsers();
-
-        } catch (error) {
-          console.error("Error deleting user:", error.response || error);
-          Swal.fire(
-            'Error!',
-            (error.response?.data?.message || 'Failed to delete the user account. Please try again.'), // Show backend message if available
-            'error'
-          );
-        }
-      }
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
     });
+
+    if (result.isConfirmed) {
+      setUsersLoading(true); // Indicate loading state for the list
+      setUsersError(null);
+      try {
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        };
+        // Make the DELETE request to the admin endpoint
+        await axios.delete(`/api/admin/users/${userIdToDelete}`, config);
+
+        // Show success message
+        Swal.fire(
+          'Deleted!',
+          'The user has been deleted.',
+          'success'
+        );
+
+        // Refresh the user list by calling fetchUsers
+        fetchUsers();
+
+      } catch (error) {
+        console.error("Error deleting user:", error.response || error);
+        const errorMsg = error.response?.data?.message || 'Failed to delete user.';
+        setUsersError(errorMsg); // Set error state
+        // Show error message
+        Swal.fire(
+          'Error!',
+          errorMsg,
+          'error'
+        );
+      } finally {
+        // Ensure loading state is turned off even if fetchUsers hasn't finished yet
+        // fetchUsers will handle its own loading state for the refresh.
+        setUsersLoading(false);
+      }
+    }
   };
   // --- End DELETE User Handler ---
+
+  // --- JSX for User Management Table (New) ---
+  const renderUserManagementTable = () => (
+    <div className="module-container user-management-module">
+      <h3 className="module-title">User Management</h3>
+      <button className="btn btn-primary mb-3" onClick={() => handleOpenUserModal()}> {/* Add onClick for adding user */}
+        <FaUserCog /> Add New User
+      </button>
+      {usersLoading && <p>Loading users...</p>}
+      {usersError && <p className="text-danger">Error: {usersError}</p>}
+      {!usersLoading && !usersError && (
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.length > 0 ? (
+              users.map((userItem) => ( // Changed variable name to avoid conflict
+                <tr key={userItem._id}>
+                  <td>{userItem.username}</td>
+                  <td>{userItem.role}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-info me-2" // Use me-2 for margin
+                      onClick={() => handleOpenUserEditModal(userItem)} // Pass user data to edit modal
+                      title="Edit User"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeleteUser(userItem._id)} // Call delete handler
+                      title="Delete User"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3" className="text-center">No users found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
+      {/* EDIT User Modal */}
+      {isUserEditModalOpen && userToEdit && (
+        <UserEditModal
+          isOpen={isUserEditModalOpen}
+          onClose={handleCloseUserEditModal}
+          userData={userToEdit} // Pass the user data
+          onUserUpdated={fetchUsers} // Refresh list after update
+          token={token}
+        />
+      )}
+       {/* ADD User Modal (Assuming UserEditModal can handle adding if userData is null) */}
+      {isUserModalOpen && (
+        <UserEditModal // Reuse Edit Modal for Add? Or create UserAddModal
+          isOpen={isUserModalOpen}
+          onClose={handleCloseUserModal} // Use correct close handler
+          userData={null} // Pass null for adding
+          onUserUpdated={fetchUsers} // Refresh list after adding
+          token={token}
+        />
+      )}
+    </div>
+  );
+
+  // --- Main Render Function ---
+  const renderContent = () => {
+    switch (activeModule) {
+      case "Brgy Official":
+        return renderBrgyOfficial();
+      case "Resident":
+        return renderResident();
+      case "Blotter":
+        return renderBlotter();
+      case "Certificate":
+        return renderCertificate();
+      case "About":
+        return renderAbout();
+      case "Admin":
+        return renderUserManagementTable();
+      default:
+        return renderDashboardOverview();
+    }
+  };
 
   return (
     <div className="dashboard-layout">
