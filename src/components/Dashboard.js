@@ -1491,7 +1491,7 @@ function Dashboard() {
                     {officialsLoading && (<tr><td colSpan="7" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>)}
                     {officialsError && (<tr><td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td></tr>)}
                     {!officialsLoading && !officialsError && officials.length === 0 && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td></tr>)}
-                    {!officialsLoading && !officialsError && officials.map((official) => (
+                    {!officialsLoading && !officialsError && [...officials].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((official) => (
                       <tr key={official._id}>
                         <td>{official.fullName}</td>
                         <td>{official.gender}</td>
@@ -1882,7 +1882,7 @@ function Dashboard() {
                     {!residentsLoading && !residentsError && residents.length === 0 && (
                        <tr><td colSpan="5" style={{ textAlign: 'center' }}>No residents found.</td></tr>
                     )}
-                    {!residentsLoading && !residentsError && residents.map((resident) => (
+                    {!residentsLoading && !residentsError && [...residents].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((resident) => (
                       <tr key={resident._id}>
                         <td>{resident.fullName}</td>
                         <td>{resident.gender}</td>
@@ -2099,7 +2099,7 @@ function Dashboard() {
                     {!blottersLoading && !blottersError && blotters.length === 0 && (
                        <tr><td colSpan="6" style={{ textAlign: 'center' }}>No blotter records found.</td></tr>
                     )}
-                    {!blottersLoading && !blottersError && blotters.map((blotter) => (
+                    {!blottersLoading && !blottersError && [...blotters].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((blotter) => (
                       <tr key={blotter._id}>
                         <td>{new Date(blotter.incidentDate).toLocaleDateString()}</td>
                         <td>{blotter.incidentType}</td>
@@ -2293,7 +2293,7 @@ function Dashboard() {
                        <tr><td colSpan="6" style={{ textAlign: 'center' }}>No certificates found.</td></tr>
                     )}
                     {/* Use optional chaining for safety */}
-                    {!certificatesLoading && !certificatesError && certificates.map((certificate) => (
+                    {!certificatesLoading && !certificatesError && [...certificates].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((certificate) => (
                       <tr key={certificate?._id}>
                         <td>{certificate?.certificateType}</td>
                         <td>{certificate?.resident?.fullName || 'N/A'}</td>
@@ -2451,7 +2451,7 @@ function Dashboard() {
                         <tr><td colSpan="4" style={{ textAlign: 'center' }}>No users found.</td></tr>
                       )}
                       {/* Map over actual users data */}
-                      {!usersLoading && !usersError && users.map((userItem) => (
+                      {!usersLoading && !usersError && [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((userItem) => (
                         <tr key={userItem._id}>
                           <td>{userItem.username}</td>
                           <td>{userItem.role}</td>
