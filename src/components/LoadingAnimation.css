@@ -1,0 +1,8 @@
+.table-loading-animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 200px;
+  background-color: rgba(255, 255, 255, 0.9);
+}

@@ -138,7 +138,6 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
               value={formData.username}
               onChange={handleChange}
               required
-              readOnly={isEditMode} // Make username read-only in edit mode
               className={errors.username ? 'is-invalid' : ''}
             />
             {errors.username && <span className="error-message">{errors.username}</span>}

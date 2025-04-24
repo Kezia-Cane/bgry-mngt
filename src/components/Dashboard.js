@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react"; // Add useMemo
 import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
 import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
 import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
+import LoadingAnimation from './LoadingAnimation';
 import "./Dashboard.css";
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
@@ -111,6 +112,33 @@ function Dashboard() {
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false);
     setUserToEdit(null); // Clear user data when closing
+  };
+
+  // User Edit Modal handlers
+  const handleOpenUserEditModal = (user) => {
+    setUserToEdit(user);
+    setIsUserEditModalOpen(true);
+  };
+
+  const handleCloseUserEditModal = () => {
+    setIsUserEditModalOpen(false);
+    setUserToEdit(null);
+  };
+
+  // Handler for after user update
+  const handleUserUpdated = async () => {
+    try {
+      setUsersLoading(true);
+      const response = await axios.get('/api/admin/users', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setUsersError('Failed to refresh users list');
+    } finally {
+      setUsersLoading(false);
+    }
   };
 
   // Render functions for different modules
@@ -916,18 +944,6 @@ function Dashboard() {
   };
   // --- End Handlers for Certificate VIEW Modal ---
 
-  // --- Handlers for User EDIT Modal ---
-  const handleOpenUserEditModal = (user) => {
-    setUserToEdit(user); // Set the user data to be edited
-    setIsUserEditModalOpen(true); // Open the modal
-  };
-
-  const handleCloseUserEditModal = () => {
-    setIsUserEditModalOpen(false); // Close the modal
-    setUserToEdit(null); // Clear the user data
-  };
-  // --- End Handlers for User EDIT Modal ---
-
   // --- SAVE/UPDATE Handlers ---
   const handleSaveBlotter = async (e) => {
     e.preventDefault();
@@ -1472,7 +1488,7 @@ function Dashboard() {
                   </thead>
                   <tbody>
                     {/* Conditional Rendering - Ensure no extra whitespace around blocks */}
-                    {officialsLoading && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>Loading officials...</td></tr>)}
+                    {officialsLoading && (<tr><td colSpan="7" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>)}
                     {officialsError && (<tr><td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td></tr>)}
                     {!officialsLoading && !officialsError && officials.length === 0 && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td></tr>)}
                     {!officialsLoading && !officialsError && officials.map((official) => (
@@ -1644,7 +1660,7 @@ function Dashboard() {
                 <div className="overview-card residents-card">
                   <h3>Total Residents</h3>
                   <p className="card-value">
-                    {residentsLoading || dashboardStatsLoading ? '...' : residents.length}
+                    {residentsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : residents.length}
                   </p>
                   <p className="card-secondary">Updated recently</p> {/* Placeholder secondary text */}
                   {residentsError && <span className="error-message small">Failed to load</span>}
@@ -1653,7 +1669,7 @@ function Dashboard() {
                 <div className="overview-card officials-card">
                   <h3>Active Officials</h3>
                   <p className="card-value">
-                    {officialsLoading || dashboardStatsLoading ? '...' : officials.filter(o => o?.status === 'Active').length}
+                    {officialsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : officials.filter(o => o?.status === 'Active').length}
                   </p>
                   <p className="card-secondary">Currently serving</p> {/* Placeholder */}
                   {officialsError && <span className="error-message small">Failed to load</span>}
@@ -1662,7 +1678,7 @@ function Dashboard() {
                 <div className="overview-card blotters-card">
                   <h3>Open Blotter Cases</h3>
                   <p className="card-value">
-                    {blottersLoading || dashboardStatsLoading ? '...' : blotters.filter(b => b?.status === 'Open').length}
+                    {blottersLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : blotters.filter(b => b?.status === 'Open').length}
                   </p>
                   <p className="card-secondary">Require action</p> {/* Placeholder */}
                   {blottersError && <span className="error-message small">Failed to load</span>}
@@ -1671,7 +1687,7 @@ function Dashboard() {
                 <div className="overview-card certificates-card">
                   <h3>Certificates Issued</h3>
                   <p className="card-value">
-                    {certificatesLoading || dashboardStatsLoading ? '...' : certificates.length}
+                    {certificatesLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : certificates.length}
                   </p>
                   <p className="card-secondary">Total documents</p> {/* Placeholder */}
                   {certificatesError && <span className="error-message small">Failed to load</span>}
@@ -1684,7 +1700,7 @@ function Dashboard() {
                   <div className="bottom-chart-container large chart-wrapper">
                       {/* Title - Rely on chart-wrapper for centering */}
                       <h4 style={{ marginBottom: '20px' }}>Blotters Recorded (Last 7 Days)</h4>
-                      {(blottersLoading || dashboardStatsLoading) && <p>Loading chart data...</p>}
+                      {(blottersLoading || dashboardStatsLoading) && <LoadingAnimation size={100} />}
                       {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading blotter data for chart.</p>}
                       {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                           recentBlotterData.length > 0 ? (
@@ -1858,7 +1874,7 @@ function Dashboard() {
                   <tbody>
                     {/* Conditional Rendering for Residents */}
                     {residentsLoading && (
-                       <tr><td colSpan="5" style={{ textAlign: 'center' }}>Loading residents...</td></tr>
+                       <tr><td colSpan="5" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
                     {residentsError && (
                        <tr><td colSpan="5" style={{ textAlign: 'center', color: 'red' }}>{residentsError}</td></tr>
@@ -2075,7 +2091,7 @@ function Dashboard() {
                   <tbody>
                     {/* Conditional Rendering for Blotters */}
                     {blottersLoading && (
-                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading records...</td></tr>
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
                     {blottersError && (
                        <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{blottersError}</td></tr>
@@ -2268,7 +2284,7 @@ function Dashboard() {
                   <tbody>
                     {/* Conditional Rendering for Certificates */}
                      {certificatesLoading && (
-                       <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading certificates...</td></tr>
+                       <tr><td colSpan="6" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
                     {certificatesError && (
                        <tr><td colSpan="6" style={{ textAlign: 'center', color: 'red' }}>{certificatesError}</td></tr>
@@ -2426,7 +2442,7 @@ function Dashboard() {
                     <tbody>
                        {/* Conditional Rendering for Users */}
                       {usersLoading && (
-                        <tr><td colSpan="4" style={{ textAlign: 'center' }}>Loading users...</td></tr>
+                        <tr><td colSpan="4" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                       )}
                       {usersError && (
                         <tr><td colSpan="4" style={{ textAlign: 'center', color: 'red' }}>{usersError}</td></tr>
@@ -2499,11 +2515,13 @@ function Dashboard() {
           />
         )}
         {/* --- Render User EDIT Modal --- */}
-        {isUserEditModalOpen && userToEdit && (
+        {isUserEditModalOpen && (
           <UserEditModal
-            user={userToEdit}
+            isOpen={isUserEditModalOpen}
             onClose={handleCloseUserEditModal}
-            // onSave={handleUpdateUser} // Pass a function to handle the update API call
+            userData={userToEdit}
+            token={token}
+            onUserUpdated={handleUserUpdated}
           />
         )}
         {/* --- End Render VIEW Modals --- */}

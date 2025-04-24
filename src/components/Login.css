@@ -58,3 +58,20 @@
 .login-button:hover {
   background-color: #0056b3; /* Darker blue */
 }
+
+.fullscreen-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 1000;
+}
+
+.fullscreen-animation > div {
+  transform: scale(1.5); /* Make the animation 50% larger */
+}
