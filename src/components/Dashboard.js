@@ -445,24 +445,22 @@ function Dashboard() {
     }
   }, [blotterToEdit, isBlotterModalOpen]);
 
-  // --- Input change handler for official form ---
+
   const handleOfficialFormChange = (e) => {
     const { name, value } = e.target;
     setOfficialFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
-    // Optional: Clear specific error on change
     if (officialFormErrors[name]) {
       setOfficialFormErrors(prevErrors => ({
         ...prevErrors,
         [name]: null
       }));
     }
-     setOfficialFormMessage(''); // Clear general message on input change
+     setOfficialFormMessage(''); 
   };
 
-  // --- Input Handlers ---
   const handleResidentFormChange = (e) => {
     const { name, value } = e.target;
     setResidentFormData(prevState => ({
@@ -493,31 +491,30 @@ function Dashboard() {
     setCertificateFormMessage('');
   };
 
-  // --- Validation function for official form ---
+
   const validateOfficialForm = () => {
     const errors = {};
     if (!officialFormData.fullName.trim()) errors.fullName = 'Full Name is required';
     if (!officialFormData.gender) errors.gender = 'Gender is required';
     if (!officialFormData.age) errors.age = 'Age is required';
     else if (isNaN(officialFormData.age) || Number(officialFormData.age) <= 0) errors.age = 'Age must be a positive number';
-    else if (Number(officialFormData.age) < 18) errors.age = 'Official must be at least 18 years old'; // Example validation
+    else if (Number(officialFormData.age) < 18) errors.age = 'Official must be at least 18 years old'; 
     if (!officialFormData.position.trim()) errors.position = 'Position is required';
-    if (!officialFormData.term.trim()) errors.term = 'Term is required'; // Basic check, could add format validation
+    if (!officialFormData.term.trim()) errors.term = 'Term is required'; 
     if (!officialFormData.status) errors.status = 'Status is required';
 
     setOfficialFormErrors(errors);
-    return Object.keys(errors).length === 0; // Return true if no errors
+    return Object.keys(errors).length === 0; 
   };
 
-  // --- Validation Functions ---
+
   const validateResidentForm = () => {
     const errors = {};
     if (!residentFormData.fullName.trim()) errors.fullName = 'Full Name is required';
     if (!residentFormData.gender) errors.gender = 'Gender is required';
     if (!residentFormData.birthdate) errors.birthdate = 'Birthdate is required';
-    // Basic address check, model might require more detail
+
     if (!residentFormData.address.trim()) errors.address = 'Address is required';
-    // Optional: Add validation for contact number format, birthdate format/validity etc.
     if (residentFormData.contactNumber && !/^[0-9\-+()\s]*$/.test(residentFormData.contactNumber)) {
         errors.contactNumber = 'Invalid contact number format';
     }
@@ -568,17 +565,15 @@ function Dashboard() {
         dispatch(logoutUserBackend());
 
         dispatch(logout());
-        navigate('/login'); // Redirect to login page
+        navigate('/login'); 
 
       }
-      // No need for an explicit 'else' or 'cancel' message here,
-      // as closing the dialog is the default behavior on cancel.
-    });
-    // --- End SweetAlert Confirmation ---
-  };
-  // --- End Define Logout Handler ---
 
-  // --- Handlers for VIEW Modal ---
+    });
+  };
+
+
+
   const handleViewOfficial = (official) => {
     setSelectedOfficialForView(official);
     setIsOfficialViewModalOpen(true);
@@ -588,9 +583,9 @@ function Dashboard() {
     setIsOfficialViewModalOpen(false);
     setSelectedOfficialForView(null);
   };
-  // --- End Handlers for Official VIEW Modal ---
 
-  // --- Handlers for Resident VIEW Modal ---
+
+
   const handleViewResident = (resident) => {
     setSelectedResidentForView(resident);
     setIsResidentViewModalOpen(true);
@@ -600,9 +595,9 @@ function Dashboard() {
     setIsResidentViewModalOpen(false);
     setSelectedResidentForView(null);
   };
-  // --- End Handlers for Resident VIEW Modal ---
 
-  // --- Handlers for Blotter VIEW Modal ---
+
+
   const handleViewBlotter = (blotter) => {
     setSelectedBlotterForView(blotter);
     setIsBlotterViewModalOpen(true);
@@ -612,31 +607,31 @@ function Dashboard() {
     setIsBlotterViewModalOpen(false);
     setSelectedBlotterForView(null);
   };
-  // --- End Handlers for Blotter VIEW Modal ---
 
-  // --- Handlers for Official ADD/EDIT Modal ---
+
+
   const handleOpenOfficialModal = (official = null) => {
-    setOfficialToEdit(official); // Set to null for Add, or the official object for Edit
+    setOfficialToEdit(official); 
     setIsOfficialModalOpen(true);
   };
 
   const handleCloseOfficialModal = () => {
     setIsOfficialModalOpen(false);
-    setOfficialToEdit(null); // Clear editing state on close
-    setOfficialFormData(initialOfficialFormState); // Explicitly reset form state on close
-    setOfficialFormErrors({}); // Clear errors
-    setOfficialFormMessage(''); // Clear message
+    setOfficialToEdit(null); 
+    setOfficialFormData(initialOfficialFormState); 
+    setOfficialFormErrors({}); 
+    setOfficialFormMessage(''); 
   };
 
-  // --- SAVE/UPDATE Official Handler ---
+  
   const handleSaveOfficial = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setOfficialFormMessage(''); // Clear previous messages
-    setOfficialFormErrors({}); // Clear previous errors explicitly
+    e.preventDefault(); 
+    setOfficialFormMessage(''); 
+    setOfficialFormErrors({}); 
 
     if (!validateOfficialForm()) {
       setOfficialFormMessage('Please fix the errors in the form.');
-      return; // Stop if validation fails
+      return; 
     }
 
     setOfficialFormLoading(true);
@@ -645,10 +640,10 @@ function Dashboard() {
 
     try {
       if (officialToEdit) {
-        // --- UPDATE LOGIC ---
+        
         await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
-        // Show success alert
+        
         Swal.fire({
           icon: "success",
           title: "Official Updated",
@@ -657,17 +652,17 @@ function Dashboard() {
           timer: 1500
         });
 
-        // Close modal immediately after firing alert
+        
         handleCloseOfficialModal();
 
-        // Refresh list after update
+        
         await fetchOfficials();
 
       } else {
-        // --- ADD LOGIC (remains the same) ---
+        
         await axios.post('/api/barangay-officials', dataToSubmit, config);
 
-        // --- Show SweetAlert on successful add ---
+        
         Swal.fire({
           icon: "success",
           title: "New Official has been saved",
@@ -675,49 +670,41 @@ function Dashboard() {
           timer: 1500
         });
 
-        // --- Close modal immediately after firing alert ---
+       
         handleCloseOfficialModal();
 
-        // --- Refresh the list after save/update ---
+        
         await fetchOfficials();
       }
 
     } catch (error) {
-      // Keep existing error handling to show messages within the modal
+      
       console.error("Error saving official:", error.response || error);
       let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`; // Dynamic error message
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      // Display error within the modal OR use Swal for error
-      // Option 1: Keep error in modal
+      
       setOfficialFormMessage(errorMessage);
-      // Option 2: Use Swal for error (remove setOfficialFormMessage above if using this)
-      // Swal.fire({
-      //   icon: 'error',
-      //   title: 'Save Failed',
-      //   text: errorMessage,
-      // });
+      
     } finally {
       setOfficialFormLoading(false);
     }
   };
-  // --- End SAVE/UPDATE Official Handler ---
-
-  // --- DELETE Official Handler ---
+  
+  
   const handleDeleteOfficial = async (officialId) => {
-    // --- Role Check ---
     if (user?.role !== 'admin') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
         text: 'Only administrators can delete official records.',
       });
-      return; // Stop execution if not admin
+      return; 
     }
-    // --- End Role Check ---
+    
 
-    // Confirmation Dialog (Only shown for admins)
+    
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -730,22 +717,22 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          // API Call to delete
+          
           await axios.delete(`/api/barangay-officials/${officialId}`, config);
 
-          // Success Feedback
+          
           Swal.fire(
             'Deleted!',
             'The official record has been deleted.',
             'success'
           );
 
-          // Refresh the list
+          
           await fetchOfficials();
 
         } catch (error) {
           console.error("Error deleting official:", error.response || error);
-          // Error Feedback
+          
           Swal.fire(
             'Error!',
             'Failed to delete the official record. Please try again.',
@@ -755,9 +742,8 @@ function Dashboard() {
       }
     });
   };
-  // --- End DELETE Official Handler ---
-
-  // --- SAVE/UPDATE Resident Handler ---
+  
+  
   const handleSaveResident = async (e) => {
     e.preventDefault();
     setResidentFormMessage('');
@@ -774,9 +760,9 @@ function Dashboard() {
       fullName: residentFormData.fullName,
       gender: residentFormData.gender,
       birthdate: residentFormData.birthdate,
-      // Hardcode Barangay, City, Province; Street comes from the Purok dropdown
+      
       address: {
-          street: residentFormData.address, // This holds the selected Purok
+          street: residentFormData.address, 
           barangay: "New Visayas",
           city: "Panabo City",
           province: "Davao del Norte"
@@ -788,10 +774,10 @@ function Dashboard() {
 
     try {
       if (residentToEdit) {
-        // --- UPDATE RESIDENT LOGIC ---
+        
         await axios.put(`/api/residents/${residentToEdit._id}`, dataToSubmit, config);
 
-        // Show success alert
+       
         Swal.fire({
             icon: "success",
             title: "Resident Updated",
@@ -800,17 +786,17 @@ function Dashboard() {
             timer: 1500
         });
 
-        // Close modal immediately after firing alert
+        
         handleCloseResidentModal();
 
-        // Refresh list after update
+        
         await fetchResidents();
 
       } else {
-        // --- ADD RESIDENT LOGIC (remains the same) ---
+        
         await axios.post('/api/residents', dataToSubmit, config);
 
-        // --- Show SweetAlert on successful add ---
+        
         Swal.fire({
             icon: "success",
             title: "New Resident has been saved",
@@ -818,15 +804,14 @@ function Dashboard() {
             timer: 1500
         });
 
-        // --- Close modal immediately after firing alert ---
+        
         handleCloseResidentModal();
 
-        // --- Refresh the list ---
+        
         await fetchResidents();
       }
 
     } catch (error) {
-      // Keep existing error handling for modal message
       console.error("Error saving resident:", error.response || error);
       let errorMessage = `Failed to ${residentToEdit ? 'update' : 'add'} resident. Please try again.`; // Dynamic error message
       if (error.response?.data?.message) {
@@ -837,34 +822,27 @@ function Dashboard() {
       setResidentFormLoading(false);
     }
   };
-  // --- End SAVE/UPDATE Resident Handler ---
 
-  // --- Handlers for Resident ADD/EDIT Modal ---
   const handleOpenResidentModal = (resident = null) => {
-    setResidentToEdit(resident); // Set to null for Add, or the resident object for Edit
+    setResidentToEdit(resident); 
     setIsResidentModalOpen(true);
   };
 
   const handleCloseResidentModal = () => {
     setIsResidentModalOpen(false);
-    setResidentToEdit(null); // Clear editing state on close
+    setResidentToEdit(null); 
   };
-  // --- End Handlers for Resident ADD/EDIT Modal ---
 
-  // --- DELETE Resident Handler --- (Keep this one)
   const handleDeleteResident = async (residentId) => {
-    // --- Role Check ---
     if (user?.role !== 'admin') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
         text: 'Only administrators can delete resident records.',
       });
-      return; // Stop execution if not admin
+      return; 
     }
-    // --- End Role Check ---
 
-    // Confirmation Dialog (Only shown for admins)
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this resident record!",
@@ -877,22 +855,18 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          // API Call to delete
           await axios.delete(`/api/residents/${residentId}`, config);
 
-          // Success Feedback
           Swal.fire(
             'Deleted!',
             'The resident record has been deleted.',
             'success'
           );
 
-          // Refresh the list
           await fetchResidents();
 
         } catch (error) {
           console.error("Error deleting resident:", error.response || error);
-          // Error Feedback
           Swal.fire(
             'Error!',
             'Failed to delete the resident record. Please try again.',
@@ -903,10 +877,9 @@ function Dashboard() {
     });
   };
 
-  // --- Handlers for Blotter ADD/EDIT Modal ---
   const handleOpenBlotterModal = (blotter = null) => {
-    setBlotterToEdit(blotter); // Set to null for Add, or the blotter object for Edit
-    setIsBlotterModalOpen(true); // Reuse the existing modal open state
+    setBlotterToEdit(blotter); 
+    setIsBlotterModalOpen(true); 
   };
 
   const handleCloseBlotterModal = () => {
