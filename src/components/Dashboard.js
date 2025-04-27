@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react"; // Add useMemo
-import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
-import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
-import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
+import React, { useEffect, useMemo, useState } from "react"; 
+import { useDispatch, useSelector } from 'react-redux'; 
+import { useNavigate } from 'react-router-dom'; 
+import { logout, logoutUserBackend } from '../store/authSlice'; 
 import LoadingAnimation from './LoadingAnimation';
 import "./Dashboard.css";
-// Import necessary icons from react-icons
-import axios from 'axios'; // <-- Import axios
+
+import axios from 'axios'; 
 import {
   FaAddressBook,
   FaEdit,
@@ -21,16 +21,16 @@ import {
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
-import BlotterViewModal from "./BlotterViewModal.js"; // Import Blotter modal
-import CertificateViewModal from "./CertificateViewModal.js"; // Import Certificate View modal
+import BlotterViewModal from "./BlotterViewModal.js"; 
+import CertificateViewModal from "./CertificateViewModal.js"; 
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
-import UserEditModal from "./UserEditModal.js"; // Re-import UserEditModal
-// --- Import Recharts components ---
+import UserEditModal from "./UserEditModal.js"; 
+
 import {
-  // --- Add Area import ---
+
   Area,
-  // --- Add AreaChart import ---
+
   AreaChart,
   CartesianGrid,
   Cell,
@@ -41,26 +41,26 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
-// --- Import SweetAlert2 ---
+
 import Swal from 'sweetalert2';
 
-// --- Define Initial State OUTSIDE Component ---
+
 const initialOfficialFormState = {
   fullName: '',
   gender: '',
   age: '',
   position: '',
   term: '',
-  status: 'Active', // Default status
+  status: 'Active', 
 };
 const initialResidentFormState = {
   fullName: '',
   gender: '',
-  age: '', // Note: Model uses birthdate, UI shows age. Will handle conversion or adjust form.
-  birthdate: '', // Actual field for the model
-  address: '', // Simplify for now, model has nested address
+  age: '', 
+  birthdate: '', 
+  address: '', 
   contactNumber: '',
-  // Add other optional fields from Resident model if needed in the form
+
   civilStatus: '',
   occupation: '',
 };
@@ -68,11 +68,11 @@ const initialBlotterFormState = {
   incidentType: '',
   incidentDate: '',
   incidentLocation: '',
-  complainantName: '', // Simplified for form
-  respondentName: '', // Simplified for form
+  complainantName: '', 
+  respondentName: '', 
   narrative: '',
-  status: 'Open', // Default status
-  // complainantAddress, complainantContact, respondentAddress can be added if needed
+  status: 'Open', 
+
 };
 const initialCertificateFormState = {
     certificateType: '',
@@ -80,32 +80,32 @@ const initialCertificateFormState = {
     purpose: '',
 };
 
-// --- Define Colors for Charts --- (Can be customized)
-const GENDER_COLORS = ['#0088FE', '#FF8042', '#FFBB28']; // Blue, Pink, Yellow
-const BLOTTER_COLORS = ['#DD4444', '#FFBB28', '#00C49F', '#8884d8', '#82ca9d']; // Red(Open), Yellow(Invest), Green(Settled), Purple(Referred), Gray(Closed)
 
-// Remove onLogout prop
+const GENDER_COLORS = ['#0088FE', '#FF8042', '#FFBB28']; 
+const BLOTTER_COLORS = ['#DD4444', '#FFBB28', '#00C49F', '#8884d8', '#82ca9d']; 
+
+
 function Dashboard() {
-  const dispatch = useDispatch(); // <-- Get dispatch function
-  const navigate = useNavigate(); // <-- Get navigate function
-  const { user, token } = useSelector((state) => state.auth); // <-- Get token
+  const dispatch = useDispatch(); 
+  const navigate = useNavigate(); 
+  const { user, token } = useSelector((state) => state.auth); 
 
-  // Placeholder for active module state
-  const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
-  const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); // Renamed state for official modal
-  const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); // State for resident modal visibility
-  const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); // State for blotter modal visibility
+
+  const [activeModule, setActiveModule] = useState("Dashboard"); 
+  const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); 
+  const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); 
+  const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); 
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false); // State for ADD User modal
-  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); // State for EDIT User modal
-  const [userToEdit, setUserToEdit] = useState(null); // State to hold the user being edited
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false); 
+  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); 
+  const [userToEdit, setUserToEdit] = useState(null); 
   const baseURL = 'http://localhost:5000';
-  const [users, setUsers] = useState([]); // State to hold users list
+  const [users, setUsers] = useState([]); 
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
-  // Modal handlers for User Management
+
   const handleOpenUserModal = () => {
-    setUserToEdit(null); // Clear any previous user data
+    setUserToEdit(null); 
     setIsUserModalOpen(true);
   };
 
