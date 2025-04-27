@@ -210,13 +210,13 @@ function Dashboard() {
   const [isBlotterViewModalOpen, setIsBlotterViewModalOpen] = useState(false);
 
 
-  const [officialToEdit, setOfficialToEdit] = useState(null); // Data of the official being edited
+  const [officialToEdit, setOfficialToEdit] = useState(null); 
 
  
-      const [residentToEdit, setResidentToEdit] = useState(null); // Data of the resident being edited
+      const [residentToEdit, setResidentToEdit] = useState(null); 
 
  
-      const [blotterToEdit, setBlotterToEdit] = useState(null); // Data of the blotter record being edited
+      const [blotterToEdit, setBlotterToEdit] = useState(null); 
 
 
       const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
@@ -225,8 +225,8 @@ function Dashboard() {
 
   const [officialFormData, setOfficialFormData] = useState(initialOfficialFormState);
   const [officialFormErrors, setOfficialFormErrors] = useState({});
-  const [officialFormLoading, setOfficialFormLoading] = useState(false); // Loading state for submit
-  const [officialFormMessage, setOfficialFormMessage] = useState(''); // For success/error messages
+  const [officialFormLoading, setOfficialFormLoading] = useState(false); 
+  const [officialFormMessage, setOfficialFormMessage] = useState(''); 
 
 
   const [officials, setOfficials] = useState([]);
@@ -410,7 +410,7 @@ function Dashboard() {
         fullName: residentToEdit.fullName || '',
         gender: residentToEdit.gender || '',
         birthdate: birthdateValue,
-        address: residentToEdit.address?.street || residentToEdit.address || '', // Example access
+        address: residentToEdit.address?.street || residentToEdit.address || '', 
         contactNumber: residentToEdit.contactNumber || '',
         civilStatus: residentToEdit.civilStatus || '',
         occupation: residentToEdit.occupation || '',
@@ -680,7 +680,7 @@ function Dashboard() {
     } catch (error) {
       
       console.error("Error saving official:", error.response || error);
-      let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`; // Dynamic error message
+      let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`; 
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
@@ -813,7 +813,7 @@ function Dashboard() {
 
     } catch (error) {
       console.error("Error saving resident:", error.response || error);
-      let errorMessage = `Failed to ${residentToEdit ? 'update' : 'add'} resident. Please try again.`; // Dynamic error message
+      let errorMessage = `Failed to ${residentToEdit ? 'update' : 'add'} resident. Please try again.`; 
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
@@ -884,11 +884,9 @@ function Dashboard() {
 
   const handleCloseBlotterModal = () => {
     setIsBlotterModalOpen(false);
-    setBlotterToEdit(null); // Clear editing state on close
+    setBlotterToEdit(null); 
   };
-  // --- End Handlers for Blotter ADD/EDIT Modal ---
 
-  // --- Handlers for Certificate VIEW Modal ---
   const handleViewCertificate = (certificate) => {
     setSelectedCertificateForView(certificate);
     setIsCertificateViewModalOpen(true);
@@ -898,9 +896,7 @@ function Dashboard() {
     setIsCertificateViewModalOpen(false);
     setSelectedCertificateForView(null);
   };
-  // --- End Handlers for Certificate VIEW Modal ---
 
-  // --- SAVE/UPDATE Handlers ---
   const handleSaveBlotter = async (e) => {
     e.preventDefault();
     setBlotterFormMessage('');
@@ -913,7 +909,6 @@ function Dashboard() {
 
     setBlotterFormLoading(true);
     const config = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
-    // Prepare data based on form (same for add and update)
     const dataToSubmit = {
       incidentType: blotterFormData.incidentType,
       incidentDate: blotterFormData.incidentDate,
@@ -926,7 +921,6 @@ function Dashboard() {
 
     try {
       if (blotterToEdit) {
-        // --- UPDATE BLOTTER LOGIC ---
         await axios.put(`/api/blotters/${blotterToEdit._id}`, dataToSubmit, config);
         Swal.fire({
             icon: "success",
@@ -939,7 +933,7 @@ function Dashboard() {
         await fetchBlotters();
 
       } else {
-        // --- ADD BLOTTER LOGIC ---
+        
         await axios.post('/api/blotters', dataToSubmit, config);
         Swal.fire({
             icon: "success",
@@ -969,7 +963,7 @@ function Dashboard() {
       setCertificateFormMessage('');
   }
 
-  // --- Data Processing for Charts (using useMemo for efficiency) ---
+  
   const genderData = useMemo(() => {
     if (!residents || residents.length === 0) return [];
     const counts = residents.reduce((acc, resident) => {
@@ -978,7 +972,7 @@ function Dashboard() {
       return acc;
     }, {});
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [residents]); // Recompute only when residents array changes
+  }, [residents]); 
 
   const blotterStatusData = useMemo(() => {
     if (!blotters || blotters.length === 0) return [];
@@ -987,13 +981,13 @@ function Dashboard() {
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-    // Ensure consistent order for colors if needed
+    
     const statusOrder = ['Open', 'Under Investigation', 'Amicably Settled', 'Referred', 'Closed', 'Unknown'];
     return statusOrder
-      .filter(status => counts[status] > 0) // Only include statuses present
+      .filter(status => counts[status] > 0) 
       .map(status => ({ name: status, value: counts[status] }));
 
-  }, [blotters]); // Recompute only when blotters array changes
+  }, [blotters]); 
 
   const recentBlotterData = useMemo(() => {
     if (!blotters || blotters.length === 0) return [];
@@ -1001,55 +995,55 @@ function Dashboard() {
     const dayMap = {};
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    today.setHours(0, 0, 0, 0); 
 
-    // Initialize counts for the last 7 days
+    
     for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(today.getDate() - i);
-        const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dateString = date.toISOString().split('T')[0]; 
         const dayName = dayNames[date.getDay()];
         dayMap[dateString] = { name: dayName, count: 0, date: dateString };
     }
 
-    // Count blotters within the last 7 days
+    
     blotters.forEach(blotter => {
-        if (!blotter.createdAt) return; // Skip if no creation date
+        if (!blotter.createdAt) return; 
         const blotterDate = new Date(blotter.createdAt);
         blotterDate.setHours(0, 0, 0, 0);
         const dateString = blotterDate.toISOString().split('T')[0];
 
-        // Check if the date is within our 7-day map
+        
         if (dayMap[dateString]) {
             dayMap[dateString].count += 1;
         }
     });
 
-    // Convert map back to array sorted by date
+    
     return Object.values(dayMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [blotters]); // Recompute only when blotters array changes
+  }, [blotters]); 
 
   const recentlyAddedItems = useMemo(() => {
     const combined = [
       ...(officials || []).map(item => ({ ...item, type: 'Official', name: item.fullName, date: item.createdAt })),
       ...(residents || []).map(item => ({ ...item, type: 'Resident', name: item.fullName, date: item.createdAt })),
-      // Use incidentDate for blotters if createdAt isn't reliable or relevant for 'added'
+      
       ...(blotters || []).map(item => ({ ...item, type: 'Blotter', name: item.incidentType, date: item.createdAt || item.incidentDate })),
       ...(certificates || []).map(item => ({ ...item, type: 'Certificate', name: `${item.certificateType} for ${item.resident?.fullName || 'N/A'}`, date: item.createdAt || item.issueDate }))
     ];
 
-    // Filter out items without a valid date
+    
     const validItems = combined.filter(item => item.date && !isNaN(new Date(item.date).getTime()));
 
-    // Sort by date descending
+    
     validItems.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // Return top 4 (changed from 5)
+    
     return validItems.slice(0, 4);
 
   }, [officials, residents, blotters, certificates]);
 
-  // Function to get icon based on item type
+  
   const getItemIcon = (type) => {
       switch(type) {
           case 'Official': return <FaUserTie />;
@@ -1060,34 +1054,34 @@ function Dashboard() {
       }
   };
 
-  // --- Helper function moved INSIDE component ---
+  
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
-        // Use locale-specific date formatting
+        
         return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric', month: 'short', day: 'numeric'
         });
     } catch (e) {
         console.error("Error formatting date:", dateString, e);
-        return dateString; // Fallback
+        return dateString; 
     }
   };
 
-  // --- DELETE Blotter Handler ---
+  
   const handleDeleteBlotter = async (blotterId) => {
-    // --- Role Check ---
+    
     if (user?.role !== 'admin') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
         text: 'Only administrators can delete blotter records.',
       });
-      return; // Stop execution if not admin
+      return; 
     }
-    // --- End Role Check ---
+    
 
-    // Confirmation Dialog (Only shown for admins)
+    
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this blotter record!",
@@ -1100,22 +1094,22 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          // API Call to delete
+          
           await axios.delete(`/api/blotters/${blotterId}`, config);
 
-          // Success Feedback
+          
           Swal.fire(
             'Deleted!',
             'The blotter record has been deleted.',
             'success'
           );
 
-          // Refresh the list
+          
           await fetchBlotters();
 
         } catch (error) {
           console.error("Error deleting blotter:", error.response || error);
-          // Error Feedback
+          
           Swal.fire(
             'Error!',
             'Failed to delete the blotter record. Please try again.',
@@ -1126,9 +1120,9 @@ function Dashboard() {
     });
   };
 
-  // --- ISSUE CERTIFICATE Handler ---
+  
   const handleIssueCertificate = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setCertificateFormMessage('');
     setCertificateFormErrors({});
 
@@ -1146,7 +1140,7 @@ function Dashboard() {
     };
 
     try {
-      // API Call to issue certificate
+      
       await axios.post('/api/certificates', dataToSubmit, config);
 
       Swal.fire({
@@ -1157,31 +1151,31 @@ function Dashboard() {
           timer: 1500
       });
 
-      handleCloseCertificateModal(); // Close modal on success
-      await fetchCertificates(); // Refresh the certificate list
+      handleCloseCertificateModal(); 
+      await fetchCertificates(); 
 
     } catch (error) {
       console.error("Error issuing certificate:", error.response || error);
       let errorMessage = 'Failed to issue certificate. Please try again.';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-        // Specific error handling for 'Resident not found'
+        
         if (error.response.status === 404 && error.response.data.message.includes('Resident not found')){
             setCertificateFormErrors(prev => ({...prev, residentId: 'Selected resident not found.' }))
         }
       }
-      setCertificateFormMessage(errorMessage); // Show error in modal
+      setCertificateFormMessage(errorMessage); 
     } finally {
       setCertificateFormLoading(false);
     }
   };
-  // --- End ISSUE CERTIFICATE Handler ---
+  
 
-  // --- End DELETE Blotter Handler ---
+  
 
-  // --- DELETE User Handler (Admin Module) ---
+  
   const handleDeleteUser = async (userIdToDelete) => {
-    // Confirmation dialog
+    
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -1193,7 +1187,7 @@ function Dashboard() {
     });
 
     if (result.isConfirmed) {
-      setUsersLoading(true); // Indicate loading state for the list
+      setUsersLoading(true); 
       setUsersError(null);
       try {
         const config = {
@@ -1202,46 +1196,46 @@ function Dashboard() {
           }
         };
         const baseURL = 'http://localhost:5000';
-        // Make the DELETE request to the admin endpoint
+        
         await axios.delete(`${baseURL}/api/admin/users/${userIdToDelete}`, config);
 
-        // Show success message
+        
         Swal.fire(
           'Deleted!',
           'The user has been deleted.',
           'success'
         );
 
-        // Refresh the user list by calling fetchUsers
+        
         fetchUsers();
 
       } catch (error) {
         console.error("Error deleting user:", error.response || error);
         const errorMsg = error.response?.data?.message || 'Failed to delete user.';
-        setUsersError(errorMsg); // Set error state
-        // Show error message
+        setUsersError(errorMsg); 
+        
         Swal.fire(
           'Error!',
           errorMsg,
           'error'
         );
       } finally {
-        // Ensure loading state is turned off even if fetchUsers hasn't finished yet
-        // fetchUsers will handle its own loading state for the refresh.
+        
+        
         setUsersLoading(false);
       }
     }
   };
-  // --- End DELETE User Handler ---
+  
 
-  // Load users when Admin module becomes active
+  
   useEffect(() => {
     if (activeModule === "Admin") {
       fetchUsers();
     }
   }, [activeModule]);
 
-  // --- JSX for User Management Table (New) ---
+  
   const renderUserManagementTable = () => {
 
     return (
@@ -1292,7 +1286,6 @@ function Dashboard() {
           </table>
         </div>
 
-        {/* User Modals */}
         {isUserEditModalOpen && userToEdit && (
           <UserEditModal
             isOpen={isUserEditModalOpen}
@@ -1315,7 +1308,7 @@ function Dashboard() {
     );
   };
 
-  // --- Main Render Function ---
+  
   const renderContent = () => {
     switch (activeModule) {
       case "Brgy Official":
@@ -1337,10 +1330,10 @@ function Dashboard() {
 
   return (
     <div className="dashboard-layout">
-      {/* Sidebar */}
+      {}
       <aside className="sidebar">
         <div className="sidebar-header">
-          {/* Replace with actual logo */}
+          {}
           <img
             src="/logo.png"
             alt="Barangay Logo"
@@ -1350,7 +1343,7 @@ function Dashboard() {
         <nav className="sidebar-nav">
           <span className="sidebar-nav-title">Tools</span>
           <ul>
-            {/* Render icons */}
+            {}
             <li
               className={activeModule === "Dashboard" ? "active" : ""}
               onClick={() => setActiveModule("Dashboard")}
@@ -1387,7 +1380,7 @@ function Dashboard() {
             >
               <FaInfoCircle /> <span>About</span>
             </li>
-            {/* Conditionally render Admin module link based on user role */}
+            {}
             {user?.role === 'admin' && (
               <li
                 className={activeModule === "Admin" ? "active" : ""}
@@ -1396,7 +1389,7 @@ function Dashboard() {
                 <FaUserCog /> <span>Admin</span>
               </li>
             )}
-            {/* Attach handleLogout to the onClick event */}
+            {}
             <li onClick={handleLogout}>
               <FaSignOutAlt /> <span>Logout</span>
             </li>
@@ -1404,13 +1397,10 @@ function Dashboard() {
         </nav>
       </aside>
 
-      {/* Main Content Area */}
       <div className="main-content">
         <header className="main-header">
-          {/* Top header content if any - image shows it empty */}
         </header>
         <main className="content-area">
-          {/* Content changes based on activeModule */}
           {activeModule === "Brgy Official" && (
             <div>
               <div className="content-title-bar">
@@ -1443,7 +1433,6 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Conditional Rendering - Ensure no extra whitespace around blocks */}
                     {officialsLoading && (<tr><td colSpan="7" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>)}
                     {officialsError && (<tr><td colSpan="7" style={{ textAlign: 'center', color: 'red' }}>{officialsError}</td></tr>)}
                     {!officialsLoading && !officialsError && officials.length === 0 && (<tr><td colSpan="7" style={{ textAlign: 'center' }}>No officials found.</td></tr>)}
@@ -1480,7 +1469,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Modal for Adding/Editing Official */}
           {isOfficialModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseOfficialModal(); }}>
               <div className="modal-content">
@@ -1533,7 +1521,6 @@ function Dashboard() {
 
                   <div className="form-group">
                     <label htmlFor="position">Position:</label>
-                     {/* Changed from input to select */}
                     <select
                       id="position"
                       name="position"
@@ -1546,7 +1533,6 @@ function Dashboard() {
                         <option value="Sangguniang Barangay Member">Sangguniang Barangay Member</option>
                         <option value="SK Chairperson">SK Chairperson</option>
                         <option value="Barangay Secretary">Barangay Secretary</option>
-                        {/* Add other positions like Treasurer if needed */}
                      </select>
                       {officialFormErrors.position && <span className="error-message">{officialFormErrors.position}</span>}
                   </div>
@@ -1592,82 +1578,68 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Add conditional rendering for other modules here */}
-          {/* Exclude Dashboard, Resident, Blotter, Certificate, and About from this generic fallback */}
           {activeModule !== "Brgy Official" &&
             activeModule !== "Dashboard" &&
             activeModule !== "Resident" &&
             activeModule !== "Blotter" &&
             activeModule !== "Certificate" &&
             activeModule !== "About" &&
-            activeModule !== "Admin" && ( // Exclude Admin as well
+            activeModule !== "Admin" && ( 
               <div>
                 <h2>{activeModule}</h2>{" "}
-                {/* Keep title for Admin or other future modules */}
                 <p>Content for {activeModule} module goes here.</p>{" "}
-                {/* Added placeholder text */}
               </div>
             )}
           {activeModule === "Dashboard" && (
             <div className="dashboard-overview">
-              {/* Cards Section - Apply new structure and classes */}
               <div className="overview-cards">
-                {/* Total Residents Card */}
                 <div className="overview-card residents-card">
                   <h3>Total Residents</h3>
                   <p className="card-value">
                     {residentsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : residents.length}
                   </p>
-                  <p className="card-secondary">Updated recently</p> {/* Placeholder secondary text */}
+                  <p className="card-secondary">Updated recently</p> 
                   {residentsError && <span className="error-message small">Failed to load</span>}
                 </div>
-                {/* Active Officials Card */}
                 <div className="overview-card officials-card">
                   <h3>Active Officials</h3>
                   <p className="card-value">
                     {officialsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : officials.filter(o => o?.status === 'Active').length}
                   </p>
-                  <p className="card-secondary">Currently serving</p> {/* Placeholder */}
+                  <p className="card-secondary">Currently serving</p> 
                   {officialsError && <span className="error-message small">Failed to load</span>}
                 </div>
-                {/* Open Blotter Cases Card */}
                 <div className="overview-card blotters-card">
                   <h3>Open Blotter Cases</h3>
                   <p className="card-value">
                     {blottersLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : blotters.filter(b => b?.status === 'Open').length}
                   </p>
-                  <p className="card-secondary">Require action</p> {/* Placeholder */}
+                  <p className="card-secondary">Require action</p> 
                   {blottersError && <span className="error-message small">Failed to load</span>}
                 </div>
-                {/* Certificates Issued Card */}
                 <div className="overview-card certificates-card">
                   <h3>Certificates Issued</h3>
                   <p className="card-value">
                     {certificatesLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : certificates.length}
                   </p>
-                  <p className="card-secondary">Total documents</p> {/* Placeholder */}
+                  <p className="card-secondary">Total documents</p> 
                   {certificatesError && <span className="error-message small">Failed to load</span>}
                 </div>
               </div>
 
-              {/* --- Bottom Row with Charts --- */}
               <div className="dashboard-bottom-row">
-                  {/* Large Chart Area - Modernized Line/Area Chart */}
                   <div className="bottom-chart-container large chart-wrapper">
-                      {/* Title - Rely on chart-wrapper for centering */}
                       <h4 style={{ marginBottom: '20px' }}>Blotters Recorded (Last 7 Days)</h4>
                       {(blottersLoading || dashboardStatsLoading) && <LoadingAnimation size={100} />}
                       {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading blotter data for chart.</p>}
                       {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                           recentBlotterData.length > 0 ? (
-                              <ResponsiveContainer width="100%" height={250}> {/* Adjusted height */}
-                                  {/* Using AreaChart for a filled look */}
+                              <ResponsiveContainer width="100%" height={250}> 
                                   <AreaChart
                                       data={recentBlotterData}
                                       margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
                                   >
                                       <defs>
-                                          {/* Gradient Definition */}
                                           <linearGradient id="colorBlotters" x1="0" y1="0" x2="0" y2="1">
                                               <stop offset="5%" stopColor="#4e73df" stopOpacity={0.8}/>
                                               <stop offset="95%" stopColor="#4e73df" stopOpacity={0}/>
@@ -1685,35 +1657,31 @@ function Dashboard() {
                                           dataKey="count"
                                           stroke="#4e73df"
                                           fillOpacity={1}
-                                          fill="url(#colorBlotters)" /* Apply gradient */
+                                          fill="url(#colorBlotters)" 
                                           strokeWidth={2}
                                           activeDot={{ r: 6 }}
                                           name="Blotters"
                                       />
-                                      {/* Optional: Keep the line if preferred */}
-                                      {/* <Line type="monotone" dataKey="count" stroke="#4e73df" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Blotters"/> */}
                                   </AreaChart>
                               </ResponsiveContainer>
                           ) : <p>No recent blotter data available.</p>
                       )}
                   </div>
 
-                  {/* Container for the two smaller doughnut charts */}
                   <div className="bottom-chart-container small-charts">
-                      {/* Resident Gender Doughnut Chart */}
                       <div className="chart-wrapper">
                           <h4>Resident Gender</h4>
                           {(residentsLoading || dashboardStatsLoading) && <p>Loading...</p>}
                           {residentsError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                           {!residentsLoading && !residentsError && !dashboardStatsLoading && (
                               genderData.length > 0 ? (
-                                  <ResponsiveContainer width="100%" height={200}> {/* Adjust height */}
+                                  <ResponsiveContainer width="100%" height={200}> 
                                       <PieChart>
                                           <Pie
                                               data={genderData}
                                               cx="50%"
                                               cy="50%"
-                                              innerRadius={60} // Make it a doughnut
+                                              innerRadius={60} 
                                               outerRadius={80}
                                               fill="#8884d8"
                                               paddingAngle={2}
@@ -1725,27 +1693,25 @@ function Dashboard() {
                                               ))}
                                           </Pie>
                                           <Tooltip />
-                                          {/* <Legend /> Optional: Legend might clutter small charts */}
                                       </PieChart>
                                   </ResponsiveContainer>
                               ) : <p>No resident data</p>
                           )}
                       </div>
 
-                       {/* Blotter Status Doughnut Chart */}
                        <div className="chart-wrapper">
                           <h4>Blotter Status</h4>
                            {(blottersLoading || dashboardStatsLoading) && <p>Loading...</p>}
                            {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                            {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                               blotterStatusData.length > 0 ? (
-                                  <ResponsiveContainer width="100%" height={200}> {/* Adjust height */}
+                                  <ResponsiveContainer width="100%" height={200}> 
                                       <PieChart>
                                           <Pie
                                               data={blotterStatusData}
                                               cx="50%"
                                               cy="50%"
-                                              innerRadius={60} // Make it a doughnut
+                                              innerRadius={60} 
                                               outerRadius={80}
                                               fill="#8884d8"
                                               paddingAngle={2}
@@ -1757,7 +1723,6 @@ function Dashboard() {
                                               ))}
                                           </Pie>
                                           <Tooltip formatter={(value) => `${value} cases`} />
-                                           {/* <Legend /> Optional */}
                                       </PieChart>
                                   </ResponsiveContainer>
                               ) : <p>No blotter data</p>
@@ -1765,9 +1730,7 @@ function Dashboard() {
                       </div>
                   </div>
               </div>
-              {/* --- End Bottom Row --- */}
 
-              {/* --- Recently Added Section --- */}
               <div className="dashboard-section recent-items-section">
                   <h3>Recently Added</h3>
                   {(dashboardStatsLoading) && <p>Loading recent activity...</p>}
@@ -1776,8 +1739,6 @@ function Dashboard() {
                       <ul className="recent-items-list">
                           {recentlyAddedItems.map((item) => (
                               <li key={`${item.type}-${item._id}`} className="recent-item">
-                                  {/* Icon removed */}
-                                  {/* <span className="item-icon">{getItemIcon(item.type)}</span> */}
                                   <div className="item-details">
                                       <span className="item-type">{item.type}:</span>
                                       <span className="item-name" title={item.name}> {item.name}</span>
@@ -1787,26 +1748,22 @@ function Dashboard() {
                           ))}
                       </ul>
                   )}
-                  {/* Optional: Add error state display */}
                   {(!dashboardStatsLoading && (officialsError || residentsError || blottersError || certificatesError)) &&
                     <p style={{color: 'orange', fontSize: '0.9em'}}>Note: Some data might be missing due to loading errors.</p>}
               </div>
-              {/* --- End Recently Added Section --- */}
 
             </div>
           )}
-          {/* Add specific rendering for Resident module */}
           {activeModule === "Resident" && (
             <div>
               <div className="content-title-bar">
-                <h2>Resident</h2> {/* Title for the Resident section */}
+                <h2>Resident</h2> 
                 <div className="search-section">
                   <label htmlFor="search-type">Search Type:</label>
                   <select id="search-type" defaultValue="last name">
                     <option value="last name">Last name</option>
                     <option value="first name">First name</option>
                     <option value="address">Address</option>{" "}
-                    {/* Resident specific search */}
                   </select>
                   <input type="text" placeholder="Search..." />
                   <button className="search-button">
@@ -1821,14 +1778,12 @@ function Dashboard() {
                     <tr>
                       <th>Full name</th>
                       <th>Gender</th>
-                      {/* <th>Age</th> Removed Age column */}
                       <th>Address</th>
                       <th>Contact Number</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Conditional Rendering for Residents */}
                     {residentsLoading && (
                        <tr><td colSpan="5" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
@@ -1842,8 +1797,6 @@ function Dashboard() {
                       <tr key={resident._id}>
                         <td>{resident.fullName}</td>
                         <td>{resident.gender}</td>
-                        {/* <td>{resident.age}</td> Removed Age data cell */}
-                        {/* Display simplified or full address based on model */}
                         <td>{resident.address?.street || resident.address}</td>
                         <td>{resident.contactNumber || 'N/A'}</td>
                         <td className="action-buttons">
@@ -1866,7 +1819,7 @@ function Dashboard() {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenResidentModal()} // Use the new handler for Add
+                  onClick={() => handleOpenResidentModal()} 
                 >
                   Add Resident
                 </button>
@@ -1877,22 +1830,19 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Modal for Adding/Editing Resident */}
           {isResidentModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseResidentModal(); }}>
               <div className="modal-content">
                 <h2>{residentToEdit ? "Edit Resident" : "Add New Resident"}</h2>
-                {/* Updated form with validation and controlled inputs */}
                 <form onSubmit={handleSaveResident} className="modal-form">
                    {residentFormMessage && <p className={`form-message ${residentFormErrors && Object.keys(residentFormErrors).length > 0 ? 'error' : 'success'}`}>{residentFormMessage}</p>}
 
-                  {/* Resident Form Fields */}
                   <div className="form-group">
                     <label htmlFor="resFullName">Full Name:</label>
                     <input
                       type="text"
                       id="resFullName"
-                      name="fullName" /* Name matches state key */
+                      name="fullName" 
                       value={residentFormData.fullName}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.fullName}
@@ -1903,7 +1853,7 @@ function Dashboard() {
                     <label htmlFor="resGender">Gender:</label>
                     <select
                       id="resGender"
-                      name="gender" /* Name matches state key */
+                      name="gender" 
                       value={residentFormData.gender}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.gender}
@@ -1920,7 +1870,7 @@ function Dashboard() {
                     <input
                        type="date"
                        id="resBirthdate"
-                       name="birthdate" /* Name matches state key */
+                       name="birthdate" 
                        value={residentFormData.birthdate}
                        onChange={handleResidentFormChange}
                        aria-invalid={!!residentFormErrors.birthdate}
@@ -1931,8 +1881,8 @@ function Dashboard() {
                     <label htmlFor="resAddress">Purok:</label>
                     <select
                       id="resAddress"
-                      name="address" /* Name matches state key */
-                      value={residentFormData.address} /* Still controlled by residentFormData.address */
+                      name="address" 
+                      value={residentFormData.address} 
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.address}
                       >
@@ -1963,14 +1913,13 @@ function Dashboard() {
                     <input
                       type="text"
                       id="resContact"
-                      name="contactNumber" /* Name matches state key */
+                      name="contactNumber" 
                       value={residentFormData.contactNumber}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.contactNumber}
                      />
                     {residentFormErrors.contactNumber && <span className="error-message">{residentFormErrors.contactNumber}</span>}
                   </div>
-                   {/* Optional Fields */}
                    <div className="form-group">
                       <label htmlFor="resCivilStatus">Civil Status (Optional):</label>
                       <select id="resCivilStatus" name="civilStatus" value={residentFormData.civilStatus} onChange={handleResidentFormChange}>
@@ -2000,7 +1949,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* User Modals */}
           {isUserModalOpen && (
             <UserEditModal
               isOpen={isUserModalOpen}
@@ -2011,7 +1959,6 @@ function Dashboard() {
             />
           )}
 
-          {/* Add specific rendering for Blotter module */}
           {activeModule === "Blotter" && (
             <div>
               <div className="content-title-bar">
@@ -2034,18 +1981,15 @@ function Dashboard() {
                 <table>
                   <thead>
                     <tr>
-                       {/* Adjust columns based on Blotter model and importance */}
                       <th>Incident Date</th>
                       <th>Incident Type</th>
                       <th>Complainant</th>
                       <th>Respondent</th>
                       <th>Status</th>
-                      {/* <th>Narrative</th>  Too long for table? */}
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Conditional Rendering for Blotters */}
                     {blottersLoading && (
                        <tr><td colSpan="6" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
@@ -2082,7 +2026,7 @@ function Dashboard() {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenBlotterModal()} // Use the handler for Add/Edit
+                  onClick={() => handleOpenBlotterModal()} 
                 >
                   Add New Record
                 </button>
@@ -2093,7 +2037,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Modal for Adding/Editing Blotter Record */}
           {isBlotterModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseBlotterModal(); }}>
               <div className="modal-content">
@@ -2101,7 +2044,6 @@ function Dashboard() {
                 <form onSubmit={handleSaveBlotter} className="modal-form">
                    {blotterFormMessage && <p className={`form-message ${blotterFormErrors && Object.keys(blotterFormErrors).length > 0 ? 'error' : 'success'}`}>{blotterFormMessage}</p>}
 
-                  {/* Blotter Form Fields */}
                   <div className="form-group">
                     <label htmlFor="incidentType">Incident Type:</label>
                     <input
@@ -2183,7 +2125,6 @@ function Dashboard() {
                        onChange={handleBlotterFormChange}
                        aria-invalid={!!blotterFormErrors.status}
                        >
-                       {/* Values from Blotter model enum */}
                       <option value="Open">Open</option>
                       <option value="Under Investigation">Under Investigation</option>
                       <option value="Amicably Settled">Amicably Settled</option>
@@ -2206,7 +2147,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Add specific rendering for Certificate module */}
           {activeModule === "Certificate" && (
             <div>
               <div className="content-title-bar">
@@ -2238,7 +2178,6 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Conditional Rendering for Certificates */}
                      {certificatesLoading && (
                        <tr><td colSpan="6" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                     )}
@@ -2248,7 +2187,6 @@ function Dashboard() {
                     {!certificatesLoading && !certificatesError && certificates.length === 0 && (
                        <tr><td colSpan="6" style={{ textAlign: 'center' }}>No certificates found.</td></tr>
                     )}
-                    {/* Use optional chaining for safety */}
                     {!certificatesLoading && !certificatesError && [...certificates].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((certificate) => (
                       <tr key={certificate?._id}>
                         <td>{certificate?.certificateType}</td>
@@ -2269,7 +2207,7 @@ function Dashboard() {
               <div className="content-footer">
                 <button
                   className="issue-certificate-button"
-                  onClick={() => setIsCertificateModalOpen(true)} // Open certificate modal
+                  onClick={() => setIsCertificateModalOpen(true)} 
                 >
                   Issue New Certificate
                 </button>
@@ -2277,7 +2215,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Modal for Issuing Certificate */}
           {isCertificateModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseCertificateModal(); }}>
               <div className="modal-content">
@@ -2313,22 +2250,19 @@ function Dashboard() {
                        value={certificateFormData.residentId}
                        onChange={handleCertificateFormChange}
                        aria-invalid={!!certificateFormErrors.residentId}
-                       disabled={residentsLoading} // Disable while residents are loading
+                       disabled={residentsLoading} 
                       >
                       <option value="" disabled>Select Resident</option>
-                      {/* Handle loading and error states for residents */}
                       {residentsLoading && <option value="" disabled>Loading residents...</option>}
                       {!residentsLoading && residentsError && <option value="" disabled>Error loading residents</option>}
                       {!residentsLoading && !residentsError && residents.map(resident => (
-                          // Ensure resident object and _id exist before rendering option
+                          
                           resident?._id && <option key={resident._id} value={resident._id}>{resident.fullName}</option>
                       ))}
                       {!residentsLoading && !residentsError && residents.length === 0 && <option value="" disabled>No residents found</option>}
                     </select>
-                    {/* Wrap conditional error messages in a Fragment */}
                     <>
                       {certificateFormErrors.residentId && <span className="error-message">{certificateFormErrors.residentId}</span>}
-                      {/* Display resident fetch error only if relevant */}
                       {residentsError && !residentsLoading && <span className="error-message">{residentsError}</span>}
                     </>
                   </div>
@@ -2359,7 +2293,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* Add specific rendering for About module */}
           {activeModule === "About" && (
             <div className="about-section">
               <h2>About the Barangay Management System</h2>
@@ -2369,20 +2302,16 @@ function Dashboard() {
               <p>
               This system is designed to improve efficiency, transparency, and communication in a community setting through digital transformation.
               </p>
-              {/* Add the disclaimer text */}
               <p style={{ marginTop: '20px', fontStyle: 'italic', color: '#6c757d' }}>
                  <strong>Disclaimer:</strong> This project is not affiliated with or officially connected to any actual barangay. All data used within the system is fictional and intended for demonstration purposes only.
               </p>
-              {/* Add more details if needed, e.g., version, contact */}
               <p>Version: 1.0.0 (Placeholder)</p>
             </div>
           )}
-          {/* Add specific rendering for Admin module */}
           {activeModule === "Admin" && (
             <div className="admin-section">
               <h2>Admin Panel</h2>
 
-              {/* User Management Section */}
               <div className="dashboard-section">
                 <h3>User Management</h3>
                 <div className="table-container">
@@ -2396,7 +2325,6 @@ function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                       {/* Conditional Rendering for Users */}
                       {usersLoading && (
                         <tr><td colSpan="4" style={{ textAlign: 'center' }}><LoadingAnimation size={50} /></td></tr>
                       )}
@@ -2406,18 +2334,15 @@ function Dashboard() {
                       {!usersLoading && !usersError && users.length === 0 && (
                         <tr><td colSpan="4" style={{ textAlign: 'center' }}>No users found.</td></tr>
                       )}
-                      {/* Map over actual users data */}
                       {!usersLoading && !usersError && [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((userItem) => (
                         <tr key={userItem._id}>
                           <td>{userItem.username}</td>
                           <td>{userItem.role}</td>
                           <td>{userItem.status || 'N/A'}</td>
                           <td className="action-buttons">
-                            {/* Pass the actual user object to the edit modal handler */}
                             <button title="Edit" onClick={() => handleOpenUserEditModal(userItem)}>
                               <FaEdit />
                             </button>
-                             {/* Add Delete Button Handler (handleDeleteUser to be defined next) */}
                             <button title="Delete" onClick={() => handleDeleteUser(userItem._id)}>
                               <FaTrash />
                             </button>
@@ -2438,39 +2363,32 @@ function Dashboard() {
               </div>
             </div>
           )}
-          {/* --- Other ADD Modals defined by user --- */}
-          {/* ... (existing modals for Add Official, Add Resident, etc.) ... */}
         </main>
 
-        {/* --- Render the VIEW Modal --- */}
         {isOfficialViewModalOpen && (
           <OfficialViewModal
             official={selectedOfficialForView}
             onClose={handleCloseViewModal}
           />
         )}
-        {/* --- Render Resident VIEW Modal --- */}
         {isResidentViewModalOpen && (
           <ResidentViewModal
             resident={selectedResidentForView}
             onClose={handleCloseResidentViewModal}
           />
         )}
-         {/* --- Render Blotter VIEW Modal --- */}
          {isBlotterViewModalOpen && (
           <BlotterViewModal
             blotter={selectedBlotterForView}
             onClose={handleCloseBlotterViewModal}
           />
         )}
-        {/* --- Render Certificate VIEW Modal --- */}
         {isCertificateViewModalOpen && (
           <CertificateViewModal
             certificate={selectedCertificateForView}
             onClose={handleCloseCertificateViewModal}
           />
         )}
-        {/* --- Render User EDIT Modal --- */}
         {isUserEditModalOpen && (
           <UserEditModal
             isOpen={isUserEditModalOpen}
@@ -2480,7 +2398,6 @@ function Dashboard() {
             onUserUpdated={handleUserUpdated}
           />
         )}
-        {/* --- End Render VIEW Modals --- */}
       </div>
     </div>
   );
