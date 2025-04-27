@@ -201,75 +201,75 @@ function Dashboard() {
   const [selectedResidentForView, setSelectedResidentForView] = useState(null);
   const [isResidentViewModalOpen, setIsResidentViewModalOpen] = useState(false);
 
-  // State for Official VIEW modal
+
   const [selectedOfficialForView, setSelectedOfficialForView] = useState(null);
   const [isOfficialViewModalOpen, setIsOfficialViewModalOpen] = useState(false);
 
-  // State for Blotter VIEW modal
+
   const [selectedBlotterForView, setSelectedBlotterForView] = useState(null);
   const [isBlotterViewModalOpen, setIsBlotterViewModalOpen] = useState(false);
 
-  // State for Official EDIT modal
+
   const [officialToEdit, setOfficialToEdit] = useState(null); // Data of the official being edited
 
-      // State for Resident EDIT modal
+ 
       const [residentToEdit, setResidentToEdit] = useState(null); // Data of the resident being edited
 
-      // State for Blotter EDIT modal
+ 
       const [blotterToEdit, setBlotterToEdit] = useState(null); // Data of the blotter record being edited
 
-      // State for Certificate VIEW modal
+
       const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
       const [isCertificateViewModalOpen, setIsCertificateViewModalOpen] = useState(false);
 
-  // --- State for Add/Edit Official Form ---
+
   const [officialFormData, setOfficialFormData] = useState(initialOfficialFormState);
   const [officialFormErrors, setOfficialFormErrors] = useState({});
   const [officialFormLoading, setOfficialFormLoading] = useState(false); // Loading state for submit
   const [officialFormMessage, setOfficialFormMessage] = useState(''); // For success/error messages
 
-  // --- Data Fetching State (Officials) ---
+
   const [officials, setOfficials] = useState([]);
   const [officialsLoading, setOfficialsLoading] = useState(false);
   const [officialsError, setOfficialsError] = useState(null);
 
-  // --- Data Fetching State (Residents) ---
+
   const [residents, setResidents] = useState([]);
   const [residentsLoading, setResidentsLoading] = useState(false);
   const [residentsError, setResidentsError] = useState(null);
 
-  // --- State for Add/Edit Resident Form ---
+
   const [residentFormData, setResidentFormData] = useState(initialResidentFormState);
   const [residentFormErrors, setResidentFormErrors] = useState({});
   const [residentFormLoading, setResidentFormLoading] = useState(false);
   const [residentFormMessage, setResidentFormMessage] = useState('');
 
-  // --- Data Fetching State (Blotters) ---
+
   const [blotters, setBlotters] = useState([]);
   const [blottersLoading, setBlottersLoading] = useState(false);
   const [blottersError, setBlottersError] = useState(null);
 
-  // --- State for Add/Edit Blotter Form ---
+
   const [blotterFormData, setBlotterFormData] = useState(initialBlotterFormState);
   const [blotterFormErrors, setBlotterFormErrors] = useState({});
   const [blotterFormLoading, setBlotterFormLoading] = useState(false);
   const [blotterFormMessage, setBlotterFormMessage] = useState('');
 
-  // --- Data Fetching State (Certificates) ---
+
   const [certificates, setCertificates] = useState([]);
   const [certificatesLoading, setCertificatesLoading] = useState(false);
   const [certificatesError, setCertificatesError] = useState(null);
 
-  // --- State for Issue Certificate Form ---
+
   const [certificateFormData, setCertificateFormData] = useState(initialCertificateFormState);
   const [certificateFormErrors, setCertificateFormErrors] = useState({});
   const [certificateFormLoading, setCertificateFormLoading] = useState(false);
   const [certificateFormMessage, setCertificateFormMessage] = useState('');
 
-  // Add loading state specifically for dashboard stats aggregation
+
   const [dashboardStatsLoading, setDashboardStatsLoading] = useState(false);
 
-  // --- Fetch Functions ---
+
   const fetchUsers = async () => {
     setUsersLoading(true);
     setUsersError(null);
@@ -312,8 +312,8 @@ function Dashboard() {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
       const response = await axios.get('/api/residents', config);
       setResidents(response.data.residents || response.data || []);
-      // If API provides totalResidents, store it (optional)
-      // setTotalResidents(response.data.totalResidents || 0);
+
+
     } catch (error) {
       console.error("Error fetching residents:", error.response || error);
       setResidentsError('Failed to load residents.');
@@ -357,10 +357,9 @@ function Dashboard() {
 
 
 
-  // --- Effect to Fetch Data when module is active ---
+
   useEffect(() => {
     if (token) {
-      // Fetch specific data based on active module
       if (activeModule === "Brgy Official") fetchOfficials();
       if (activeModule === "Resident") fetchResidents();
       if (activeModule === "Blotter") fetchBlotters();
@@ -369,7 +368,6 @@ function Dashboard() {
           if (residents.length === 0 && !residentsLoading) fetchResidents();
       }
       if (activeModule === "Dashboard") {
-          // Fetch all data needed for dashboard stats
           setDashboardStatsLoading(true);
           Promise.all([
               fetchOfficials(),
@@ -380,12 +378,11 @@ function Dashboard() {
               setDashboardStatsLoading(false);
           });
       }
-      if (activeModule === "Admin") fetchUsers(); // Fetch users for Admin module
-      // Add other modules here
+      if (activeModule === "Admin") fetchUsers(); 
     }
-  }, [activeModule, token, user?.role]); // Add user?.role dependency
+  }, [activeModule, token, user?.role]); 
 
-  // --- Effect to pre-fill form when editing ---
+
   useEffect(() => {
     if (officialToEdit) {
       setOfficialFormData({
@@ -396,26 +393,23 @@ function Dashboard() {
         term: officialToEdit.term || '',
         status: officialToEdit.status || 'Active',
       });
-      setOfficialFormErrors({}); // Clear errors when opening for edit
-      setOfficialFormMessage(''); // Clear message
+      setOfficialFormErrors({}); 
+      setOfficialFormMessage(''); 
     } else {
-      setOfficialFormData(initialOfficialFormState); // Reset form for add
+      setOfficialFormData(initialOfficialFormState); 
       setOfficialFormErrors({});
       setOfficialFormMessage('');
     }
   }, [officialToEdit, isOfficialModalOpen]);
 
-  // --- Effect to pre-fill Resident form when editing ---
+
   useEffect(() => {
     if (residentToEdit) {
-      // Convert birthdate back to YYYY-MM-DD for the input field if needed
       const birthdateValue = residentToEdit.birthdate ? new Date(residentToEdit.birthdate).toISOString().split('T')[0] : '';
       setResidentFormData({
         fullName: residentToEdit.fullName || '',
         gender: residentToEdit.gender || '',
-        // age field is likely derived, use birthdate
         birthdate: birthdateValue,
-        // Simplify address for now, requires handling nested object if complex
         address: residentToEdit.address?.street || residentToEdit.address || '', // Example access
         contactNumber: residentToEdit.contactNumber || '',
         civilStatus: residentToEdit.civilStatus || '',
@@ -432,7 +426,6 @@ function Dashboard() {
 
   useEffect(() => {
     if (blotterToEdit) {
-      // Format date and simplify object fields for the form
       const incidentDateValue = blotterToEdit.incidentDate ? new Date(blotterToEdit.incidentDate).toISOString().split('T')[0] : '';
       setBlotterFormData({
         incidentType: blotterToEdit.incidentType || '',
@@ -442,7 +435,7 @@ function Dashboard() {
         respondentName: blotterToEdit.respondent?.name || '',
         narrative: blotterToEdit.narrative || '',
         status: blotterToEdit.status || 'Open',
-      });
+      });s
       setBlotterFormErrors({});
       setBlotterFormMessage('');
     } else {
@@ -556,37 +549,27 @@ function Dashboard() {
     return Object.keys(errors).length === 0;
   };
 
-  // --- Define Logout Handler ---
+
   const handleLogout = () => {
-    // --- Add SweetAlert Confirmation ---
+
     Swal.fire({
       title: "Are you sure you want to logout?",
       text: "You will be returned to the login page.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6", // Blue for confirm
-      cancelButtonColor: "#d33", // Red for cancel
+      confirmButtonColor: "#3085d6", 
+      cancelButtonColor: "#d33", 
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-      reverseButtons: true // Place confirm button on the right
+      reverseButtons: true 
     }).then((result) => {
       if (result.isConfirmed) {
-        // --- Existing Logout Logic ---
-        // Optional: Call backend logout first
+
         dispatch(logoutUserBackend());
-        // Immediately clear client-side state and storage
+
         dispatch(logout());
         navigate('/login'); // Redirect to login page
-        // --- End Existing Logout Logic ---
 
-        // Optional: Show a success message after logout (can be removed)
-        // Swal.fire({
-        //   title: "Logged Out!",
-        //   text: "You have been successfully logged out.",
-        //   icon: "success",
-        //   timer: 1500, // Auto-close after 1.5 seconds
-        //   showConfirmButton: false
-        // });
       }
       // No need for an explicit 'else' or 'cancel' message here,
       // as closing the dialog is the default behavior on cancel.
