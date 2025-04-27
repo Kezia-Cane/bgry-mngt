@@ -111,10 +111,10 @@ function Dashboard() {
 
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false);
-    setUserToEdit(null); // Clear user data when closing
+    setUserToEdit(null); 
   };
 
-  // User Edit Modal handlers
+
   const handleOpenUserEditModal = (user) => {
     setUserToEdit(user);
     setIsUserEditModalOpen(true);
@@ -125,7 +125,7 @@ function Dashboard() {
     setUserToEdit(null);
   };
 
-  // Handler for after user update
+
   const handleUserUpdated = async () => {
     try {
       setUsersLoading(true);
@@ -141,12 +141,12 @@ function Dashboard() {
     }
   };
 
-  // Render functions for different modules
+
   const renderDashboardOverview = () => {
     return (
       <div className="dashboard-overview">
         <h2>Dashboard Overview</h2>
-        {/* Add your dashboard overview content here */}
+        {}
       </div>
     );
   };
@@ -155,7 +155,7 @@ function Dashboard() {
     return (
       <div className="brgy-official-section">
         <h2>Barangay Officials</h2>
-        {/* Add your barangay officials content here */}
+        {}
       </div>
     );
   };
@@ -164,7 +164,7 @@ function Dashboard() {
     return (
       <div className="resident-section">
         <h2>Residents</h2>
-        {/* Add your residents content here */}
+        {}
       </div>
     );
   };
@@ -173,7 +173,7 @@ function Dashboard() {
     return (
       <div className="blotter-section">
         <h2>Blotter Records</h2>
-        {/* Add your blotter records content here */}
+        {}
       </div>
     );
   };
@@ -182,7 +182,7 @@ function Dashboard() {
     return (
       <div className="certificate-section">
         <h2>Certificates</h2>
-        {/* Add your certificates content here */}
+        {}
       </div>
     );
   };
@@ -191,13 +191,13 @@ function Dashboard() {
     return (
       <div className="about-section">
         <h2>About</h2>
-        {/* Add your about content here */}
+        {}
       </div>
     );
   };
 
 
-  // Resident View Modal state - This seems to already exist from a previous attempt, ensuring it's correct.
+  
   const [selectedResidentForView, setSelectedResidentForView] = useState(null);
   const [isResidentViewModalOpen, setIsResidentViewModalOpen] = useState(false);
 
