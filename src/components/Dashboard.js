@@ -435,7 +435,7 @@ function Dashboard() {
         respondentName: blotterToEdit.respondent?.name || '',
         narrative: blotterToEdit.narrative || '',
         status: blotterToEdit.status || 'Open',
-      });s
+      });
       setBlotterFormErrors({});
       setBlotterFormMessage('');
     } else {
