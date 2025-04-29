@@ -2,8 +2,7 @@
 import { useDispatch, useSelector } from 'react-redux'; // Import Redux hooks
 import { useNavigate } from 'react-router-dom'; // Import navigation hook
 import { clearError, loginUser } from '../store/authSlice'; // Import Redux actions
-import Lottie from 'lottie-react';
-import loadingAnimation from '../animations/loadingAnimation.json';
+import LoadingAnimation from './LoadingAnimation';
 import './Login.css';
 
 // Remove onLoginSuccess prop, handle navigation via Redux state
@@ -91,6 +90,11 @@ function Login() {
             Login
           </button>
         </form>
+        {isLoading && (
+          <div className="fullscreen-animation">
+            <LoadingAnimation size={150} />
+          </div>
+        )}
       </div>
     </div>
   );
