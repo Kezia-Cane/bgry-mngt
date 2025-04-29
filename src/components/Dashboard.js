@@ -639,7 +639,7 @@ function Dashboard() {
     try {
       if (officialToEdit) {
         
-        await api.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
+        await api.put(`/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
         
         Swal.fire({
@@ -658,7 +658,7 @@ function Dashboard() {
 
       } else {
         
-        await api.post('/api/barangay-officials', dataToSubmit, config);
+        await api.post('/barangay-officials', dataToSubmit, config);
 
         
         Swal.fire({
@@ -716,7 +716,7 @@ function Dashboard() {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
           
-          await api.delete(`/api/barangay-officials/${officialId}`, config);
+          await api.delete(`/barangay-officials/${officialId}`, config);
 
           
           Swal.fire(
@@ -853,7 +853,7 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          await api.delete(`/api/residents/${residentId}`, config);
+          await api.delete(`/residents/${residentId}`, config);
 
           Swal.fire(
             'Deleted!',
@@ -1093,7 +1093,7 @@ function Dashboard() {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
           
-          await api.delete(`/api/blotters/${blotterId}`, config);
+          await api.delete(`/blotters/${blotterId}`, config);
 
           
           Swal.fire(
@@ -1139,7 +1139,7 @@ function Dashboard() {
 
     try {
       
-      await api.post('/api/certificates', dataToSubmit, config);
+      await api.post('/certificates', dataToSubmit, config);
 
       Swal.fire({
           icon: "success",
