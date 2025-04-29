@@ -5,7 +5,7 @@ import { logout, logoutUserBackend } from '../store/authSlice';
 import LoadingAnimation from './LoadingAnimation';
 import "./Dashboard.css";
 
-import axios from 'axios'; 
+import api from '../services/api'; 
 import {
   FaAddressBook,
   FaEdit,
@@ -99,7 +99,7 @@ function Dashboard() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false); 
   const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); 
   const [userToEdit, setUserToEdit] = useState(null); 
-  const baseURL = 'http://localhost:5000';
+  
   const [users, setUsers] = useState([]); 
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
@@ -129,9 +129,7 @@ function Dashboard() {
   const handleUserUpdated = async () => {
     try {
       setUsersLoading(true);
-      const response = await axios.get('/api/admin/users', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get('/admin/users', { headers: { 'Authorization': `Bearer ${token}` } });
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -279,7 +277,7 @@ function Dashboard() {
           'Authorization': `Bearer ${token}`
         }
       };
-      const response = await axios.get(`${baseURL}/api/admin/users`, config);
+      const response = await api.get('/admin/users', config);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -294,7 +292,7 @@ function Dashboard() {
     setOfficialsError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/barangay-officials', config);
+      const response = await api.get('/barangay-officials', config); // correct path, do not add '/api' here
       setOfficials(response.data || []);
     } catch (error) {
       console.error("Error fetching officials:", error.response || error);
@@ -310,7 +308,7 @@ function Dashboard() {
     setResidentsError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/residents', config);
+      const response = await api.get('/residents', config); // correct path, do not add '/api' here
       setResidents(response.data.residents || response.data || []);
 
 
@@ -328,7 +326,7 @@ function Dashboard() {
     setBlottersError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/blotters', config);
+      const response = await api.get('/blotters', config); // correct path, do not add '/api' here
       setBlotters(response.data.blotters || response.data || []);
     } catch (error) {
       console.error("Error fetching blotters:", error.response || error);
@@ -344,7 +342,7 @@ function Dashboard() {
     setCertificatesError(null);
     try {
       const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/certificates', config);
+      const response = await api.get('/certificates', config); // correct path, do not add '/api' here
       setCertificates(response.data.certificates || response.data || []);
     } catch (error) {
       console.error("Error fetching certificates:", error.response || error);
@@ -641,7 +639,7 @@ function Dashboard() {
     try {
       if (officialToEdit) {
         
-        await axios.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
+        await api.put(`/api/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
         
         Swal.fire({
@@ -660,7 +658,7 @@ function Dashboard() {
 
       } else {
         
-        await axios.post('/api/barangay-officials', dataToSubmit, config);
+        await api.post('/api/barangay-officials', dataToSubmit, config);
 
         
         Swal.fire({
@@ -718,7 +716,7 @@ function Dashboard() {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
           
-          await axios.delete(`/api/barangay-officials/${officialId}`, config);
+          await api.delete(`/api/barangay-officials/${officialId}`, config);
 
           
           Swal.fire(
@@ -775,7 +773,7 @@ function Dashboard() {
     try {
       if (residentToEdit) {
         
-        await axios.put(`/api/residents/${residentToEdit._id}`, dataToSubmit, config);
+        await api.put(`/residents/${residentToEdit._id}`, dataToSubmit, config);
 
        
         Swal.fire({
@@ -794,7 +792,7 @@ function Dashboard() {
 
       } else {
         
-        await axios.post('/api/residents', dataToSubmit, config);
+        await api.post('/residents', dataToSubmit, config);
 
         
         Swal.fire({
@@ -855,7 +853,7 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          await axios.delete(`/api/residents/${residentId}`, config);
+          await api.delete(`/api/residents/${residentId}`, config);
 
           Swal.fire(
             'Deleted!',
@@ -1095,7 +1093,7 @@ function Dashboard() {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
           
-          await axios.delete(`/api/blotters/${blotterId}`, config);
+          await api.delete(`/api/blotters/${blotterId}`, config);
 
           
           Swal.fire(
@@ -1141,7 +1139,7 @@ function Dashboard() {
 
     try {
       
-      await axios.post('/api/certificates', dataToSubmit, config);
+      await api.post('/api/certificates', dataToSubmit, config);
 
       Swal.fire({
           icon: "success",
@@ -1195,9 +1193,9 @@ function Dashboard() {
             'Authorization': `Bearer ${token}`
           }
         };
-        const baseURL = 'http://localhost:5000';
         
-        await axios.delete(`${baseURL}/api/admin/users/${userIdToDelete}`, config);
+        
+        await api.delete(`/admin/users/${userIdToDelete}`, config);
 
         
         Swal.fire(

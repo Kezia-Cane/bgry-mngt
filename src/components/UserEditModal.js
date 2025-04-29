@@ -1,4 +1,4 @@
-import axios from 'axios'; // Import axios
+import api from '../services/api';
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2'; // Import Swal
 import './UserEditModal.css';
@@ -77,7 +77,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
     }
 
     try {
-      const baseURL = 'http://localhost:5000';
+      
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -86,9 +86,9 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
       };
 
       if (isEditMode) {
-        await axios.put(`${baseURL}/api/admin/users/${userData._id}`, payload, config);
+        await api.put(`/admin/users/${userData._id}`, payload, config);
       } else {
-        await axios.post(`${baseURL}/api/admin/users`, payload, config);
+        await api.post('/admin/users', payload, config);
       }
 
       // Show success message
