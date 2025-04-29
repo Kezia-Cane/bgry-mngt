@@ -919,7 +919,7 @@ function Dashboard() {
 
     try {
       if (blotterToEdit) {
-        await axios.put(`/api/blotters/${blotterToEdit._id}`, dataToSubmit, config);
+        await api.put(`/blotters/${blotterToEdit._id}`, dataToSubmit, config);
         Swal.fire({
             icon: "success",
             title: "Blotter Record Updated",
@@ -932,7 +932,7 @@ function Dashboard() {
 
       } else {
         
-        await axios.post('/api/blotters', dataToSubmit, config);
+        await api.post('/blotters', dataToSubmit, config);
         Swal.fire({
             icon: "success",
             title: "New Blotter Record has been saved",
