@@ -542,58 +542,107 @@ function Dashboard() {
 
 
 
+  // Track which modules have loaded data
+  const [loadedModules, setLoadedModules] = useState({
+    Dashboard: false,
+    "Brgy Official": false,
+    Resident: false,
+    Blotter: false,
+    Certificate: false,
+    Admin: false
+  });
+
   // Initial data loading when component mounts
   useEffect(() => {
     if (token) {
       // Load only the data for the active module to improve initial load time
-      loadDataForActiveModule();
+      loadDataForActiveModule(true);
     }
   }, [token]);
 
   // Load data when active module changes
   useEffect(() => {
     if (token) {
-      loadDataForActiveModule();
+      loadDataForActiveModule(false);
     }
   }, [activeModule, token, user?.role]);
 
   // Function to load data based on active module
-  const loadDataForActiveModule = () => {
+  const loadDataForActiveModule = (isInitialLoad) => {
+    // If this module has already been loaded and it's not an initial load, don't reload
+    if (!isInitialLoad && loadedModules[activeModule]) {
+      console.log(`Module ${activeModule} already loaded, skipping reload`);
+      return;
+    }
+
     switch (activeModule) {
       case "Brgy Official":
-        fetchOfficials();
+        fetchOfficials().then(() => {
+          setLoadedModules(prev => ({ ...prev, "Brgy Official": true }));
+        });
         break;
       case "Resident":
-        fetchResidents();
+        fetchResidents().then(() => {
+          setLoadedModules(prev => ({ ...prev, Resident: true }));
+        });
         break;
       case "Blotter":
-        fetchBlotters();
+        fetchBlotters().then(() => {
+          setLoadedModules(prev => ({ ...prev, Blotter: true }));
+        });
         break;
       case "Certificate":
-        fetchCertificates();
+        fetchCertificates().then(() => {
+          setLoadedModules(prev => ({ ...prev, Certificate: true }));
+        });
         // Only fetch residents if needed for the certificate form
         if (residents.length === 0 && !residentsLoading) {
           fetchResidents();
         }
         break;
       case "Dashboard":
-        // For dashboard, load data sequentially to reduce server load
-        setDashboardStatsLoading(true);
+        // Only load dashboard data if not already loaded or if it's an explicit refresh
+        if (!loadedModules.Dashboard || isInitialLoad) {
+          setDashboardStatsLoading(true);
 
-        // Load data sequentially with a small delay between requests
-        fetchOfficials()
-          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
-          .then(() => fetchResidents())
-          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
-          .then(() => fetchBlotters())
-          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
-          .then(() => fetchCertificates())
-          .finally(() => {
+          // Check if we already have data for each section
+          const needsOfficials = officials.length === 0;
+          const needsResidents = residents.length === 0;
+          const needsBlotters = blotters.length === 0;
+          const needsCertificates = certificates.length === 0;
+
+          // Only fetch data we don't already have
+          let promise = Promise.resolve();
+
+          if (needsOfficials) {
+            promise = promise.then(() => fetchOfficials())
+              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
+          }
+
+          if (needsResidents) {
+            promise = promise.then(() => fetchResidents())
+              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
+          }
+
+          if (needsBlotters) {
+            promise = promise.then(() => fetchBlotters())
+              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
+          }
+
+          if (needsCertificates) {
+            promise = promise.then(() => fetchCertificates());
+          }
+
+          promise.finally(() => {
             setDashboardStatsLoading(false);
+            setLoadedModules(prev => ({ ...prev, Dashboard: true }));
           });
+        }
         break;
       case "Admin":
-        fetchUsers();
+        fetchUsers().then(() => {
+          setLoadedModules(prev => ({ ...prev, Admin: true }));
+        });
         break;
       default:
         break;
@@ -1581,23 +1630,8 @@ function Dashboard() {
     };
   }, [navigate, token]);
 
-  // Global loading indicator for dashboard
-  const isAnyDataLoading = dashboardStatsLoading ||
-                          officialsLoading ||
-                          residentsLoading ||
-                          blottersLoading ||
-                          certificatesLoading ||
-                          usersLoading;
-
   return (
     <div className="dashboard-layout">
-      {/* Global loading indicator */}
-      {isAnyDataLoading && (
-        <div className="global-loading-overlay">
-          <LoadingAnimation size={80} />
-          <p>Loading data, please wait...</p>
-        </div>
-      )}
 
       <aside className="sidebar">
         <div className="sidebar-header">
