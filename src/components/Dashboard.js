@@ -6,19 +6,19 @@ import "./Dashboard.css";
 import LoadingAnimation from './LoadingAnimation';
 
 import {
-  FaAddressBook,
-  FaEdit,
-  FaEye,
-  FaFileAlt,
-  FaInfoCircle,
-  FaPrint,
-  FaSearch,
-  FaSignOutAlt,
-  FaTachometerAlt,
-  FaTrash,
-  FaUserCog,
-  FaUserTie,
-  FaUsers
+    FaAddressBook,
+    FaEdit,
+    FaEye,
+    FaFileAlt,
+    FaInfoCircle,
+    FaPrint,
+    FaSearch,
+    FaSignOutAlt,
+    FaTachometerAlt,
+    FaTrash,
+    FaUserCog,
+    FaUserTie,
+    FaUsers
 } from "react-icons/fa";
 import api from '../services/api';
 import BlotterViewModal from "./BlotterViewModal.js";
@@ -28,17 +28,17 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js";
 
 import {
-  Area,
+    Area,
 
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
+    AreaChart,
+    CartesianGrid,
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
 } from 'recharts';
 
 import Lottie from 'lottie-react';
@@ -273,15 +273,18 @@ function Dashboard() {
 
   const fetchUsers = async () => {
     // If already loading, don't start another request
-    if (usersLoading) return;
+    if (usersLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Admin) return true; // Indicate already loaded
 
     setUsersLoading(true);
     setUsersError(null);
+    let success = false; // Track success within this attempt
     try {
       // Add a retry mechanism with exponential backoff
       let retries = 0;
       const maxRetries = 3;
-      let success = false;
+      // let success = false; // Moved up
 
       while (!success && retries < maxRetries) {
         try {
@@ -321,20 +324,24 @@ function Dashboard() {
       setUsersLoading(false);
     }
 
-    return true; // For promise chaining
+    return success; // Return success status
   };
 
   const fetchOfficials = async () => {
     // If already loading, don't start another request
-    if (officialsLoading) return;
+    if (officialsLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules["Brgy Official"]) return true; // Indicate already loaded
+
 
     setOfficialsLoading(true);
     setOfficialsError(null);
+    let success = false; // Track success within this attempt
     try {
       // Add a retry mechanism with exponential backoff
       let retries = 0;
       const maxRetries = 3;
-      let success = false;
+      // let success = false; // Moved up
 
       while (!success && retries < maxRetries) {
         try {
@@ -378,20 +385,23 @@ function Dashboard() {
       setOfficialsLoading(false);
     }
 
-    return true; // For promise chaining
+    return success; // Return success status
   };
 
   const fetchResidents = async () => {
     // If already loading, don't start another request
-    if (residentsLoading) return;
+    if (residentsLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Resident) return true; // Indicate already loaded
 
     setResidentsLoading(true);
     setResidentsError(null);
+    let success = false; // Track success
     try {
       // Add a retry mechanism with exponential backoff
       let retries = 0;
       const maxRetries = 3;
-      let success = false;
+      // let success = false; // Moved up
 
       while (!success && retries < maxRetries) {
         try {
@@ -432,20 +442,23 @@ function Dashboard() {
       setResidentsLoading(false);
     }
 
-    return true; // For promise chaining
+    return success; // Return success status
   };
 
   const fetchBlotters = async () => {
     // If already loading, don't start another request
-    if (blottersLoading) return;
+    if (blottersLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Blotter) return true; // Indicate already loaded
 
     setBlottersLoading(true);
     setBlottersError(null);
+    let success = false; // Track success
     try {
       // Add a retry mechanism with exponential backoff
       let retries = 0;
       const maxRetries = 3;
-      let success = false;
+      // let success = false; // Moved up
 
       while (!success && retries < maxRetries) {
         try {
@@ -486,20 +499,23 @@ function Dashboard() {
       setBlottersLoading(false);
     }
 
-    return true; // For promise chaining
+    return success; // Return success status
   };
 
   const fetchCertificates = async () => {
     // If already loading, don't start another request
-    if (certificatesLoading) return;
+    if (certificatesLoading) return false; // Indicate no fetch occurred
+     // If already loaded, skip fetch
+    if (loadedModules.Certificate) return true; // Indicate already loaded
 
     setCertificatesLoading(true);
     setCertificatesError(null);
+    let success = false; // Track success
     try {
       // Add a retry mechanism with exponential backoff
       let retries = 0;
       const maxRetries = 3;
-      let success = false;
+      // let success = false; // Moved up
 
       while (!success && retries < maxRetries) {
         try {
@@ -540,7 +556,7 @@ function Dashboard() {
       setCertificatesLoading(false);
     }
 
-    return true; // For promise chaining
+    return success; // Return success status
   };
 
 
@@ -574,78 +590,80 @@ function Dashboard() {
   // Function to load data based on active module
   const loadDataForActiveModule = (isInitialLoad) => {
     // If this module has already been loaded and it's not an initial load, don't reload
-    if (!isInitialLoad && loadedModules[activeModule]) {
-      console.log(`Module ${activeModule} already loaded, skipping reload`);
-      return;
-    }
+    // NOTE: We'll rely on the fetch functions themselves to check the loadedModules state now.
+    // if (!isInitialLoad && loadedModules[activeModule]) {
+    //   console.log(`Module ${activeModule} already loaded, skipping reload`);
+    //   return;
+    // }
 
     switch (activeModule) {
       case "Brgy Official":
-        fetchOfficials().then(() => {
-          setLoadedModules(prev => ({ ...prev, "Brgy Official": true }));
+        fetchOfficials().then((fetchedSuccessfully) => {
+          if (fetchedSuccessfully) { // Only update if data was actually fetched or already present
+              setLoadedModules(prev => ({ ...prev, "Brgy Official": true }));
+          }
         });
         break;
       case "Resident":
-        fetchResidents().then(() => {
-          setLoadedModules(prev => ({ ...prev, Resident: true }));
+        fetchResidents().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+               setLoadedModules(prev => ({ ...prev, Resident: true }));
+           }
         });
         break;
       case "Blotter":
-        fetchBlotters().then(() => {
-          setLoadedModules(prev => ({ ...prev, Blotter: true }));
+        fetchBlotters().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+               setLoadedModules(prev => ({ ...prev, Blotter: true }));
+           }
         });
         break;
       case "Certificate":
-        fetchCertificates().then(() => {
-          setLoadedModules(prev => ({ ...prev, Certificate: true }));
+        fetchCertificates().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+              setLoadedModules(prev => ({ ...prev, Certificate: true }));
+           }
         });
-        // Only fetch residents if needed for the certificate form
-        if (residents.length === 0 && !residentsLoading) {
-          fetchResidents();
-        }
-        break;
-      case "Dashboard":
-        // Only load dashboard data if not already loaded or if it's an explicit refresh
-        if (!loadedModules.Dashboard || isInitialLoad) {
-          setDashboardStatsLoading(true);
-
-          // Check if we already have data for each section
-          const needsOfficials = officials.length === 0;
-          const needsResidents = residents.length === 0;
-          const needsBlotters = blotters.length === 0;
-          const needsCertificates = certificates.length === 0;
-
-          // Only fetch data we don't already have
-          let promise = Promise.resolve();
-
-          if (needsOfficials) {
-            promise = promise.then(() => fetchOfficials())
-              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
-          }
-
-          if (needsResidents) {
-            promise = promise.then(() => fetchResidents())
-              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
-          }
-
-          if (needsBlotters) {
-            promise = promise.then(() => fetchBlotters())
-              .then(() => new Promise(resolve => setTimeout(resolve, 300)));
-          }
-
-          if (needsCertificates) {
-            promise = promise.then(() => fetchCertificates());
-          }
-
-          promise.finally(() => {
-            setDashboardStatsLoading(false);
-            setLoadedModules(prev => ({ ...prev, Dashboard: true }));
+        // Only fetch residents if needed for the certificate form AND they haven't loaded
+        if (!loadedModules.Resident) {
+          fetchResidents().then((residentsFetched) => {
+              if (residentsFetched) {
+                  setLoadedModules(prev => ({ ...prev, Resident: true }));
+              }
           });
         }
         break;
+      case "Dashboard":
+        // Dashboard aggregates data, so its "loaded" state depends on its components.
+        // We only set the Dashboard loaded flag once all necessary fetches complete.
+        // The fetch functions themselves check if their specific data is loaded.
+        setDashboardStatsLoading(true);
+
+        // Create promises for each required data type
+        const promises = [];
+        // We always attempt to fetch, the functions will bail early if data is loaded
+        promises.push(fetchOfficials());
+        promises.push(fetchResidents());
+        promises.push(fetchBlotters());
+        promises.push(fetchCertificates());
+
+
+        Promise.all(promises).then((results) => {
+            // results is an array of booleans indicating if each fetch succeeded or was already loaded
+            const allSucceededOrLoaded = results.every(res => res === true);
+             if (allSucceededOrLoaded) {
+                 setLoadedModules(prev => ({ ...prev, Dashboard: true }));
+             }
+        }).finally(() => {
+            setDashboardStatsLoading(false);
+        });
+
+        break;
       case "Admin":
-        fetchUsers().then(() => {
-          setLoadedModules(prev => ({ ...prev, Admin: true }));
+        fetchUsers().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+             setLoadedModules(prev => ({ ...prev, Admin: true }));
+           }
         });
         break;
       default:
