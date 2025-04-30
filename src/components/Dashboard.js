@@ -41,7 +41,9 @@ import {
   YAxis
 } from 'recharts';
 
+import Lottie from 'lottie-react';
 import Swal from 'sweetalert2';
+import loadingAnimation from '../animations/new_animation.json';
 
 
 const initialOfficialFormState = {
@@ -1979,7 +1981,11 @@ function Dashboard() {
                   <div className="bottom-chart-container small-charts">
                       <div className="chart-wrapper">
                           <h4>Resident Gender</h4>
-                          {(residentsLoading || dashboardStatsLoading) && <p>Loading...</p>}
+                          {(residentsLoading || dashboardStatsLoading) &&
+                            <div style={{ height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Wrapper for sizing/centering */}
+                              <Lottie animationData={loadingAnimation} loop={true} style={{ width: 150, height: 150 }} />
+                            </div>
+                          } {/* Replaced spinner with Lottie */}
                           {residentsError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                           {!residentsLoading && !residentsError && !dashboardStatsLoading && (
                               genderData.length > 0 ? (
@@ -2009,7 +2015,11 @@ function Dashboard() {
 
                        <div className="chart-wrapper">
                           <h4>Blotter Status</h4>
-                           {(blottersLoading || dashboardStatsLoading) && <p>Loading...</p>}
+                           {(blottersLoading || dashboardStatsLoading) &&
+                            <div style={{ height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Wrapper for sizing/centering */}
+                              <Lottie animationData={loadingAnimation} loop={true} style={{ width: 150, height: 150 }} />
+                            </div>
+                           } {/* Replaced spinner with Lottie */}
                            {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                            {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                               blotterStatusData.length > 0 ? (
@@ -2041,7 +2051,11 @@ function Dashboard() {
 
               <div className="dashboard-section recent-items-section">
                   <h3>Recently Added</h3>
-                  {(dashboardStatsLoading) && <p>Loading recent activity...</p>}
+                  {(dashboardStatsLoading) &&
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}> {/* Wrapper for sizing/centering */}
+                      <Lottie animationData={loadingAnimation} loop={true} style={{ width: 100, height: 100 }} />
+                    </div>
+                  } {/* Replaced spinner with Lottie */}
                   {(!dashboardStatsLoading && recentlyAddedItems.length === 0) && <p>No recent activity found.</p>}
                   {!dashboardStatsLoading && recentlyAddedItems.length > 0 && (
                       <ul className="recent-items-list">

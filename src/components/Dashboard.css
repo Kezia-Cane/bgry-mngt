@@ -801,3 +801,19 @@ table tbody tr:hover {
 
 /* Responsive adjustments if needed */
 /* @media (max-width: 600px) { ... } */
+
+/* Loading Spinner Animation */
+.loading-spinner {
+  display: inline-block; /* Or block/flex depending on centering needs */
+  width: 24px; /* Adjust size as needed */
+  height: 24px;
+  border: 3px solid rgba(0, 0, 0, 0.1); /* Light border */
+  border-radius: 50%;
+  border-top-color: #4e73df; /* Spinner color - matches theme */
+  animation: spin 1s ease-in-out infinite;
+  margin: 10px auto; /* Example margin for centering if display: block */
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
