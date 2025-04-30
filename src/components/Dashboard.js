@@ -14,12 +14,11 @@ import {
   FaPrint,
   FaSearch,
   FaSignOutAlt,
-  FaSync,
   FaTachometerAlt,
   FaTrash,
   FaUserCog,
   FaUserTie,
-  FaUsers,
+  FaUsers
 } from "react-icons/fa";
 import api from '../services/api';
 import BlotterViewModal from "./BlotterViewModal.js";
@@ -1708,20 +1707,6 @@ function Dashboard() {
 
       <div className="main-content">
         <header className="main-header">
-          <div className="header-actions">
-            <button
-              className="refresh-button"
-              onClick={() => {
-                // Reset the loaded status for the current module
-                setLoadedModules(prev => ({ ...prev, [activeModule]: false }));
-                // Force reload data for the current module
-                loadDataForActiveModule(true);
-              }}
-              title="Refresh data"
-            >
-              <FaSync /> Refresh
-            </button>
-          </div>
         </header>
         <main className="content-area">
           {activeModule === "Brgy Official" && (

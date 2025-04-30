@@ -97,29 +97,7 @@
   align-items: center;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
 
-.refresh-button {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #495057;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9em;
-  transition: all 0.2s ease;
-}
-
-.refresh-button:hover {
-  background-color: #e9ecef;
-  border-color: #ced4da;
-}
 
 .content-area {
   padding: 40px; /* Standardized padding */
