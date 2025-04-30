@@ -5,7 +5,11 @@
 [![Node.js](https://img.shields.io/badge/Node.js-v18.x-green)](https://nodejs.org/en/docs/)
 [![Express](https://img.shields.io/badge/Express-v4.x-orange)](https://expressjs.com/)
 
+This was originally our college project, first developed using VB.NET a Desktop application. Now, I’m converting it into a web-based system using the MERN stack to further develop and improve my software development skills.
+
 A web-based Barangay Management System for efficiently managing residents, officials, certificates, and blotter records. Built with React for the frontend and Node.js/Express for the backend, this project streamlines barangay administration with a modern, user-friendly interface.
+
+
 
 - **Modern UI/UX:** Responsive design with Lottie-powered loading animations for a smooth user experience.
 - **Centralized API Handling:** All API calls are managed through a centralized Axios instance for maintainability.
