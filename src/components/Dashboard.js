@@ -14,6 +14,7 @@ import {
   FaPrint,
   FaSearch,
   FaSignOutAlt,
+  FaSync,
   FaTachometerAlt,
   FaTrash,
   FaUserCog,
@@ -103,10 +104,14 @@ function Dashboard() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
 
+  // We now use inline function in the button onClick
+  // But keeping these functions for reference and potential future use
+  /*
   const handleOpenUserModal = () => {
     setUserToEdit(null);
     setIsUserModalOpen(true);
   };
+  */
 
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false);
@@ -139,11 +144,13 @@ function Dashboard() {
   };
 
 
+  // These render functions are no longer used as we're rendering content directly in the JSX
+  // Keeping them commented out for reference
+  /*
   const renderDashboardOverview = () => {
     return (
       <div className="dashboard-overview">
         <h2>Dashboard Overview</h2>
-        {}
       </div>
     );
   };
@@ -152,7 +159,6 @@ function Dashboard() {
     return (
       <div className="brgy-official-section">
         <h2>Barangay Officials</h2>
-        {}
       </div>
     );
   };
@@ -161,7 +167,6 @@ function Dashboard() {
     return (
       <div className="resident-section">
         <h2>Residents</h2>
-        {}
       </div>
     );
   };
@@ -170,7 +175,6 @@ function Dashboard() {
     return (
       <div className="blotter-section">
         <h2>Blotter Records</h2>
-        {}
       </div>
     );
   };
@@ -179,7 +183,6 @@ function Dashboard() {
     return (
       <div className="certificate-section">
         <h2>Certificates</h2>
-        {}
       </div>
     );
   };
@@ -188,10 +191,10 @@ function Dashboard() {
     return (
       <div className="about-section">
         <h2>About</h2>
-        {}
       </div>
     );
   };
+  */
 
 
 
@@ -1311,7 +1314,8 @@ function Dashboard() {
   }, [officials, residents, blotters, certificates]);
 
 
-  const getItemIcon = (type) => {
+  // Helper function to get the appropriate icon for each item type
+  const renderItemIcon = (type) => {
       switch(type) {
           case 'Official': return <FaUserTie />;
           case 'Resident': return <FaUsers />;
@@ -1503,8 +1507,10 @@ function Dashboard() {
   }, [activeModule]);
 
 
+  // This render function is no longer used as we're rendering content directly in the JSX
+  // Keeping it commented out for reference
+  /*
   const renderUserManagementTable = () => {
-
     return (
       <div className="module-container user-management-module">
         <h3 className="module-title">User Management</h3>
@@ -1574,8 +1580,12 @@ function Dashboard() {
       </div>
     );
   };
+  */
 
 
+  // This function is no longer used as we're rendering content directly in the JSX
+  // Keeping it commented out for reference
+  /*
   const renderContent = () => {
     switch (activeModule) {
       case "Brgy Official":
@@ -1594,6 +1604,7 @@ function Dashboard() {
         return renderDashboardOverview();
     }
   };
+  */
 
   // Add a useEffect to handle page refresh and 404 errors
   useEffect(() => {
@@ -1697,6 +1708,20 @@ function Dashboard() {
 
       <div className="main-content">
         <header className="main-header">
+          <div className="header-actions">
+            <button
+              className="refresh-button"
+              onClick={() => {
+                // Reset the loaded status for the current module
+                setLoadedModules(prev => ({ ...prev, [activeModule]: false }));
+                // Force reload data for the current module
+                loadDataForActiveModule(true);
+              }}
+              title="Refresh data"
+            >
+              <FaSync /> Refresh
+            </button>
+          </div>
         </header>
         <main className="content-area">
           {activeModule === "Brgy Official" && (
@@ -1986,7 +2011,7 @@ function Dashboard() {
                                               dataKey="value"
                                               nameKey="name"
                                           >
-                                              {genderData.map((entry, index) => (
+                                              {genderData.map((_, index) => (
                                                   <Cell key={`cell-gender-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
                                               ))}
                                           </Pie>
@@ -2016,7 +2041,7 @@ function Dashboard() {
                                               dataKey="value"
                                               nameKey="name"
                                           >
-                                              {blotterStatusData.map((entry, index) => (
+                                              {blotterStatusData.map((_, index) => (
                                                   <Cell key={`cell-status-${index}`} fill={BLOTTER_COLORS[index % BLOTTER_COLORS.length]} />
                                               ))}
                                           </Pie>
@@ -2037,6 +2062,9 @@ function Dashboard() {
                       <ul className="recent-items-list">
                           {recentlyAddedItems.map((item) => (
                               <li key={`${item.type}-${item._id}`} className="recent-item">
+                                  <div className="item-icon">
+                                      {renderItemIcon(item.type)}
+                                  </div>
                                   <div className="item-details">
                                       <span className="item-type">{item.type}:</span>
                                       <span className="item-name" title={item.name}> {item.name}</span>
