@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react"; 
-import { useDispatch, useSelector } from 'react-redux'; 
-import { useNavigate } from 'react-router-dom'; 
-import { logout, logoutUserBackend } from '../store/authSlice'; 
-import LoadingAnimation from './LoadingAnimation';
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { logout, logoutUserBackend } from '../store/authSlice';
 import "./Dashboard.css";
+import LoadingAnimation from './LoadingAnimation';
 
-import api from '../services/api'; 
 import {
   FaAddressBook,
   FaEdit,
@@ -21,14 +20,14 @@ import {
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
-import BlotterViewModal from "./BlotterViewModal.js"; 
-import CertificateViewModal from "./CertificateViewModal.js"; 
+import api from '../services/api';
+import BlotterViewModal from "./BlotterViewModal.js";
+import CertificateViewModal from "./CertificateViewModal.js";
 import OfficialViewModal from "./OfficialViewModal.js";
 import ResidentViewModal from "./ResidentViewModal.js";
-import UserEditModal from "./UserEditModal.js"; 
+import UserEditModal from "./UserEditModal.js";
 
 import {
-
   Area,
 
   AreaChart,
@@ -51,14 +50,14 @@ const initialOfficialFormState = {
   age: '',
   position: '',
   term: '',
-  status: 'Active', 
+  status: 'Active',
 };
 const initialResidentFormState = {
   fullName: '',
   gender: '',
-  age: '', 
-  birthdate: '', 
-  address: '', 
+  age: '',
+  birthdate: '',
+  address: '',
   contactNumber: '',
 
   civilStatus: '',
@@ -68,10 +67,10 @@ const initialBlotterFormState = {
   incidentType: '',
   incidentDate: '',
   incidentLocation: '',
-  complainantName: '', 
-  respondentName: '', 
+  complainantName: '',
+  respondentName: '',
   narrative: '',
-  status: 'Open', 
+  status: 'Open',
 
 };
 const initialCertificateFormState = {
@@ -81,37 +80,37 @@ const initialCertificateFormState = {
 };
 
 
-const GENDER_COLORS = ['#0088FE', '#FF8042', '#FFBB28']; 
-const BLOTTER_COLORS = ['#DD4444', '#FFBB28', '#00C49F', '#8884d8', '#82ca9d']; 
+const GENDER_COLORS = ['#0088FE', '#FF8042', '#FFBB28'];
+const BLOTTER_COLORS = ['#DD4444', '#FFBB28', '#00C49F', '#8884d8', '#82ca9d'];
 
 
 function Dashboard() {
-  const dispatch = useDispatch(); 
-  const navigate = useNavigate(); 
-  const { user, token } = useSelector((state) => state.auth); 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, token } = useSelector((state) => state.auth);
 
 
-  const [activeModule, setActiveModule] = useState("Dashboard"); 
-  const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false); 
-  const [isResidentModalOpen, setIsResidentModalOpen] = useState(false); 
-  const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false); 
+  const [activeModule, setActiveModule] = useState("Dashboard");
+  const [isOfficialModalOpen, setIsOfficialModalOpen] = useState(false);
+  const [isResidentModalOpen, setIsResidentModalOpen] = useState(false);
+  const [isBlotterModalOpen, setIsBlotterModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false); 
-  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false); 
-  const [userToEdit, setUserToEdit] = useState(null); 
-  
-  const [users, setUsers] = useState([]); 
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+
+  const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
 
   const handleOpenUserModal = () => {
-    setUserToEdit(null); 
+    setUserToEdit(null);
     setIsUserModalOpen(true);
   };
 
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false);
-    setUserToEdit(null); 
+    setUserToEdit(null);
   };
 
 
@@ -195,7 +194,7 @@ function Dashboard() {
   };
 
 
-  
+
   const [selectedResidentForView, setSelectedResidentForView] = useState(null);
   const [isResidentViewModalOpen, setIsResidentViewModalOpen] = useState(false);
 
@@ -208,13 +207,13 @@ function Dashboard() {
   const [isBlotterViewModalOpen, setIsBlotterViewModalOpen] = useState(false);
 
 
-  const [officialToEdit, setOfficialToEdit] = useState(null); 
+  const [officialToEdit, setOfficialToEdit] = useState(null);
 
- 
-      const [residentToEdit, setResidentToEdit] = useState(null); 
 
- 
-      const [blotterToEdit, setBlotterToEdit] = useState(null); 
+      const [residentToEdit, setResidentToEdit] = useState(null);
+
+
+      const [blotterToEdit, setBlotterToEdit] = useState(null);
 
 
       const [selectedCertificateForView, setSelectedCertificateForView] = useState(null);
@@ -223,8 +222,8 @@ function Dashboard() {
 
   const [officialFormData, setOfficialFormData] = useState(initialOfficialFormState);
   const [officialFormErrors, setOfficialFormErrors] = useState({});
-  const [officialFormLoading, setOfficialFormLoading] = useState(false); 
-  const [officialFormMessage, setOfficialFormMessage] = useState(''); 
+  const [officialFormLoading, setOfficialFormLoading] = useState(false);
+  const [officialFormMessage, setOfficialFormMessage] = useState('');
 
 
   const [officials, setOfficials] = useState([]);
@@ -269,116 +268,337 @@ function Dashboard() {
 
 
   const fetchUsers = async () => {
+    // If already loading, don't start another request
+    if (usersLoading) return;
+
     setUsersLoading(true);
     setUsersError(null);
     try {
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await api.get('/admin/users', config);
+          setUsers(response.data);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
         }
-      };
-      const response = await api.get('/admin/users', config);
-      setUsers(response.data);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
-      setUsersError(error.response?.data?.message || 'Failed to fetch users');
+      setUsersError(error.response?.data?.message || 'Failed to fetch users. Please try refreshing the page.');
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchUsers();
+          }
+        });
+      }
     } finally {
       setUsersLoading(false);
     }
+
+    return true; // For promise chaining
   };
 
   const fetchOfficials = async () => {
+    // If already loading, don't start another request
+    if (officialsLoading) return;
+
     setOfficialsLoading(true);
     setOfficialsError(null);
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await api.get('/barangay-officials', config); // correct path, do not add '/api' here
-      setOfficials(response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            // Use cache by default
+            useCache: true,
+            // Increase timeout for slow connections
+            timeout: 15000 + (retries * 5000) // 15s, 20s, 25s
+          };
+
+          const response = await api.get('/barangay-officials', config);
+          setOfficials(response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching officials:", error.response || error);
-      setOfficialsError('Failed to load officials.');
+      setOfficialsError('Failed to load officials. Please try refreshing the page.');
       setOfficials([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchOfficials();
+          }
+        });
+      }
     } finally {
       setOfficialsLoading(false);
     }
+
+    return true; // For promise chaining
   };
 
   const fetchResidents = async () => {
+    // If already loading, don't start another request
+    if (residentsLoading) return;
+
     setResidentsLoading(true);
     setResidentsError(null);
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await api.get('/residents', config); // correct path, do not add '/api' here
-      setResidents(response.data.residents || response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
 
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
 
+          const response = await api.get('/residents', config);
+          setResidents(response.data.residents || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching residents:", error.response || error);
-      setResidentsError('Failed to load residents.');
+      setResidentsError('Failed to load residents. Please try refreshing the page.');
       setResidents([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchResidents();
+          }
+        });
+      }
     } finally {
       setResidentsLoading(false);
     }
+
+    return true; // For promise chaining
   };
 
   const fetchBlotters = async () => {
+    // If already loading, don't start another request
+    if (blottersLoading) return;
+
     setBlottersLoading(true);
     setBlottersError(null);
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await api.get('/blotters', config); // correct path, do not add '/api' here
-      setBlotters(response.data.blotters || response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await api.get('/blotters', config);
+          setBlotters(response.data.blotters || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching blotters:", error.response || error);
-      setBlottersError('Failed to load blotter records.');
+      setBlottersError('Failed to load blotter records. Please try refreshing the page.');
       setBlotters([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchBlotters();
+          }
+        });
+      }
     } finally {
       setBlottersLoading(false);
     }
+
+    return true; // For promise chaining
   };
 
   const fetchCertificates = async () => {
+    // If already loading, don't start another request
+    if (certificatesLoading) return;
+
     setCertificatesLoading(true);
     setCertificatesError(null);
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await api.get('/certificates', config); // correct path, do not add '/api' here
-      setCertificates(response.data.certificates || response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      let success = false;
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await api.get('/certificates', config);
+          setCertificates(response.data.certificates || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching certificates:", error.response || error);
-      setCertificatesError('Failed to load certificates.');
+      setCertificatesError('Failed to load certificates. Please try refreshing the page.');
       setCertificates([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchCertificates();
+          }
+        });
+      }
     } finally {
       setCertificatesLoading(false);
     }
+
+    return true; // For promise chaining
   };
 
 
 
 
+  // Initial data loading when component mounts
   useEffect(() => {
     if (token) {
-      if (activeModule === "Brgy Official") fetchOfficials();
-      if (activeModule === "Resident") fetchResidents();
-      if (activeModule === "Blotter") fetchBlotters();
-      if (activeModule === "Certificate") {
-          fetchCertificates();
-          if (residents.length === 0 && !residentsLoading) fetchResidents();
-      }
-      if (activeModule === "Dashboard") {
-          setDashboardStatsLoading(true);
-          Promise.all([
-              fetchOfficials(),
-              fetchResidents(),
-              fetchBlotters(),
-              fetchCertificates()
-          ]).finally(() => {
-              setDashboardStatsLoading(false);
-          });
-      }
-      if (activeModule === "Admin") fetchUsers(); 
+      // Load only the data for the active module to improve initial load time
+      loadDataForActiveModule();
     }
-  }, [activeModule, token, user?.role]); 
+  }, [token]);
+
+  // Load data when active module changes
+  useEffect(() => {
+    if (token) {
+      loadDataForActiveModule();
+    }
+  }, [activeModule, token, user?.role]);
+
+  // Function to load data based on active module
+  const loadDataForActiveModule = () => {
+    switch (activeModule) {
+      case "Brgy Official":
+        fetchOfficials();
+        break;
+      case "Resident":
+        fetchResidents();
+        break;
+      case "Blotter":
+        fetchBlotters();
+        break;
+      case "Certificate":
+        fetchCertificates();
+        // Only fetch residents if needed for the certificate form
+        if (residents.length === 0 && !residentsLoading) {
+          fetchResidents();
+        }
+        break;
+      case "Dashboard":
+        // For dashboard, load data sequentially to reduce server load
+        setDashboardStatsLoading(true);
+
+        // Load data sequentially with a small delay between requests
+        fetchOfficials()
+          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
+          .then(() => fetchResidents())
+          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
+          .then(() => fetchBlotters())
+          .then(() => new Promise(resolve => setTimeout(resolve, 300)))
+          .then(() => fetchCertificates())
+          .finally(() => {
+            setDashboardStatsLoading(false);
+          });
+        break;
+      case "Admin":
+        fetchUsers();
+        break;
+      default:
+        break;
+    }
+  };
 
 
   useEffect(() => {
@@ -391,10 +611,10 @@ function Dashboard() {
         term: officialToEdit.term || '',
         status: officialToEdit.status || 'Active',
       });
-      setOfficialFormErrors({}); 
-      setOfficialFormMessage(''); 
+      setOfficialFormErrors({});
+      setOfficialFormMessage('');
     } else {
-      setOfficialFormData(initialOfficialFormState); 
+      setOfficialFormData(initialOfficialFormState);
       setOfficialFormErrors({});
       setOfficialFormMessage('');
     }
@@ -408,7 +628,7 @@ function Dashboard() {
         fullName: residentToEdit.fullName || '',
         gender: residentToEdit.gender || '',
         birthdate: birthdateValue,
-        address: residentToEdit.address?.street || residentToEdit.address || '', 
+        address: residentToEdit.address?.street || residentToEdit.address || '',
         contactNumber: residentToEdit.contactNumber || '',
         civilStatus: residentToEdit.civilStatus || '',
         occupation: residentToEdit.occupation || '',
@@ -456,7 +676,7 @@ function Dashboard() {
         [name]: null
       }));
     }
-     setOfficialFormMessage(''); 
+     setOfficialFormMessage('');
   };
 
   const handleResidentFormChange = (e) => {
@@ -496,13 +716,13 @@ function Dashboard() {
     if (!officialFormData.gender) errors.gender = 'Gender is required';
     if (!officialFormData.age) errors.age = 'Age is required';
     else if (isNaN(officialFormData.age) || Number(officialFormData.age) <= 0) errors.age = 'Age must be a positive number';
-    else if (Number(officialFormData.age) < 18) errors.age = 'Official must be at least 18 years old'; 
+    else if (Number(officialFormData.age) < 18) errors.age = 'Official must be at least 18 years old';
     if (!officialFormData.position.trim()) errors.position = 'Position is required';
-    if (!officialFormData.term.trim()) errors.term = 'Term is required'; 
+    if (!officialFormData.term.trim()) errors.term = 'Term is required';
     if (!officialFormData.status) errors.status = 'Status is required';
 
     setOfficialFormErrors(errors);
-    return Object.keys(errors).length === 0; 
+    return Object.keys(errors).length === 0;
   };
 
 
@@ -552,18 +772,18 @@ function Dashboard() {
       text: "You will be returned to the login page.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6", 
-      cancelButtonColor: "#d33", 
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-      reverseButtons: true 
+      reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
 
         dispatch(logoutUserBackend());
 
         dispatch(logout());
-        navigate('/login'); 
+        navigate('/login');
 
       }
 
@@ -609,27 +829,27 @@ function Dashboard() {
 
 
   const handleOpenOfficialModal = (official = null) => {
-    setOfficialToEdit(official); 
+    setOfficialToEdit(official);
     setIsOfficialModalOpen(true);
   };
 
   const handleCloseOfficialModal = () => {
     setIsOfficialModalOpen(false);
-    setOfficialToEdit(null); 
-    setOfficialFormData(initialOfficialFormState); 
-    setOfficialFormErrors({}); 
-    setOfficialFormMessage(''); 
+    setOfficialToEdit(null);
+    setOfficialFormData(initialOfficialFormState);
+    setOfficialFormErrors({});
+    setOfficialFormMessage('');
   };
 
-  
+
   const handleSaveOfficial = async (e) => {
-    e.preventDefault(); 
-    setOfficialFormMessage(''); 
-    setOfficialFormErrors({}); 
+    e.preventDefault();
+    setOfficialFormMessage('');
+    setOfficialFormErrors({});
 
     if (!validateOfficialForm()) {
       setOfficialFormMessage('Please fix the errors in the form.');
-      return; 
+      return;
     }
 
     setOfficialFormLoading(true);
@@ -638,10 +858,10 @@ function Dashboard() {
 
     try {
       if (officialToEdit) {
-        
+
         await api.put(`/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
-        
+
         Swal.fire({
           icon: "success",
           title: "Official Updated",
@@ -650,17 +870,17 @@ function Dashboard() {
           timer: 1500
         });
 
-        
+
         handleCloseOfficialModal();
 
-        
+
         await fetchOfficials();
 
       } else {
-        
+
         await api.post('/barangay-officials', dataToSubmit, config);
 
-        
+
         Swal.fire({
           icon: "success",
           title: "New Official has been saved",
@@ -668,29 +888,29 @@ function Dashboard() {
           timer: 1500
         });
 
-       
+
         handleCloseOfficialModal();
 
-        
+
         await fetchOfficials();
       }
 
     } catch (error) {
-      
+
       console.error("Error saving official:", error.response || error);
-      let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`; 
+      let errorMessage = `Failed to ${officialToEdit ? 'update' : 'add'} official. Please try again.`;
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      
+
       setOfficialFormMessage(errorMessage);
-      
+
     } finally {
       setOfficialFormLoading(false);
     }
   };
-  
-  
+
+
   const handleDeleteOfficial = async (officialId) => {
     if (user?.role !== 'admin') {
       Swal.fire({
@@ -698,11 +918,11 @@ function Dashboard() {
         title: 'Permission Denied',
         text: 'Only administrators can delete official records.',
       });
-      return; 
+      return;
     }
-    
 
-    
+
+
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -715,22 +935,22 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          
+
           await api.delete(`/barangay-officials/${officialId}`, config);
 
-          
+
           Swal.fire(
             'Deleted!',
             'The official record has been deleted.',
             'success'
           );
 
-          
+
           await fetchOfficials();
 
         } catch (error) {
           console.error("Error deleting official:", error.response || error);
-          
+
           Swal.fire(
             'Error!',
             'Failed to delete the official record. Please try again.',
@@ -740,8 +960,8 @@ function Dashboard() {
       }
     });
   };
-  
-  
+
+
   const handleSaveResident = async (e) => {
     e.preventDefault();
     setResidentFormMessage('');
@@ -758,9 +978,9 @@ function Dashboard() {
       fullName: residentFormData.fullName,
       gender: residentFormData.gender,
       birthdate: residentFormData.birthdate,
-      
+
       address: {
-          street: residentFormData.address, 
+          street: residentFormData.address,
           barangay: "New Visayas",
           city: "Panabo City",
           province: "Davao del Norte"
@@ -772,10 +992,10 @@ function Dashboard() {
 
     try {
       if (residentToEdit) {
-        
+
         await api.put(`/residents/${residentToEdit._id}`, dataToSubmit, config);
 
-       
+
         Swal.fire({
             icon: "success",
             title: "Resident Updated",
@@ -784,17 +1004,17 @@ function Dashboard() {
             timer: 1500
         });
 
-        
+
         handleCloseResidentModal();
 
-        
+
         await fetchResidents();
 
       } else {
-        
+
         await api.post('/residents', dataToSubmit, config);
 
-        
+
         Swal.fire({
             icon: "success",
             title: "New Resident has been saved",
@@ -802,16 +1022,16 @@ function Dashboard() {
             timer: 1500
         });
 
-        
+
         handleCloseResidentModal();
 
-        
+
         await fetchResidents();
       }
 
     } catch (error) {
       console.error("Error saving resident:", error.response || error);
-      let errorMessage = `Failed to ${residentToEdit ? 'update' : 'add'} resident. Please try again.`; 
+      let errorMessage = `Failed to ${residentToEdit ? 'update' : 'add'} resident. Please try again.`;
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
@@ -822,13 +1042,13 @@ function Dashboard() {
   };
 
   const handleOpenResidentModal = (resident = null) => {
-    setResidentToEdit(resident); 
+    setResidentToEdit(resident);
     setIsResidentModalOpen(true);
   };
 
   const handleCloseResidentModal = () => {
     setIsResidentModalOpen(false);
-    setResidentToEdit(null); 
+    setResidentToEdit(null);
   };
 
   const handleDeleteResident = async (residentId) => {
@@ -838,7 +1058,7 @@ function Dashboard() {
         title: 'Permission Denied',
         text: 'Only administrators can delete resident records.',
       });
-      return; 
+      return;
     }
 
     Swal.fire({
@@ -876,13 +1096,13 @@ function Dashboard() {
   };
 
   const handleOpenBlotterModal = (blotter = null) => {
-    setBlotterToEdit(blotter); 
-    setIsBlotterModalOpen(true); 
+    setBlotterToEdit(blotter);
+    setIsBlotterModalOpen(true);
   };
 
   const handleCloseBlotterModal = () => {
     setIsBlotterModalOpen(false);
-    setBlotterToEdit(null); 
+    setBlotterToEdit(null);
   };
 
   const handleViewCertificate = (certificate) => {
@@ -931,7 +1151,7 @@ function Dashboard() {
         await fetchBlotters();
 
       } else {
-        
+
         await api.post('/blotters', dataToSubmit, config);
         Swal.fire({
             icon: "success",
@@ -961,7 +1181,7 @@ function Dashboard() {
       setCertificateFormMessage('');
   }
 
-  
+
   const genderData = useMemo(() => {
     if (!residents || residents.length === 0) return [];
     const counts = residents.reduce((acc, resident) => {
@@ -970,7 +1190,7 @@ function Dashboard() {
       return acc;
     }, {});
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [residents]); 
+  }, [residents]);
 
   const blotterStatusData = useMemo(() => {
     if (!blotters || blotters.length === 0) return [];
@@ -979,13 +1199,13 @@ function Dashboard() {
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-    
+
     const statusOrder = ['Open', 'Under Investigation', 'Amicably Settled', 'Referred', 'Closed', 'Unknown'];
     return statusOrder
-      .filter(status => counts[status] > 0) 
+      .filter(status => counts[status] > 0)
       .map(status => ({ name: status, value: counts[status] }));
 
-  }, [blotters]); 
+  }, [blotters]);
 
   const recentBlotterData = useMemo(() => {
     if (!blotters || blotters.length === 0) return [];
@@ -993,55 +1213,55 @@ function Dashboard() {
     const dayMap = {};
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
 
-    
+
     for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(today.getDate() - i);
-        const dateString = date.toISOString().split('T')[0]; 
+        const dateString = date.toISOString().split('T')[0];
         const dayName = dayNames[date.getDay()];
         dayMap[dateString] = { name: dayName, count: 0, date: dateString };
     }
 
-    
+
     blotters.forEach(blotter => {
-        if (!blotter.createdAt) return; 
+        if (!blotter.createdAt) return;
         const blotterDate = new Date(blotter.createdAt);
         blotterDate.setHours(0, 0, 0, 0);
         const dateString = blotterDate.toISOString().split('T')[0];
 
-        
+
         if (dayMap[dateString]) {
             dayMap[dateString].count += 1;
         }
     });
 
-    
+
     return Object.values(dayMap).sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [blotters]); 
+  }, [blotters]);
 
   const recentlyAddedItems = useMemo(() => {
     const combined = [
       ...(officials || []).map(item => ({ ...item, type: 'Official', name: item.fullName, date: item.createdAt })),
       ...(residents || []).map(item => ({ ...item, type: 'Resident', name: item.fullName, date: item.createdAt })),
-      
+
       ...(blotters || []).map(item => ({ ...item, type: 'Blotter', name: item.incidentType, date: item.createdAt || item.incidentDate })),
       ...(certificates || []).map(item => ({ ...item, type: 'Certificate', name: `${item.certificateType} for ${item.resident?.fullName || 'N/A'}`, date: item.createdAt || item.issueDate }))
     ];
 
-    
+
     const validItems = combined.filter(item => item.date && !isNaN(new Date(item.date).getTime()));
 
-    
+
     validItems.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    
+
     return validItems.slice(0, 4);
 
   }, [officials, residents, blotters, certificates]);
 
-  
+
   const getItemIcon = (type) => {
       switch(type) {
           case 'Official': return <FaUserTie />;
@@ -1052,34 +1272,34 @@ function Dashboard() {
       }
   };
 
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
-        
+
         return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric', month: 'short', day: 'numeric'
         });
     } catch (e) {
         console.error("Error formatting date:", dateString, e);
-        return dateString; 
+        return dateString;
     }
   };
 
-  
+
   const handleDeleteBlotter = async (blotterId) => {
-    
+
     if (user?.role !== 'admin') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
         text: 'Only administrators can delete blotter records.',
       });
-      return; 
+      return;
     }
-    
 
-    
+
+
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this blotter record!",
@@ -1092,22 +1312,22 @@ function Dashboard() {
       if (result.isConfirmed) {
         try {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
-          
+
           await api.delete(`/blotters/${blotterId}`, config);
 
-          
+
           Swal.fire(
             'Deleted!',
             'The blotter record has been deleted.',
             'success'
           );
 
-          
+
           await fetchBlotters();
 
         } catch (error) {
           console.error("Error deleting blotter:", error.response || error);
-          
+
           Swal.fire(
             'Error!',
             'Failed to delete the blotter record. Please try again.',
@@ -1118,9 +1338,9 @@ function Dashboard() {
     });
   };
 
-  
+
   const handleIssueCertificate = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setCertificateFormMessage('');
     setCertificateFormErrors({});
 
@@ -1138,7 +1358,7 @@ function Dashboard() {
     };
 
     try {
-      
+
       await api.post('/certificates', dataToSubmit, config);
 
       Swal.fire({
@@ -1149,31 +1369,31 @@ function Dashboard() {
           timer: 1500
       });
 
-      handleCloseCertificateModal(); 
-      await fetchCertificates(); 
+      handleCloseCertificateModal();
+      await fetchCertificates();
 
     } catch (error) {
       console.error("Error issuing certificate:", error.response || error);
       let errorMessage = 'Failed to issue certificate. Please try again.';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-        
+
         if (error.response.status === 404 && error.response.data.message.includes('Resident not found')){
             setCertificateFormErrors(prev => ({...prev, residentId: 'Selected resident not found.' }))
         }
       }
-      setCertificateFormMessage(errorMessage); 
+      setCertificateFormMessage(errorMessage);
     } finally {
       setCertificateFormLoading(false);
     }
   };
-  
 
-  
 
-  
+
+
+
   const handleDeleteUser = async (userIdToDelete) => {
-    
+
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -1185,7 +1405,7 @@ function Dashboard() {
     });
 
     if (result.isConfirmed) {
-      setUsersLoading(true); 
+      setUsersLoading(true);
       setUsersError(null);
       try {
         const config = {
@@ -1193,47 +1413,47 @@ function Dashboard() {
             'Authorization': `Bearer ${token}`
           }
         };
-        
-        
+
+
         await api.delete(`/admin/users/${userIdToDelete}`, config);
 
-        
+
         Swal.fire(
           'Deleted!',
           'The user has been deleted.',
           'success'
         );
 
-        
+
         fetchUsers();
 
       } catch (error) {
         console.error("Error deleting user:", error.response || error);
         const errorMsg = error.response?.data?.message || 'Failed to delete user.';
-        setUsersError(errorMsg); 
-        
+        setUsersError(errorMsg);
+
         Swal.fire(
           'Error!',
           errorMsg,
           'error'
         );
       } finally {
-        
-        
+
+
         setUsersLoading(false);
       }
     }
   };
-  
 
-  
+
+
   useEffect(() => {
     if (activeModule === "Admin") {
       fetchUsers();
     }
   }, [activeModule]);
 
-  
+
   const renderUserManagementTable = () => {
 
     return (
@@ -1242,7 +1462,7 @@ function Dashboard() {
         <button className="btn btn-primary mb-3" onClick={handleOpenUserModal}>
           <FaUserCog /> Add New User
         </button>
-        
+
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead>
@@ -1306,7 +1526,7 @@ function Dashboard() {
     );
   };
 
-  
+
   const renderContent = () => {
     switch (activeModule) {
       case "Brgy Official":
@@ -1326,12 +1546,61 @@ function Dashboard() {
     }
   };
 
+  // Add a useEffect to handle page refresh and 404 errors
+  useEffect(() => {
+    // Listen for the beforeunload event to handle page refreshes
+    const handleBeforeUnload = () => {
+      // Clear any sensitive data from localStorage if needed
+      // This is just a placeholder - you might not need to do anything here
+    };
+
+    // Listen for the popstate event to handle browser navigation
+    const handlePopState = () => {
+      // If the user navigates using browser buttons, make sure we're on a valid route
+      if (window.location.pathname !== '/dashboard') {
+        navigate('/dashboard');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    // Handle 404 errors by redirecting to dashboard
+    const handle404 = () => {
+      if (window.location.pathname !== '/dashboard' && token) {
+        navigate('/dashboard');
+      }
+    };
+
+    // Call once on mount
+    handle404();
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate, token]);
+
+  // Global loading indicator for dashboard
+  const isAnyDataLoading = dashboardStatsLoading ||
+                          officialsLoading ||
+                          residentsLoading ||
+                          blottersLoading ||
+                          certificatesLoading ||
+                          usersLoading;
+
   return (
     <div className="dashboard-layout">
-      {}
+      {/* Global loading indicator */}
+      {isAnyDataLoading && (
+        <div className="global-loading-overlay">
+          <LoadingAnimation size={80} />
+          <p>Loading data, please wait...</p>
+        </div>
+      )}
+
       <aside className="sidebar">
         <div className="sidebar-header">
-          {}
           <img
             src="/logo.png"
             alt="Barangay Logo"
@@ -1341,7 +1610,6 @@ function Dashboard() {
         <nav className="sidebar-nav">
           <span className="sidebar-nav-title">Tools</span>
           <ul>
-            {}
             <li
               className={activeModule === "Dashboard" ? "active" : ""}
               onClick={() => setActiveModule("Dashboard")}
@@ -1378,7 +1646,6 @@ function Dashboard() {
             >
               <FaInfoCircle /> <span>About</span>
             </li>
-            {}
             {user?.role === 'admin' && (
               <li
                 className={activeModule === "Admin" ? "active" : ""}
@@ -1387,7 +1654,6 @@ function Dashboard() {
                 <FaUserCog /> <span>Admin</span>
               </li>
             )}
-            {}
             <li onClick={handleLogout}>
               <FaSignOutAlt /> <span>Logout</span>
             </li>
@@ -1582,7 +1848,7 @@ function Dashboard() {
             activeModule !== "Blotter" &&
             activeModule !== "Certificate" &&
             activeModule !== "About" &&
-            activeModule !== "Admin" && ( 
+            activeModule !== "Admin" && (
               <div>
                 <h2>{activeModule}</h2>{" "}
                 <p>Content for {activeModule} module goes here.</p>{" "}
@@ -1596,7 +1862,7 @@ function Dashboard() {
                   <p className="card-value">
                     {residentsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : residents.length}
                   </p>
-                  <p className="card-secondary">Updated recently</p> 
+                  <p className="card-secondary">Updated recently</p>
                   {residentsError && <span className="error-message small">Failed to load</span>}
                 </div>
                 <div className="overview-card officials-card">
@@ -1604,7 +1870,7 @@ function Dashboard() {
                   <p className="card-value">
                     {officialsLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : officials.filter(o => o?.status === 'Active').length}
                   </p>
-                  <p className="card-secondary">Currently serving</p> 
+                  <p className="card-secondary">Currently serving</p>
                   {officialsError && <span className="error-message small">Failed to load</span>}
                 </div>
                 <div className="overview-card blotters-card">
@@ -1612,7 +1878,7 @@ function Dashboard() {
                   <p className="card-value">
                     {blottersLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : blotters.filter(b => b?.status === 'Open').length}
                   </p>
-                  <p className="card-secondary">Require action</p> 
+                  <p className="card-secondary">Require action</p>
                   {blottersError && <span className="error-message small">Failed to load</span>}
                 </div>
                 <div className="overview-card certificates-card">
@@ -1620,7 +1886,7 @@ function Dashboard() {
                   <p className="card-value">
                     {certificatesLoading || dashboardStatsLoading ? <LoadingAnimation size={50} /> : certificates.length}
                   </p>
-                  <p className="card-secondary">Total documents</p> 
+                  <p className="card-secondary">Total documents</p>
                   {certificatesError && <span className="error-message small">Failed to load</span>}
                 </div>
               </div>
@@ -1632,7 +1898,7 @@ function Dashboard() {
                       {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading blotter data for chart.</p>}
                       {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                           recentBlotterData.length > 0 ? (
-                              <ResponsiveContainer width="100%" height={250}> 
+                              <ResponsiveContainer width="100%" height={250}>
                                   <AreaChart
                                       data={recentBlotterData}
                                       margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
@@ -1655,7 +1921,7 @@ function Dashboard() {
                                           dataKey="count"
                                           stroke="#4e73df"
                                           fillOpacity={1}
-                                          fill="url(#colorBlotters)" 
+                                          fill="url(#colorBlotters)"
                                           strokeWidth={2}
                                           activeDot={{ r: 6 }}
                                           name="Blotters"
@@ -1673,13 +1939,13 @@ function Dashboard() {
                           {residentsError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                           {!residentsLoading && !residentsError && !dashboardStatsLoading && (
                               genderData.length > 0 ? (
-                                  <ResponsiveContainer width="100%" height={200}> 
+                                  <ResponsiveContainer width="100%" height={200}>
                                       <PieChart>
                                           <Pie
                                               data={genderData}
                                               cx="50%"
                                               cy="50%"
-                                              innerRadius={60} 
+                                              innerRadius={60}
                                               outerRadius={80}
                                               fill="#8884d8"
                                               paddingAngle={2}
@@ -1703,13 +1969,13 @@ function Dashboard() {
                            {blottersError && !dashboardStatsLoading && <p style={{ color: 'red' }}>Error loading data</p>}
                            {!blottersLoading && !blottersError && !dashboardStatsLoading && (
                               blotterStatusData.length > 0 ? (
-                                  <ResponsiveContainer width="100%" height={200}> 
+                                  <ResponsiveContainer width="100%" height={200}>
                                       <PieChart>
                                           <Pie
                                               data={blotterStatusData}
                                               cx="50%"
                                               cy="50%"
-                                              innerRadius={60} 
+                                              innerRadius={60}
                                               outerRadius={80}
                                               fill="#8884d8"
                                               paddingAngle={2}
@@ -1755,7 +2021,7 @@ function Dashboard() {
           {activeModule === "Resident" && (
             <div>
               <div className="content-title-bar">
-                <h2>Resident</h2> 
+                <h2>Resident</h2>
                 <div className="search-section">
                   <label htmlFor="search-type">Search Type:</label>
                   <select id="search-type" defaultValue="last name">
@@ -1817,7 +2083,7 @@ function Dashboard() {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenResidentModal()} 
+                  onClick={() => handleOpenResidentModal()}
                 >
                   Add Resident
                 </button>
@@ -1840,7 +2106,7 @@ function Dashboard() {
                     <input
                       type="text"
                       id="resFullName"
-                      name="fullName" 
+                      name="fullName"
                       value={residentFormData.fullName}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.fullName}
@@ -1851,7 +2117,7 @@ function Dashboard() {
                     <label htmlFor="resGender">Gender:</label>
                     <select
                       id="resGender"
-                      name="gender" 
+                      name="gender"
                       value={residentFormData.gender}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.gender}
@@ -1868,7 +2134,7 @@ function Dashboard() {
                     <input
                        type="date"
                        id="resBirthdate"
-                       name="birthdate" 
+                       name="birthdate"
                        value={residentFormData.birthdate}
                        onChange={handleResidentFormChange}
                        aria-invalid={!!residentFormErrors.birthdate}
@@ -1879,8 +2145,8 @@ function Dashboard() {
                     <label htmlFor="resAddress">Purok:</label>
                     <select
                       id="resAddress"
-                      name="address" 
-                      value={residentFormData.address} 
+                      name="address"
+                      value={residentFormData.address}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.address}
                       >
@@ -1911,7 +2177,7 @@ function Dashboard() {
                     <input
                       type="text"
                       id="resContact"
-                      name="contactNumber" 
+                      name="contactNumber"
                       value={residentFormData.contactNumber}
                       onChange={handleResidentFormChange}
                       aria-invalid={!!residentFormErrors.contactNumber}
@@ -2024,7 +2290,7 @@ function Dashboard() {
                 <button
                   className="add-record-button"
                   style={{ marginRight: "10px" }}
-                  onClick={() => handleOpenBlotterModal()} 
+                  onClick={() => handleOpenBlotterModal()}
                 >
                   Add New Record
                 </button>
@@ -2205,7 +2471,7 @@ function Dashboard() {
               <div className="content-footer">
                 <button
                   className="issue-certificate-button"
-                  onClick={() => setIsCertificateModalOpen(true)} 
+                  onClick={() => setIsCertificateModalOpen(true)}
                 >
                   Issue New Certificate
                 </button>
@@ -2248,13 +2514,13 @@ function Dashboard() {
                        value={certificateFormData.residentId}
                        onChange={handleCertificateFormChange}
                        aria-invalid={!!certificateFormErrors.residentId}
-                       disabled={residentsLoading} 
+                       disabled={residentsLoading}
                       >
                       <option value="" disabled>Select Resident</option>
                       {residentsLoading && <option value="" disabled>Loading residents...</option>}
                       {!residentsLoading && residentsError && <option value="" disabled>Error loading residents</option>}
                       {!residentsLoading && !residentsError && residents.map(resident => (
-                          
+
                           resident?._id && <option key={resident._id} value={resident._id}>{resident.fullName}</option>
                       ))}
                       {!residentsLoading && !residentsError && residents.length === 0 && <option value="" disabled>No residents found</option>}
