@@ -4,14 +4,8 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 // Can be enhanced to check for specific roles if needed
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const location = useLocation(); // Get current location
-
-  // Still checking authentication status (e.g., on page refresh)
-  // You might want a more sophisticated loading check depending on how initial auth state is loaded
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
 
   // If not authenticated, redirect to login, preserving the intended destination
   if (!isAuthenticated) {

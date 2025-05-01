@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react"; // Add useMemo
+import React, { useCallback, useEffect, useMemo, useState } from "react"; // Add useMemo and useCallback
 import { useDispatch, useSelector } from 'react-redux'; // <-- Import Redux hooks
 import { useNavigate } from 'react-router-dom'; // <-- Import navigate hook
 import { logout, logoutUserBackend } from '../store/authSlice'; // <-- Import logout actions
-import LoadingAnimation from './LoadingAnimation';
 import "./Dashboard.css";
+import LoadingAnimation from './LoadingAnimation';
 // Import necessary icons from react-icons
 import axios from 'axios'; // <-- Import axios
 import {
@@ -89,6 +89,16 @@ function Dashboard() {
   const dispatch = useDispatch(); // <-- Get dispatch function
   const navigate = useNavigate(); // <-- Get navigate function
   const { user, token } = useSelector((state) => state.auth); // <-- Get token
+
+  // Track which modules have loaded data
+  const [loadedModules, setLoadedModules] = useState({
+    Dashboard: false,
+    "Brgy Official": false,
+    Resident: false,
+    Blotter: false,
+    Certificate: false,
+    Admin: false
+  });
 
   // Placeholder for active module state
   const [activeModule, setActiveModule] = useState("Dashboard"); // Default to Dashboard
@@ -270,90 +280,298 @@ function Dashboard() {
   const [dashboardStatsLoading, setDashboardStatsLoading] = useState(false);
 
   // --- Fetch Functions ---
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    // If already loading, don't start another request
+    if (usersLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Admin) return true; // Indicate already loaded
+
     setUsersLoading(true);
     setUsersError(null);
+    let success = false; // Track success within this attempt
     try {
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      // let success = false; // Moved up
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await axios.get('/admin/users', config);
+          setUsers(response.data);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // eslint-disable-next-line no-loop-func
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
         }
-      };
-      const response = await axios.get(`${baseURL}/api/admin/users`, config);
-      setUsers(response.data);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
-      setUsersError(error.response?.data?.message || 'Failed to fetch users');
+      setUsersError(error.response?.data?.message || 'Failed to fetch users. Please try refreshing the page.');
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchUsers(); // Caution: recursive call might lead to issues if error persists
+          }
+        });
+      }
     } finally {
       setUsersLoading(false);
     }
-  };
 
-  const fetchOfficials = async () => {
+    return success; // Return success status
+  }, [token, usersLoading, loadedModules.Admin]); // Added dependencies for useCallback
+
+  const fetchOfficials = useCallback(async () => {
+    // If already loading, don't start another request
+    if (officialsLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules["Brgy Official"]) return true; // Indicate already loaded
+
+
     setOfficialsLoading(true);
     setOfficialsError(null);
+    let success = false; // Track success within this attempt
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/barangay-officials', config);
-      setOfficials(response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      // let success = false; // Moved up
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            // Use cache by default
+            useCache: true,
+            // Increase timeout for slow connections
+            timeout: 15000 + (retries * 5000) // 15s, 20s, 25s
+          };
+
+          const response = await axios.get('/barangay-officials', config);
+          setOfficials(response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // Wait before retrying (exponential backoff)
+          // eslint-disable-next-line no-loop-func
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching officials:", error.response || error);
-      setOfficialsError('Failed to load officials.');
+      setOfficialsError('Failed to load officials. Please try refreshing the page.');
       setOfficials([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchOfficials(); // Caution: recursive call
+          }
+        });
+      }
     } finally {
       setOfficialsLoading(false);
     }
-  };
 
-  const fetchResidents = async () => {
+    return success; // Return success status
+  }, [token, officialsLoading, loadedModules["Brgy Official"]]); // Added dependencies
+
+  const fetchResidents = useCallback(async () => {
+    // If already loading, don't start another request
+    if (residentsLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Resident) return true; // Indicate already loaded
+
     setResidentsLoading(true);
     setResidentsError(null);
+    let success = false; // Track success
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/residents', config);
-      setResidents(response.data.residents || response.data || []);
-      // If API provides totalResidents, store it (optional)
-      // setTotalResidents(response.data.totalResidents || 0);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      // let success = false; // Moved up
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await axios.get('/residents', config);
+          setResidents(response.data.residents || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // eslint-disable-next-line no-loop-func
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching residents:", error.response || error);
-      setResidentsError('Failed to load residents.');
+      setResidentsError('Failed to load residents. Please try refreshing the page.');
       setResidents([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchResidents(); // Caution: recursive call
+          }
+        });
+      }
     } finally {
       setResidentsLoading(false);
     }
-  };
 
-  const fetchBlotters = async () => {
+    return success; // Return success status
+  }, [token, residentsLoading, loadedModules.Resident]); // Added dependencies
+
+  const fetchBlotters = useCallback(async () => {
+    // If already loading, don't start another request
+    if (blottersLoading) return false; // Indicate no fetch occurred
+    // If already loaded, skip fetch
+    if (loadedModules.Blotter) return true; // Indicate already loaded
+
     setBlottersLoading(true);
     setBlottersError(null);
+    let success = false; // Track success
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/blotters', config);
-      setBlotters(response.data.blotters || response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      // let success = false; // Moved up
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await axios.get('/blotters', config);
+          setBlotters(response.data.blotters || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // eslint-disable-next-line no-loop-func
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching blotters:", error.response || error);
-      setBlottersError('Failed to load blotter records.');
+      setBlottersError('Failed to load blotter records. Please try refreshing the page.');
       setBlotters([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchBlotters(); // Caution: recursive call
+          }
+        });
+      }
     } finally {
       setBlottersLoading(false);
     }
-  };
 
-  const fetchCertificates = async () => {
+    return success; // Return success status
+  }, [token, blottersLoading, loadedModules.Blotter]); // Added dependencies
+
+  const fetchCertificates = useCallback(async () => {
+    // If already loading, don't start another request
+    if (certificatesLoading) return false; // Indicate no fetch occurred
+     // If already loaded, skip fetch
+    if (loadedModules.Certificate) return true; // Indicate already loaded
+
     setCertificatesLoading(true);
     setCertificatesError(null);
+    let success = false; // Track success
     try {
-      const config = { headers: { 'Authorization': `Bearer ${token}` } };
-      const response = await axios.get('/api/certificates', config);
-      setCertificates(response.data.certificates || response.data || []);
+      // Add a retry mechanism with exponential backoff
+      let retries = 0;
+      const maxRetries = 3;
+      // let success = false; // Moved up
+
+      while (!success && retries < maxRetries) {
+        try {
+          const config = {
+            headers: { 'Authorization': `Bearer ${token}` },
+            useCache: true,
+            timeout: 15000 + (retries * 5000)
+          };
+
+          const response = await axios.get('/certificates', config);
+          setCertificates(response.data.certificates || response.data || []);
+          success = true;
+        } catch (err) {
+          retries++;
+          if (retries >= maxRetries) throw err;
+          // eslint-disable-next-line no-loop-func
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
+        }
+      }
     } catch (error) {
       console.error("Error fetching certificates:", error.response || error);
-      setCertificatesError('Failed to load certificates.');
+      setCertificatesError('Failed to load certificates. Please try refreshing the page.');
       setCertificates([]);
+
+      // Show user-friendly error message for network issues
+      if (!error.response) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Connection Issue',
+          text: 'Unable to connect to the server. Please check your internet connection and try again.',
+          confirmButtonText: 'Retry',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetchCertificates(); // Caution: recursive call
+          }
+        });
+      }
     } finally {
       setCertificatesLoading(false);
     }
-  };
+
+    return success; // Return success status
+  }, [token, certificatesLoading, loadedModules.Certificate]); // Added dependencies
 
 
 
@@ -1278,12 +1496,112 @@ function Dashboard() {
   };
   // --- End DELETE User Handler ---
 
+  // Function to load data based on active module
+  const loadDataForActiveModule = useCallback((isInitialLoad) => {
+    // If this module has already been loaded and it's not an initial load, don't reload
+    // NOTE: We'll rely on the fetch functions themselves to check the loadedModules state now.
+    // if (!isInitialLoad && loadedModules[activeModule]) {
+    //   console.log(`Module ${activeModule} already loaded, skipping reload`);
+    //   return;
+    // }
+
+    switch (activeModule) {
+      case "Brgy Official":
+        fetchOfficials().then((fetchedSuccessfully) => {
+          if (fetchedSuccessfully) { // Only update if data was actually fetched or already present
+              setLoadedModules(prev => ({ ...prev, "Brgy Official": true }));
+          }
+        });
+        break;
+      case "Resident":
+        fetchResidents().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+               setLoadedModules(prev => ({ ...prev, Resident: true }));
+           }
+        });
+        break;
+      case "Blotter":
+        fetchBlotters().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+               setLoadedModules(prev => ({ ...prev, Blotter: true }));
+           }
+        });
+        break;
+      case "Certificate":
+        fetchCertificates().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+              setLoadedModules(prev => ({ ...prev, Certificate: true }));
+           }
+        });
+        // Only fetch residents if needed for the certificate form AND they haven't loaded
+        if (!loadedModules.Resident) {
+          fetchResidents().then((residentsFetched) => {
+              if (residentsFetched) {
+                  setLoadedModules(prev => ({ ...prev, Resident: true }));
+              }
+          });
+        }
+        break;
+      case "Dashboard":
+        // Dashboard aggregates data, so its "loaded" state depends on its components.
+        // We only set the Dashboard loaded flag once all necessary fetches complete.
+        // The fetch functions themselves check if their specific data is loaded.
+        setDashboardStatsLoading(true);
+
+        // Create promises for each required data type
+        const promises = [];
+        // We always attempt to fetch, the functions will bail early if data is loaded
+        promises.push(fetchOfficials());
+        promises.push(fetchResidents());
+        promises.push(fetchBlotters());
+        promises.push(fetchCertificates());
+
+
+        Promise.all(promises).then((results) => {
+            // results is an array of booleans indicating if each fetch succeeded or was already loaded
+            const allSucceededOrLoaded = results.every(res => res === true);
+             if (allSucceededOrLoaded) {
+                 setLoadedModules(prev => ({ ...prev, Dashboard: true }));
+             }
+        }).finally(() => {
+            setDashboardStatsLoading(false);
+        });
+
+        break;
+      case "Admin":
+        fetchUsers().then((fetchedSuccessfully) => {
+           if (fetchedSuccessfully) {
+             setLoadedModules(prev => ({ ...prev, Admin: true }));
+           }
+        });
+        break;
+      default:
+        break;
+    }
+  }, [activeModule, fetchOfficials, fetchResidents, fetchBlotters, fetchCertificates, fetchUsers, loadedModules.Resident]); // Added dependencies for useCallback
+
+
+  // Initial data loading when component mounts
+  useEffect(() => {
+    if (token) {
+      // Load only the data for the active module to improve initial load time
+      loadDataForActiveModule(true);
+    }
+  }, [token, loadDataForActiveModule]); // Added loadDataForActiveModule
+
+  // Load data when active module changes
+  useEffect(() => {
+    if (token) {
+      loadDataForActiveModule(false);
+    }
+  }, [activeModule, token, user?.role, loadDataForActiveModule]); // Added loadDataForActiveModule
+
   // Load users when Admin module becomes active
   useEffect(() => {
     if (activeModule === "Admin") {
       fetchUsers();
     }
-  }, [activeModule]);
+  }, [activeModule, fetchUsers]); // Added fetchUsers
 
   // --- JSX for User Management Table (New) ---
   const renderUserManagementTable = () => {
@@ -1294,7 +1612,7 @@ function Dashboard() {
         <button className="btn btn-primary mb-3" onClick={handleOpenUserModal}>
           <FaUserCog /> Add New User
         </button>
-        
+
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead>

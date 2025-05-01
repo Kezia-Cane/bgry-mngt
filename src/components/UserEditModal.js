@@ -13,9 +13,12 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user'); // Default to 'user'
+  // const [isEditMode, setIsEditMode] = useState(Boolean(userData && userData._id)); // Remove state for isEditMode
 
   // Determine mode based on userData
-  const isEditMode = Boolean(userData && userData._id);
+  const isEditMode = Boolean(userData && userData._id); // Keep deriving isEditMode
 
   // Effect to update form data when the userData prop changes (for editing)
   useEffect(() => {
@@ -31,7 +34,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
       setFormData({ username: '', role: 'staff', password: '' });
       setErrors({});
     }
-  }, [userData, isOpen]); // Rerun effect if userData or isOpen changes
+  }, [userData]); // Use userData in dependency array
 
   if (!isOpen) {
     return null;
@@ -104,12 +107,12 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
 
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'adding'} user:`, error.response || error);
-      
+
       // Handle field-specific errors
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       }
-      
+
       // Show error message
       const errorMsg = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'add'} user.`;
       Swal.fire({
