@@ -932,6 +932,8 @@ function Dashboard() {
         // --- UPDATE LOGIC ---
         await api.put(`/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/barangay-officials');
         // Refresh list FIRST
         await fetchOfficials();
 
@@ -951,6 +953,8 @@ function Dashboard() {
         // --- ADD LOGIC ---
         await api.post('/barangay-officials', dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/barangay-officials');
         // Refresh list FIRST
         await fetchOfficials();
 
@@ -1009,6 +1013,11 @@ function Dashboard() {
 
           await api.delete(`/barangay-officials/${officialId}`, config);
 
+          // Clear cache BEFORE fetching
+          api.clearCacheFor('/barangay-officials');
+          // Refresh the list
+          await fetchOfficials();
+
 
           Swal.fire(
             'Deleted!',
@@ -1016,8 +1025,6 @@ function Dashboard() {
             'success'
           );
 
-
-          await fetchOfficials();
 
         } catch (error) {
           console.error("Error deleting official:", error.response || error);
@@ -1066,6 +1073,8 @@ function Dashboard() {
         // --- UPDATE RESIDENT LOGIC ---
         await api.put(`/residents/${residentToEdit._id}`, dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/residents');
         // Refresh list FIRST
         await fetchResidents();
 
@@ -1085,6 +1094,8 @@ function Dashboard() {
         // --- ADD RESIDENT LOGIC ---
         await api.post('/residents', dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/residents');
         // Refresh list FIRST
         await fetchResidents();
 
@@ -1146,13 +1157,16 @@ function Dashboard() {
           const config = { headers: { 'Authorization': `Bearer ${token}` } };
           await api.delete(`/residents/${residentId}`, config);
 
+          // Clear cache BEFORE fetching
+          api.clearCacheFor('/residents');
+          // Refresh the list
+          await fetchResidents();
+
           Swal.fire(
             'Deleted!',
             'The resident record has been deleted.',
             'success'
           );
-
-          await fetchResidents();
 
         } catch (error) {
           console.error("Error deleting resident:", error.response || error);
@@ -1213,6 +1227,8 @@ function Dashboard() {
         // --- UPDATE BLOTTER LOGIC ---
         await api.put(`/blotters/${blotterToEdit._id}`, dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/blotters');
         // Refresh list FIRST
         await fetchBlotters();
 
@@ -1232,6 +1248,8 @@ function Dashboard() {
         // --- ADD BLOTTER LOGIC ---
         await api.post('/blotters', dataToSubmit, config);
 
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/blotters');
         // Refresh list FIRST
         await fetchBlotters();
 
@@ -1400,6 +1418,11 @@ function Dashboard() {
 
           await api.delete(`/blotters/${blotterId}`, config);
 
+          // Clear cache BEFORE fetching
+          api.clearCacheFor('/blotters');
+          // Refresh the list
+          await fetchBlotters();
+
 
           Swal.fire(
             'Deleted!',
@@ -1407,8 +1430,6 @@ function Dashboard() {
             'success'
           );
 
-
-          await fetchBlotters();
 
         } catch (error) {
           console.error("Error deleting blotter:", error.response || error);
@@ -1446,6 +1467,8 @@ function Dashboard() {
       // API Call to issue certificate
       await api.post('/certificates', dataToSubmit, config);
 
+      // Clear cache BEFORE fetching
+      api.clearCacheFor('/certificates');
       // Refresh list FIRST
       await fetchCertificates();
 
@@ -1505,6 +1528,10 @@ function Dashboard() {
 
 
         await api.delete(`/admin/users/${userIdToDelete}`, config);
+
+        // Clear cache BEFORE fetching
+        api.clearCacheFor('/admin/users');
+        // Refresh the user list by calling fetchUsers
 
 
         Swal.fire(

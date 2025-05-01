@@ -90,6 +90,8 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
         await api.post('/admin/users', payload, config);
       }
 
+      // Clear cache BEFORE fetching
+      api.clearCacheFor('/admin/users');
       // Refresh the user list FIRST
       await onUserUpdated();
 
