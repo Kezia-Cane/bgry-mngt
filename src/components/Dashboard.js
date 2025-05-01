@@ -6,19 +6,19 @@ import "./Dashboard.css";
 import LoadingAnimation from './LoadingAnimation';
 
 import {
-    FaAddressBook,
-    FaEdit,
-    FaEye,
-    FaFileAlt,
-    FaInfoCircle,
-    FaPrint,
-    FaSearch,
-    FaSignOutAlt,
-    FaTachometerAlt,
-    FaTrash,
-    FaUserCog,
-    FaUserTie,
-    FaUsers
+  FaAddressBook,
+  FaEdit,
+  FaEye,
+  FaFileAlt,
+  FaInfoCircle,
+  FaPrint,
+  FaSearch,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTrash,
+  FaUserCog,
+  FaUserTie,
+  FaUsers
 } from "react-icons/fa";
 import api from '../services/api';
 import BlotterViewModal from "./BlotterViewModal.js";
@@ -28,17 +28,17 @@ import ResidentViewModal from "./ResidentViewModal.js";
 import UserEditModal from "./UserEditModal.js";
 
 import {
-    Area,
+  Area,
 
-    AreaChart,
-    CartesianGrid,
-    Cell,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 import Lottie from 'lottie-react';
@@ -929,10 +929,13 @@ function Dashboard() {
 
     try {
       if (officialToEdit) {
-
+        // --- UPDATE LOGIC ---
         await api.put(`/barangay-officials/${officialToEdit._id}`, dataToSubmit, config);
 
+        // Refresh list FIRST
+        await fetchOfficials();
 
+        // THEN Show success alert
         Swal.fire({
           icon: "success",
           title: "Official Updated",
@@ -941,17 +944,17 @@ function Dashboard() {
           timer: 1500
         });
 
-
+        // FINALLY Close modal
         handleCloseOfficialModal();
 
-
-        await fetchOfficials();
-
       } else {
-
+        // --- ADD LOGIC ---
         await api.post('/barangay-officials', dataToSubmit, config);
 
+        // Refresh list FIRST
+        await fetchOfficials();
 
+        // THEN Show SweetAlert on successful add
         Swal.fire({
           icon: "success",
           title: "New Official has been saved",
@@ -959,11 +962,8 @@ function Dashboard() {
           timer: 1500
         });
 
-
+        // FINALLY Close modal
         handleCloseOfficialModal();
-
-
-        await fetchOfficials();
       }
 
     } catch (error) {
@@ -1063,10 +1063,13 @@ function Dashboard() {
 
     try {
       if (residentToEdit) {
-
+        // --- UPDATE RESIDENT LOGIC ---
         await api.put(`/residents/${residentToEdit._id}`, dataToSubmit, config);
 
+        // Refresh list FIRST
+        await fetchResidents();
 
+        // THEN Show success alert
         Swal.fire({
             icon: "success",
             title: "Resident Updated",
@@ -1075,17 +1078,17 @@ function Dashboard() {
             timer: 1500
         });
 
-
+        // FINALLY Close modal
         handleCloseResidentModal();
 
-
-        await fetchResidents();
-
       } else {
-
+        // --- ADD RESIDENT LOGIC ---
         await api.post('/residents', dataToSubmit, config);
 
+        // Refresh list FIRST
+        await fetchResidents();
 
+        // THEN Show SweetAlert on successful add
         Swal.fire({
             icon: "success",
             title: "New Resident has been saved",
@@ -1093,11 +1096,8 @@ function Dashboard() {
             timer: 1500
         });
 
-
+        // FINALLY Close modal
         handleCloseResidentModal();
-
-
-        await fetchResidents();
       }
 
     } catch (error) {
@@ -1210,7 +1210,13 @@ function Dashboard() {
 
     try {
       if (blotterToEdit) {
+        // --- UPDATE BLOTTER LOGIC ---
         await api.put(`/blotters/${blotterToEdit._id}`, dataToSubmit, config);
+
+        // Refresh list FIRST
+        await fetchBlotters();
+
+        // THEN Show success alert
         Swal.fire({
             icon: "success",
             title: "Blotter Record Updated",
@@ -1218,20 +1224,27 @@ function Dashboard() {
             showConfirmButton: false,
             timer: 1500
         });
+
+        // FINALLY Close modal
         handleCloseBlotterModal();
-        await fetchBlotters();
 
       } else {
-
+        // --- ADD BLOTTER LOGIC ---
         await api.post('/blotters', dataToSubmit, config);
+
+        // Refresh list FIRST
+        await fetchBlotters();
+
+        // THEN Show success alert
         Swal.fire({
             icon: "success",
             title: "New Blotter Record has been saved",
             showConfirmButton: false,
             timer: 1500
         });
+
+        // FINALLY Close modal
         handleCloseBlotterModal();
-        await fetchBlotters();
       }
     } catch (error) {
       console.error("Error saving blotter record:", error.response || error);
@@ -1430,9 +1443,13 @@ function Dashboard() {
     };
 
     try {
-
+      // API Call to issue certificate
       await api.post('/certificates', dataToSubmit, config);
 
+      // Refresh list FIRST
+      await fetchCertificates();
+
+      // THEN Show success alert
       Swal.fire({
           icon: "success",
           title: "Certificate Issued!",
@@ -1441,8 +1458,8 @@ function Dashboard() {
           timer: 1500
       });
 
+      // FINALLY Close modal
       handleCloseCertificateModal();
-      await fetchCertificates();
 
     } catch (error) {
       console.error("Error issuing certificate:", error.response || error);

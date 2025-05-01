@@ -1,6 +1,6 @@
-import api from '../services/api';
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2'; // Import Swal
+import api from '../services/api';
 import './UserEditModal.css';
 
 // Updated props to match Dashboard usage
@@ -77,7 +77,6 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
     }
 
     try {
-      
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +90,10 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
         await api.post('/admin/users', payload, config);
       }
 
-      // Show success message
+      // Refresh the user list FIRST
+      await onUserUpdated();
+
+      // THEN Show success message
       Swal.fire({
         icon: 'success',
         title: `User ${isEditMode ? 'Updated' : 'Added'} Successfully!`,
@@ -99,17 +101,17 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
         timer: 1500
       });
 
-      onUserUpdated(); // Refresh the user list
-      onClose(); // Close the modal
+      // FINALLY Close the modal
+      onClose();
 
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'adding'} user:`, error.response || error);
-      
+
       // Handle field-specific errors
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       }
-      
+
       // Show error message
       const errorMsg = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'add'} user.`;
       Swal.fire({
@@ -143,7 +145,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
             {errors.username && <span className="error-message">{errors.username}</span>}
           </div>
 
-          {/* Password field - required for add, optional for edit */}
+          {/* Role select */}
           <div className="form-group">
             <label htmlFor="role">Role:</label>
             <select
@@ -160,6 +162,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
             {errors.role && <span className="error-message">{errors.role}</span>}
           </div>
 
+          {/* Password field */}
           <div className="form-group">
             <label htmlFor="password">Password:</label>
             <input
@@ -175,10 +178,7 @@ const UserEditModal = ({ isOpen, onClose, userData, token, onUserUpdated }) => {
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
-
-
-          {/* Removed Status field, assuming backend handles it or separate action */}
-
+          {/* Modal actions */}
           <div className="modal-actions">
             <button type="submit" className="btn btn-primary" disabled={isLoading}>
               {isLoading ? 'Saving...' : (isEditMode ? 'Update User' : 'Add User')}
