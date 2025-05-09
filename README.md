@@ -16,11 +16,6 @@ A web-based Barangay Management System for efficiently managing residents, offic
 - **Success Alerts:** User actions are confirmed with interactive alerts using SweetAlert2.
 - **Deployment:** The app is deployed on Render (frontend as static site, backend as Node.js service).
 
-## Table of Contents
-
-* [Project Overview](#project-overview)
-* [Modules and Functionalities](#modules-and-functionalities)
-* [Technology Stack](#technology-stack)
 
 ## Project Overview
 
@@ -49,11 +44,18 @@ The Barangay Management System aims to modernize the record-keeping and administ
     * Manage user accounts (add, edit, delete users and their roles).
 * **Logout:** Securely log users out of the system.
 
-## Technology Stack
+## Tech Stack
 
-* **Frontend:**
-    * [React](https://react.dev/) (JavaScript library for building user interfaces)
-* **Backend:**
-    * [Node.js](https://nodejs.org/en/docs/) (JavaScript runtime environment)
-    * [Express.js](https://expressjs.com/) (web application framework for Node.js)
-    * **Database:** (https://www.mongodb.com/) (MongoDB)
+### Frontend
+- **React 18** for building the user interface
+- **React Router** for navigation
+- **Axios** for API requests
+- **SweetAlert2** for interactive alerts
+- **Lottie** for loading animations
+
+### Backend
+- **Node.js** with **Express** framework
+- **MongoDB** with **Mongoose** for data storage
+- **JWT** for secure authentication
+- **bcrypt** for password hashing
+- **dotenv** for environment configuration
