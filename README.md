@@ -9,18 +9,6 @@ This was originally our college project, first developed using VB.NET a Desktop 
 
 A web-based Barangay Management System for efficiently managing residents, officials, certificates, and blotter records. Built with React for the frontend and Node.js/Express for the backend, this project streamlines barangay administration with a modern, user-friendly interface.
 
-
-
-- **Modern UI/UX:** Responsive design with Lottie-powered loading animations for a smooth user experience.
-- **Centralized API Handling:** All API calls are managed through a centralized Axios instance for maintainability.
-- **Success Alerts:** User actions are confirmed with interactive alerts using SweetAlert2.
-- **Deployment:** The app is deployed on Render (frontend as static site, backend as Node.js service).
-
-
-## Project Overview
-
-The Barangay Management System aims to modernize the record-keeping and administrative processes within a barangay. It provides a centralized platform for managing resident information, barangay officials, blotter incidents, certificate issuance, and user accounts. This system intends to improve efficiency, transparency, and communication within the community.
-
 ## Modules and Functionalities
 
 * **Login:** Secure user authentication with username/password and role-based access control (e.g., admin, staff).
